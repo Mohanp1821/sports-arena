@@ -1,0 +1,13 @@
+# Python cache files (created automatically when Python runs)
+__pycache__/
+*.pyc
+
+# Jupyter notebook autosave folder
+.ipynb_checkpoints/
+
+# Virtual environments (each person creates their own)
+venv/
+.venv/
+
+# Mac system files
+.DS_Store
