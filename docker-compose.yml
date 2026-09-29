@@ -1,0 +1,29 @@
+# docker-compose.yml: the Sports Arena architecture, two services
+#
+#   [pipeline] --writes charts + index.html--> ./outputs --read by--> [dashboard] --> http://localhost:8080
+#
+# Start everything with:   docker compose up --build
+# Stop it with:            Ctrl+C, then  docker compose down
+
+services:
+
+  # Service 1: runs the analysis once, then stops.
+  pipeline:
+    build: .                          # build the image from the Dockerfile
+    image: sports-arena:1.0
+    container_name: sports-arena-pipeline
+    volumes:
+      - ./outputs:/app/outputs        # charts are saved to YOUR outputs/ folder
+
+  # Service 2: a small web server that shows the dashboard.
+  dashboard:
+    image: sports-arena:1.0           # reuses the same image (no second build)
+    container_name: sports-arena-dashboard
+    command: python -m http.server 8080 --directory /app/outputs
+    ports:
+      - "8080:8080"                   # open http://localhost:8080 in a browser
+    volumes:
+      - ./outputs:/app/outputs:ro     # read-only: the web server cannot change results
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully   # start only if the analysis passed
