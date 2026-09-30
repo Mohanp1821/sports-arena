@@ -7,6 +7,7 @@ Builds a simple web dashboard, outputs/index.html, that shows:
   - headline numbers (matches, balls, seasons)
   - key insights
   - the Orange Cap / Purple Cap table
+  - predictions for the next season (made by predict.py)
   - every chart made by analysis.py
 
 Open outputs/index.html in any web browser. With Docker, the "dashboard"
@@ -17,6 +18,7 @@ Run it with:
 """
 
 import os
+import pandas as pd
 import metrics   # our own file: src/metrics.py
 
 OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
@@ -71,7 +73,8 @@ figcaption { padding: 8px 12px; font-size: 14px; color: #333; border-top: 1px so
 table { border-collapse: collapse; background: white; font-size: 14px; width: 100%; }
 th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
 th { background: #eef3fb; }
-.table-box { overflow-x: auto; }
+.table-box { overflow-x: auto; margin-bottom: 16px; }
+.note { color: #555; font-size: 14px; }
 """
 
 
@@ -113,6 +116,68 @@ def key_insights(matches, deliveries):
     ]
 
 
+def read_output_csv(file_name):
+    """Read a CSV saved by predict.py, or return None if it has not been made yet."""
+    path = os.path.join(OUTPUT_FOLDER, file_name)
+    if not os.path.exists(path):
+        return None
+    return pd.read_csv(path)
+
+
+def prediction_section(next_season):
+    """HTML for the predictions: title chances, award picks and the backtest."""
+    chances = read_output_csv("prediction_title_chances.csv")
+    awards = read_output_csv("prediction_awards.csv")
+    summary = read_output_csv("prediction_backtest_summary.csv")
+    if chances is None or awards is None or summary is None:
+        return ""   # predict.py has not been run, so there is nothing to show
+
+    season = str(next_season)
+    parts = ["<h2>Predictions for IPL " + season + "</h2>"]
+    favourite = chances.iloc[0]
+    parts.append("<p>Predicted champion: <b>" + favourite["team"] + "</b> ("
+                 + str(favourite["title_pct"]) + "% chance). Each team's strength is its win % "
+                 "over the last 3 seasons (weights 3, 2, 1), and the whole season was simulated "
+                 "10,000 times.</p>")
+
+    # Title chances table
+    chances = chances[["team", "strength", "playoff_pct", "title_pct"]]
+    chances.columns = ["Team", "Strength (form win %)", "Reach playoffs %", "Win title %"]
+    parts.append("<div class='table-box'>" + chances.to_html(index=False) + "</div>")
+
+    # Award picks: one row per award, with our pick and the next two candidates
+    rows = []
+    for award in awards["award"].unique():
+        candidates = awards[awards["award"] == award]
+        pick = candidates.iloc[0]
+        others = ", ".join(candidates.iloc[1:3]["player"])
+        rows.append({"Award": award, "Our pick": pick["player"],
+                     "Form score": str(pick["form"]) + " " + pick["measure"] + " per season",
+                     "Next best": others})
+    parts.append("<h3>Award predictions</h3><div class='table-box'>"
+                 + pd.DataFrame(rows).to_html(index=False) + "</div>")
+
+    # Backtest: how often this method was right in the past
+    summary = summary[["award", "seasons", "correct", "in_top_5"]]
+    summary.columns = ["Prediction", "Seasons tested", "Exactly right", "Winner in our top 5"]
+    parts.append("<h3>How reliable is this? (backtest 2011-2019)</h3>"
+                 "<p class='note'>For each past season we predicted using only earlier seasons, "
+                 "then compared with the real result. A random pick of the champion is right "
+                 "1 time in 8. Treat the predictions as informed guesses, not certainties: "
+                 "player auctions, injuries and new talent are not in the data.</p>"
+                 "<div class='table-box'>" + summary.to_html(index=False) + "</div>")
+
+    # Prediction charts
+    parts.append("<div class='charts'>")
+    for file_name, title in [("prediction_title_" + season + ".png", "Title and playoff chances, IPL " + season),
+                             ("prediction_awards_" + season + ".png", "Award candidates, IPL " + season)]:
+        if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
+            parts.append("<figure><img src='" + file_name + "' alt='" + title + "'>"
+                         "<figcaption>" + title + "</figcaption></figure>")
+    parts.append("</div>")
+    return "\n".join(parts)
+
+
 def make_page(matches, deliveries):
     """Build the full HTML page as one text string."""
     parts = []
@@ -143,6 +208,9 @@ def make_page(matches, deliveries):
     parts.append("<h2>Orange Cap and Purple Cap winners</h2><div class='table-box'>")
     parts.append(caps.to_html(index=False))
     parts.append("</div>")
+
+    # Predictions for the next season (made by predict.py)
+    parts.append(prediction_section(int(matches["season"].max()) + 1))
 
     # Charts, section by section
     for section_name in CHART_SECTIONS:

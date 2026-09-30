@@ -18,9 +18,10 @@ COPY tests/ tests/
 COPY data/ data/
 
 # 5. Default command: run the whole pipeline in order.
-#    verify data -> clean data -> charts -> fact checks -> dashboard page
+#    verify data -> clean data -> charts -> fact checks -> predictions -> dashboard page
 CMD python src/verify_data.py && \
     python src/prepare_data.py && \
     python src/analysis.py && \
     python tests/test_facts.py && \
+    python src/predict.py && \
     python src/build_report.py

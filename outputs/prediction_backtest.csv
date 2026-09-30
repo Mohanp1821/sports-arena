@@ -1,0 +1,46 @@
+season,award,predicted,actual,actual_rank,correct,in_top_5
+2011,IPL champion,Chennai Super Kings,Chennai Super Kings,1,True,True
+2011,Orange Cap (most runs),SK Raina,CH Gayle,30,False,False
+2011,Purple Cap (most wickets),PP Ojha,SL Malinga,4,False,True
+2011,Most sixes,SK Raina,CH Gayle,11,False,False
+2011,Most Player of the Match awards,SR Tendulkar,CH Gayle,,False,False
+2012,IPL champion,Chennai Super Kings,Kolkata Knight Riders,5,False,True
+2012,Orange Cap (most runs),SR Tendulkar,CH Gayle,4,False,True
+2012,Purple Cap (most wickets),SL Malinga,M Morkel,43,False,False
+2012,Most sixes,CH Gayle,CH Gayle,1,True,True
+2012,Most Player of the Match awards,CH Gayle,CH Gayle,1,True,True
+2013,IPL champion,Mumbai Indians,Mumbai Indians,1,True,True
+2013,Orange Cap (most runs),CH Gayle,MEK Hussey,20,False,False
+2013,Purple Cap (most wickets),SP Narine,DJ Bravo,29,False,False
+2013,Most sixes,CH Gayle,CH Gayle,1,True,True
+2013,Most Player of the Match awards,CH Gayle,MEK Hussey,15,False,False
+2014,IPL champion,Mumbai Indians,Kolkata Knight Riders,6,False,False
+2014,Orange Cap (most runs),CH Gayle,RV Uthappa,12,False,False
+2014,Purple Cap (most wickets),MG Johnson,MM Sharma,5,False,True
+2014,Most sixes,CH Gayle,GJ Maxwell,73,False,False
+2014,Most Player of the Match awards,CH Gayle,GJ Maxwell,,False,False
+2015,IPL champion,Chennai Super Kings,Mumbai Indians,4,False,True
+2015,Orange Cap (most runs),RV Uthappa,DA Warner,7,False,False
+2015,Purple Cap (most wickets),MM Sharma,DJ Bravo,,False,False
+2015,Most sixes,CH Gayle,CH Gayle,1,True,True
+2015,Most Player of the Match awards,GJ Maxwell,DA Warner,15,False,False
+2016,IPL champion,Mumbai Indians,Sunrisers Hyderabad,6,False,False
+2016,Orange Cap (most runs),DA Warner,V Kohli,3,False,True
+2016,Purple Cap (most wickets),DJ Bravo,B Kumar,5,False,True
+2016,Most sixes,CH Gayle,V Kohli,9,False,False
+2016,Most Player of the Match awards,A Nehra,V Kohli,15,False,False
+2017,IPL champion,Gujarat Lions,Mumbai Indians,4,False,True
+2017,Orange Cap (most runs),V Kohli,DA Warner,2,False,True
+2017,Purple Cap (most wickets),B Kumar,B Kumar,1,True,True
+2017,Most sixes,AB de Villiers,DA Warner / GJ Maxwell,3,False,True
+2017,Most Player of the Match awards,V Kohli,BA Stokes / NM Coulter-Nile,,False,False
+2018,IPL champion,Mumbai Indians,Chennai Super Kings,4,False,True
+2018,Orange Cap (most runs),DA Warner,KS Williamson,44,False,False
+2018,Purple Cap (most wickets),B Kumar,AJ Tye,15,False,False
+2018,Most sixes,DA Warner,RR Pant,9,False,False
+2018,Most Player of the Match awards,BA Stokes,Rashid Khan,9,False,False
+2019,IPL champion,Chennai Super Kings,Mumbai Indians,4,False,True
+2019,Orange Cap (most runs),KL Rahul,DA Warner,,False,False
+2019,Purple Cap (most wickets),Rashid Khan,Imran Tahir,30,False,False
+2019,Most sixes,KL Rahul,AD Russell,3,False,True
+2019,Most Player of the Match awards,AB de Villiers,AD Russell,16,False,False
