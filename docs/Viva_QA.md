@@ -47,7 +47,7 @@ We wrote the code, so we can license it as MIT. We did not create the data; it k
 publisher chose, which is recorded in `data/README.md`.
 
 **Q11. What does each service in your `docker-compose.yml` do?**
-`pipeline` builds the image and runs the analysis once (verify → prepare → analysis → tests → dashboard page),
+`pipeline` builds the image and runs the analysis once (verify → prepare → analysis → tests → predictions → dashboard page),
 writing results into the shared `./outputs` folder. `dashboard` reuses the same image and serves `./outputs`
 as a website on port 8080. It starts only if `pipeline` finished successfully.
 
@@ -70,3 +70,24 @@ exactly that code with `git checkout v1.0`, even after later changes.
 **Q16. Which open-source tools does the project use, and what are their licences?**
 Python (PSF licence), pandas (BSD-3), matplotlib (PSF-based), seaborn (BSD-3), Git (GPL-2), Docker Engine (Apache-2.0).
 Our code is MIT; the dataset is CC BY-NC-SA 4.0.
+
+**Q17. How do you predict the 2020 champion?** (`src/predict.py`)
+Each team gets a strength = its win % over the last 3 seasons, weighted 3-2-1 so recent form counts most.
+Then we play the whole season 10,000 times on the computer: in each match team A wins with chance A ÷ (A + B),
+the top 4 go into the IPL playoffs, and we count how often each team wins the final. Chennai won 23.7% of the
+simulated seasons, Mumbai 21.2%.
+
+**Q18. Why is the favourite's chance only 23.7%, not 60% or more?**
+Even a strong team must first finish in the top 4 and then win two knock-out matches. Every match has some luck,
+so the chances multiply down. That is realistic: in 2011–2019 the team with the best form won only 2 of 9 titles.
+
+**Q19. How do you know the predictions are any good?** (the backtest)
+For each season 2011–2019 we predicted using only earlier seasons, then compared with the real result.
+The champion was picked exactly 2 times out of 9 (random guessing: about 1 in 8) and was in our top 5 in 7 of 9.
+Award picks were right less often (Orange Cap 0 of 9), which we report honestly: form does not capture injuries,
+auctions or a player changing team role.
+
+**Q20. Why not use machine learning, e.g. scikit-learn?**
+With only 12 seasons there are very few examples of "who won the title", so a complex model would overfit.
+A weighted average and a simulation are transparent (every number can be checked on paper), need no extra
+library, and the fixed random seed (42) makes the results identical on every run.

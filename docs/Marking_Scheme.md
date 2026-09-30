@@ -8,10 +8,10 @@ open-source libraries, documentation, containerisation)
 | # | Criterion | Marks | Where the evidence is |
 |---|---|:---:|---|
 | 1 | Problem statement & scope | 3 | `README.md` sections 1–2, `data/README.md` |
-| 2 | Repository & commit discipline | 3 | GitHub history, 2 feature branches, tag `v1.0`, `git_commands.sh` |
-| 3 | Architecture design (containerisation) | 4 | `Dockerfile`, `docker-compose.yml`, `docs/Code_Explanation.md` §10 |
+| 2 | Repository & commit discipline | 3 | GitHub history, 3 feature branches, tags `v1.0` and `v1.1`, `git_commands.sh` |
+| 3 | Architecture design (containerisation) | 4 | `Dockerfile`, `docker-compose.yml`, `docs/Code_Explanation.md` §11 |
 | 4 | Progress demonstrated (live demo) | 3 | `./run_all.sh`, `docker compose up`, `outputs/index.html` |
-| 5 | Q&A | 2 | `docs/Viva_QA.md` (16 questions with answers) |
+| 5 | Q&A | 2 | `docs/Viva_QA.md` (20 questions with answers) |
 | | **Total** | **15** | |
 
 ---
@@ -27,13 +27,15 @@ into clear insights on three themes:
 1. **Player form:** within a season (rolling average) and across a career.
 2. **Team comparisons:** win %, phase-wise run rate, toss impact, home advantage, head-to-head.
 3. **Top performers:** Orange/Purple Cap winners and top-10 lists for each metric.
+4. **Predictions:** the likely 2020 champion (10,000 simulated seasons) and award winners, with a backtest.
 
 **Scope.**
 
 | In scope | Out of scope |
 |---|---|
-| IPL seasons 2008–2019 (756 matches, real Kaggle data) | Seasons from 2020 onward (not in the dataset) |
-| Data cleaning, cricket metrics, 19 charts, web dashboard | Predicting future match results (machine learning) |
+| IPL seasons 2008–2019 (756 matches, real Kaggle data) | Real data from 2020 onward (not in the dataset) |
+| Data cleaning, cricket metrics, 21 charts, web dashboard | Predicting single matches, or player auctions and injuries |
+| 2020 champion and award predictions from past form (explainable, backtested) | Complex machine-learning models |
 | Terminal, Docker and Colab ways to run | A live-updating website |
 
 **What to show:** `README.md` (top), then `data/README.md` (source, licence, checksums).
@@ -45,8 +47,8 @@ into clear insights on three themes:
 | Good practice | Evidence |
 |---|---|
 | Clear, small commits with meaningful messages | `git log --oneline --graph --all` |
-| Feature branches merged with `--no-ff` | `feature/visualizations` and `feature/docker`, both visible in the graph |
-| Release tag | `v1.0` |
+| Feature branches merged with `--no-ff` | `feature/visualizations`, `feature/docker` and `feature/predictions`, all visible in the graph |
+| Release tags | `v1.0` (first release) and `v1.1` (adds 2020 predictions) |
 | Standard open-source files | `README.md`, `LICENSE` (MIT), `CONTRIBUTING.md`, `.gitignore`, `requirements.txt` |
 | Clean repository structure | `data/`, `src/`, `tests/`, `notebooks/`, `outputs/`, `docs/` |
 | Hosted publicly | https://github.com/Mohanp1821/sports-arena |
@@ -62,7 +64,7 @@ into clear insights on three themes:
 ┌──────────────────────────────┐   writes    ┌───────────┐   serves    ┌──────────────────────────────┐
 │ pipeline (runs once)         │ ──────────► │ ./outputs │ ──────────► │ dashboard (web server)       │
 │ verify → prepare → analysis  │  charts +   │  (shared  │  read-only  │ python -m http.server 8080   │
-│ → tests → build_report       │  index.html │  folder)  │             │ → http://localhost:8080      │
+│ → tests → predict → report   │  index.html │  folder)  │             │ → http://localhost:8080      │
 └──────────────────────────────┘             └───────────┘             └──────────────────────────────┘
 ```
 
@@ -74,7 +76,7 @@ into clear insights on three themes:
 | Two services: `pipeline` and `dashboard` | Separation of concerns: compute results vs. show results |
 | `depends_on: condition: service_completed_successfully` | The dashboard starts only if every fact check passed |
 | Bind mount `./outputs`, **read-only** for the dashboard | Results appear on the host; the web server cannot change them |
-| Modular code: 5 scripts, each with one job | Easy to test, explain and change |
+| Modular code: 6 scripts, each with one job | Easy to test, explain and change |
 
 **What to show:** open `docker-compose.yml` and explain the two services, then the diagram above.
 
@@ -104,7 +106,9 @@ docker compose up --build
 Points to say during the demo:
 - "Step 1 proves the data is the original (SHA-256 checksums)."
 - "Step 2 found a real error in the dataset: 1,245 extras counted twice in 2018–19. We fixed it."
-- "Step 4 checks our Orange/Purple Cap winners against the official records: all 24 match."
+- "Step 4 checks our Orange/Purple Cap winners and all 12 champions against the official records: all match."
+- "Step 5 predicts 2020: Chennai are favourites at 23.7%. We backtested it on 2011–2019: the real champion
+  was in our top 5 in 7 of 9 seasons."
 - "The dashboard numbers are calculated by code; none are typed by hand."
 
 Backup if something fails: the notebook runs in Google Colab from the **Open in Colab** badge in `README.md`.
@@ -113,5 +117,5 @@ Backup if something fails: the notebook runs in Google Colab from the **Open in 
 
 ## 5. Q&A (2 marks)
 
-Read `docs/Viva_QA.md`: 16 questions covering reproducibility, data cleaning, cricket formulas,
-Git branching, Docker and licences. `docs/Code_Explanation.md` explains every file in plain language.
+Read `docs/Viva_QA.md`: 20 questions covering reproducibility, data cleaning, cricket formulas,
+predictions, Git branching, Docker and licences. `docs/Code_Explanation.md` explains every file in plain language.

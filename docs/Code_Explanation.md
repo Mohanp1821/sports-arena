@@ -8,15 +8,16 @@ cleaning step, every cricket formula and every chart.
 ## 1. The big picture
 
 ```
-data/raw/ ──► verify_data.py ──► prepare_data.py ──► analysis.py ──► test_facts.py ──► build_report.py
- original      "is the data       clean data          stats, tables     check against     dashboard
- CSV files      unchanged?"       data/processed/     charts outputs/   official records  outputs/index.html
+data/raw/ ──► verify_data.py ──► prepare_data.py ──► analysis.py ──► test_facts.py ──► predict.py ──► build_report.py
+ original      "is the data       clean data          stats, tables     check against     2020 champion   dashboard
+ CSV files      unchanged?"       data/processed/     charts outputs/   official records  and awards      outputs/index.html
                                                            ▲
                                                  all formulas live in metrics.py
 ```
 
 **Why split it into steps?** Each script does one job. If something looks wrong, we know where to
-look: data (verify), cleaning (prepare), formula (metrics), drawing (analysis) or the web page (build_report).
+look: data (verify), cleaning (prepare), formula (metrics), drawing (analysis), predictions (predict)
+or the web page (build_report).
 
 ## 2. Three ways to run the same code
 
@@ -145,6 +146,9 @@ Colours come from a colour-blind-safe palette, and every chart has a title, axis
 3. No batter runs on wides, byes or leg-byes.
 4. A **hand-made 4-ball example** where we worked out the answer on paper (strike rate, economy, legal balls).
 5. **All 12 Orange Cap and Purple Cap winners** match the official list. Runs may differ by at most 2.
+6. **All 12 champions** (the winner of each season's final) match the official list.
+7. **Prediction maths:** the form score of 600, 400, 300 runs must be 483.3, and the simulated
+   title chances of all teams must add up to 100%.
 
 **Result:** all names match; all wickets match exactly; runs match exactly except 2018
 (Williamson 736 here vs 735 official). This 1-run gap comes from how the ball-by-ball source recorded
@@ -152,25 +156,81 @@ one delivery, not from our formula.
 
 ---
 
-## 9. `build_report.py`: the dashboard
+## 9. `predict.py`: predicting 2020
+
+The data ends in 2019, so the script predicts the **2020 champion** and four **award winners**.
+It uses no machine-learning library: every step is a formula you can work out on paper.
+
+### Step 1: form score (function `weighted_form`)
+A weighted average of the **last 3 seasons**, where recent seasons count more:
+
+    form = (3 × last season + 2 × season before + 1 × season before that) ÷ (3 + 2 + 1)
+
+Example: 600, 400 and 300 runs gives (1800 + 800 + 300) ÷ 6 = **483.3**.
+If a player missed a season, that season and its weight are left out, so a new player is not punished.
+Only players who played in 2019 are kept, so retired players drop out.
+
+### Step 2: the champion (a Monte Carlo simulation)
+| Function | What it does |
+|---|---|
+| `season_champions` | The champion of a season = the winner of its **final**, the last match by date |
+| `team_strengths` | Strength = the team's form win % (a new team would get 50) |
+| `play_match` | Team A beats team B with chance A ÷ (A + B). Strength 60 vs 40 means a 60% chance |
+| `simulate_season` | Plays the league (every pair twice), sorts the points table, then the IPL playoffs: Qualifier 1, Eliminator, Qualifier 2, Final |
+| `title_chances` | Plays the season **10,000 times**. Title % = seasons won ÷ 10,000 |
+
+**Why simulate instead of just ranking?** A ranking says who is best, but not *how likely* they are to win.
+The IPL has knock-out playoffs, so even the strongest team usually wins the title less than 1 time in 4.
+The random numbers use a **fixed seed (42)**, so the results are the same on every run (reproducible).
+
+### Step 3: awards (function `award_candidates`)
+The top 5 players by form score for: Orange Cap (runs), Purple Cap (wickets), Most sixes and
+Most Player of the Match awards.
+
+### Step 4: backtest (functions `backtest` and `backtest_summary`)
+To test the method honestly, we pretend it is the start of each season 2011–2019, predict using **only earlier
+seasons**, and compare with what happened. `actual_rank` is where the real winner was in our list.
+
+| Prediction | Exactly right (of 9) | Real winner in our top 5 |
+|---|:---:|:---:|
+| IPL champion | 2 | 7 |
+| Orange Cap | 0 | 3 |
+| Purple Cap | 1 | 4 |
+| Most sixes | 3 | 5 |
+| Most Player of the Match | 1 | 1 |
+
+A random pick of the champion from 8 teams is right 12.5% of the time; our method was right 22%. Awards are
+harder, because one player's season depends on injuries, auctions and team role, which are not in the data.
+We tried other weights (only last season; 1-1-1; 2-1; 5-3-1): none was clearly better, so we kept the simple
+3-2-1 to avoid **overfitting** (tuning the method to past results that will not repeat).
+
+### Outputs
+`prediction_title_2020.png`, `prediction_awards_2020.png`, and four CSV tables
+(`prediction_title_chances.csv`, `prediction_awards.csv`, `prediction_backtest.csv`,
+`prediction_backtest_summary.csv`) that the dashboard reads.
+
+---
+
+## 10. `build_report.py`: the dashboard
 
 It builds one web page, `outputs/index.html`, containing:
 - headline numbers (matches, balls, seasons, teams);
 - 5 key insights, **calculated from the data** (no numbers are typed by hand);
 - the Orange Cap / Purple Cap table (`DataFrame.to_html()`);
-- all 19 charts, grouped into Player form, Team comparisons and Top performers.
+- **Predictions for IPL 2020**: title chances, award picks and the backtest table (read from the CSV files made by `predict.py`);
+- all 21 charts, grouped into Predictions, Player form, Team comparisons and Top performers.
 
 It is plain HTML with a small CSS style block, so it opens in any browser with no internet connection.
 
 ---
 
-## 10. Docker architecture
+## 11. Docker architecture
 
 ```
 ┌──────────────────────────────┐   writes    ┌───────────┐   serves    ┌──────────────────────────────┐
 │ pipeline (runs once)         │ ──────────► │ ./outputs │ ──────────► │ dashboard (web server)       │
 │ verify → prepare → analysis  │  charts +   │  (shared  │  read-only  │ python -m http.server 8080   │
-│ → tests → build_report       │  index.html │  folder)  │             │ → http://localhost:8080      │
+│ → tests → predict → report   │  index.html │  folder)  │             │ → http://localhost:8080      │
 └──────────────────────────────┘             └───────────┘             └──────────────────────────────┘
         dashboard starts ONLY if pipeline finished successfully (depends_on: service_completed_successfully)
 ```
@@ -189,12 +249,13 @@ It is plain HTML with a small CSS style block, so it opens in any browser with n
 
 ---
 
-## 11. Git workflow
+## 12. Git workflow
 
 - `main` always holds working code.
 - New work is done on **feature branches**, then merged with `--no-ff`, so the history graph shows each branch:
   - `feature/visualizations`: charts, the Colab notebook and the dashboard.
   - `feature/docker`: the Dockerfile and the two-service Compose architecture.
+  - `feature/predictions`: the 2020 champion and award predictions, added after the first release.
 - Small commits with clear messages ("Add data cleaning script") tell the story of the project.
-- The **`v1.0` tag** marks the finished release.
+- The **`v1.0` tag** marks the first release; **`v1.1`** adds the predictions.
 - Every command, with explanations, is in `git_commands.sh`.

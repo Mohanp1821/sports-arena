@@ -107,6 +107,31 @@ git push origin --tags                           # upload the v1.0 tag
 
 
 # -----------------------------------------------------------------------------
+# STEP 7: a new feature after release: 2020 predictions (third FEATURE BRANCH)
+# -----------------------------------------------------------------------------
+git checkout -b feature/predictions
+
+git add src/predict.py
+git commit -m "Add 2020 champion and award predictions with backtest"
+
+git add tests/test_facts.py
+git commit -m "Add fact checks for champions and prediction maths"
+
+git add run_all.sh Dockerfile src/build_report.py outputs/
+git commit -m "Add predictions to the pipeline and dashboard"
+
+git add notebooks/ipl_analysis.ipynb README.md docs/ git_commands.sh
+git commit -m "Document the prediction method in the notebook and docs"
+
+git checkout main
+git merge --no-ff feature/predictions -m "Merge feature/predictions into main"
+git tag -a v1.1 -m "Sports Arena v1.1: 2020 predictions"
+
+git push origin main feature/predictions   # upload main and the new branch
+git push origin v1.1                       # upload the new tag
+
+
+# -----------------------------------------------------------------------------
 # EVERYDAY COMMANDS (after the project is on GitHub)
 # -----------------------------------------------------------------------------
 # git status                          what changed?

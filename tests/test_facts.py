@@ -20,6 +20,7 @@ PROJECT_FOLDER = os.path.dirname(TESTS_FOLDER)
 sys.path.append(os.path.join(PROJECT_FOLDER, "src"))
 
 import metrics
+import predict
 
 
 # Official Orange Cap and Purple Cap winners (source: iplt20.com records).
@@ -38,6 +39,14 @@ OFFICIAL_CAPS = {
     2017: ("DA Warner", 641, "B Kumar", 26),
     2018: ("KS Williamson", 735, "AJ Tye", 24),
     2019: ("DA Warner", 692, "Imran Tahir", 26),
+}
+
+# Official IPL champions (source: iplt20.com), with this dataset's team names.
+OFFICIAL_CHAMPIONS = {
+    2008: "Rajasthan Royals", 2009: "Deccan Chargers", 2010: "Chennai Super Kings",
+    2011: "Chennai Super Kings", 2012: "Kolkata Knight Riders", 2013: "Mumbai Indians",
+    2014: "Kolkata Knight Riders", 2015: "Mumbai Indians", 2016: "Sunrisers Hyderabad",
+    2017: "Mumbai Indians", 2018: "Chennai Super Kings", 2019: "Mumbai Indians",
 }
 
 # We allow a difference of up to 2 runs, because the ball-by-ball data can
@@ -118,6 +127,34 @@ def test_formulas():
     print("PASS  formulas on a hand-made example")
 
 
+def test_champions(matches):
+    """The winner of each season's final must be the official champion."""
+    champions = predict.season_champions(matches)
+    for i in range(len(champions)):
+        row = champions.iloc[i]
+        official = OFFICIAL_CHAMPIONS[row["season"]]
+        assert row["champion"] == official, str(row["season"]) + " champion should be " + official
+    print("PASS  all 12 champions match the official list")
+
+
+def test_prediction_model(matches):
+    """Check the prediction maths on small examples we can work out on paper."""
+    import pandas as pd
+    # Form score: 600, 400, 300 runs -> (3*600 + 2*400 + 1*300) / 6 = 483.3
+    table = pd.DataFrame({"batter": ["A", "A", "A"], "season": [2017, 2018, 2019],
+                          "runs": [300, 400, 600]})
+    form = predict.weighted_form(table, "batter", "runs", 2019)
+    assert form.iloc[0]["form"] == 483.3, "weighted form should be 483.3"
+
+    # Simulation: title chances of all teams must add up to 100%.
+    teams = sorted(set(matches[matches["season"] == 2019]["team1"]))
+    strengths = predict.team_strengths(matches, 2019, teams)
+    chances = predict.title_chances(strengths, simulations=500)
+    total = chances["title_pct"].sum()
+    assert abs(total - 100) < 0.5, "title chances add up to " + str(total)
+    print("PASS  prediction maths: weighted form and title chances")
+
+
 def main():
     matches, deliveries = metrics.load_processed_data()
     test_dataset_size(matches)
@@ -125,6 +162,8 @@ def main():
     test_no_extras_in_batter_runs(deliveries)
     test_formulas()
     test_cap_winners(deliveries)
+    test_champions(matches)
+    test_prediction_model(matches)
     print("\nAll fact checks passed.")
 
 
