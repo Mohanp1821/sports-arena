@@ -75,6 +75,17 @@ th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
 th { background: #eef3fb; }
 .table-box { overflow-x: auto; margin-bottom: 16px; }
 .note { color: #555; font-size: 14px; }
+nav { position: sticky; top: 0; z-index: 10; background: #1a1a1a; }
+nav div { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; flex-wrap: wrap; }
+nav a { color: white; text-decoration: none; padding: 10px 12px; font-size: 14px; }
+nav a:hover { background: #333; }
+nav a.star { background: #eb6834; font-weight: bold; }
+h2 { scroll-margin-top: 50px; }
+.charts.wide { grid-template-columns: 1fr; }
+.picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.pick { background: white; border: 1px solid #ddd; border-left: 5px solid #eb6834; border-radius: 10px; padding: 10px 14px; }
+.pick span { display: block; color: #555; font-size: 13px; }
+.pick b { font-size: 20px; }
 """
 
 
@@ -133,17 +144,35 @@ def prediction_section(next_season):
         return ""   # predict.py has not been run, so there is nothing to show
 
     season = str(next_season)
-    parts = ["<h2>Predictions for IPL " + season + "</h2>"]
+    parts = ["<h2 id='predictions'>Predictions for IPL " + season + "</h2>"]
+    parts.append("<p>Each team's strength is its win % over the last 3 seasons (weights 3, 2, 1), "
+                 "and the whole season was simulated 10,000 times. Award picks are the players "
+                 "with the best form over the same 3 seasons.</p>")
+
+    # Headline cards: the predicted champion and the pick for each award
     favourite = chances.iloc[0]
-    parts.append("<p>Predicted champion: <b>" + favourite["team"] + "</b> ("
-                 + str(favourite["title_pct"]) + "% chance). Each team's strength is its win % "
-                 "over the last 3 seasons (weights 3, 2, 1), and the whole season was simulated "
-                 "10,000 times.</p>")
+    parts.append("<div class='picks'>")
+    parts.append("<div class='pick'><span>Champion (" + str(favourite["title_pct"]) + "% chance)</span><b>"
+                 + favourite["team"] + "</b></div>")
+    for award in awards["award"].unique():
+        pick = awards[awards["award"] == award].iloc[0]
+        parts.append("<div class='pick'><span>" + award + "</span><b>" + pick["player"] + "</b></div>")
+    parts.append("</div>")
+
+    # Prediction charts, full width so they are easy to read
+    parts.append("<div class='charts wide'>")
+    for file_name, title in [("prediction_title_" + season + ".png", "Title and playoff chances, IPL " + season),
+                             ("prediction_awards_" + season + ".png", "Award candidates, IPL " + season
+                              + " (orange = our pick)")]:
+        if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
+            parts.append("<figure><img src='" + file_name + "' alt='" + title + "'>"
+                         "<figcaption>" + title + "</figcaption></figure>")
+    parts.append("</div>")
 
     # Title chances table
     chances = chances[["team", "strength", "playoff_pct", "title_pct"]]
     chances.columns = ["Team", "Strength (form win %)", "Reach playoffs %", "Win title %"]
-    parts.append("<div class='table-box'>" + chances.to_html(index=False) + "</div>")
+    parts.append("<h3>Title chances</h3><div class='table-box'>" + chances.to_html(index=False) + "</div>")
 
     # Award picks: one row per award, with our pick and the next two candidates
     rows = []
@@ -166,16 +195,27 @@ def prediction_section(next_season):
                  "1 time in 8. Treat the predictions as informed guesses, not certainties: "
                  "player auctions, injuries and new talent are not in the data.</p>"
                  "<div class='table-box'>" + summary.to_html(index=False) + "</div>")
-
-    # Prediction charts
-    parts.append("<div class='charts'>")
-    for file_name, title in [("prediction_title_" + season + ".png", "Title and playoff chances, IPL " + season),
-                             ("prediction_awards_" + season + ".png", "Award candidates, IPL " + season)]:
-        if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
-            parts.append("<figure><img src='" + file_name + "' alt='" + title + "'>"
-                         "<figcaption>" + title + "</figcaption></figure>")
-    parts.append("</div>")
     return "\n".join(parts)
+
+
+def section_id(name):
+    """Turn a section name like 'Player form' into a link target like 'player-form'."""
+    return name.lower().replace(" ", "-")
+
+
+def navigation_bar(next_season):
+    """A menu fixed at the top of the page with a link to every section."""
+    links = [("predictions", "Predictions " + str(next_season)), ("insights", "Key insights"),
+             ("caps", "Cap winners")]
+    for section_name in CHART_SECTIONS:
+        links.append((section_id(section_name), section_name))
+
+    parts = ["<nav><div>"]
+    for target, label in links:
+        css_class = " class='star'" if target == "predictions" else ""
+        parts.append("<a href='#" + target + "'" + css_class + ">" + label + "</a>")
+    parts.append("</div></nav>")
+    return "".join(parts)
 
 
 def make_page(matches, deliveries):
@@ -183,7 +223,10 @@ def make_page(matches, deliveries):
     parts = []
     parts.append("<!doctype html><html lang='en'><head><meta charset='utf-8'>")
     parts.append("<meta name='viewport' content='width=device-width, initial-scale=1'>")
-    parts.append("<title>Sports Arena Dashboard</title><style>" + PAGE_STYLE + "</style></head><body><main>")
+    parts.append("<title>Sports Arena Dashboard</title><style>" + PAGE_STYLE + "</style></head><body>")
+    next_season = int(matches["season"].max()) + 1
+    parts.append(navigation_bar(next_season))
+    parts.append("<main>")
 
     # Title
     parts.append("<h1>Sports Arena: IPL Performance Dashboard</h1>")
@@ -196,8 +239,11 @@ def make_page(matches, deliveries):
         parts.append("<div class='number'><b>" + value + "</b><span>" + label + "</span></div>")
     parts.append("</div>")
 
+    # Predictions for the next season (made by predict.py), near the top so they are easy to find
+    parts.append(prediction_section(next_season))
+
     # Insights
-    parts.append("<h2>Key insights</h2><ul class='insights'>")
+    parts.append("<h2 id='insights'>Key insights</h2><ul class='insights'>")
     for sentence in key_insights(matches, deliveries):
         parts.append("<li>" + sentence + "</li>")
     parts.append("</ul>")
@@ -205,16 +251,13 @@ def make_page(matches, deliveries):
     # Orange / Purple Cap table (pandas can turn a DataFrame into an HTML table)
     caps = metrics.cap_winners(deliveries)
     caps.columns = ["Season", "Orange Cap", "Runs", "Purple Cap", "Wickets", "Economy"]
-    parts.append("<h2>Orange Cap and Purple Cap winners</h2><div class='table-box'>")
+    parts.append("<h2 id='caps'>Orange Cap and Purple Cap winners</h2><div class='table-box'>")
     parts.append(caps.to_html(index=False))
     parts.append("</div>")
 
-    # Predictions for the next season (made by predict.py)
-    parts.append(prediction_section(int(matches["season"].max()) + 1))
-
     # Charts, section by section
     for section_name in CHART_SECTIONS:
-        parts.append("<h2>" + section_name + "</h2><div class='charts'>")
+        parts.append("<h2 id='" + section_id(section_name) + "'>" + section_name + "</h2><div class='charts'>")
         for file_name, title in CHART_SECTIONS[section_name]:
             # Only show charts that exist (analysis.py must be run first).
             if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):

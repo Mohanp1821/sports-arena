@@ -21,7 +21,20 @@ th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
 th { background: #eef3fb; }
 .table-box { overflow-x: auto; margin-bottom: 16px; }
 .note { color: #555; font-size: 14px; }
-</style></head><body><main>
+nav { position: sticky; top: 0; z-index: 10; background: #1a1a1a; }
+nav div { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; flex-wrap: wrap; }
+nav a { color: white; text-decoration: none; padding: 10px 12px; font-size: 14px; }
+nav a:hover { background: #333; }
+nav a.star { background: #eb6834; font-weight: bold; }
+h2 { scroll-margin-top: 50px; }
+.charts.wide { grid-template-columns: 1fr; }
+.picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.pick { background: white; border: 1px solid #ddd; border-left: 5px solid #eb6834; border-radius: 10px; padding: 10px 14px; }
+.pick span { display: block; color: #555; font-size: 13px; }
+.pick b { font-size: 20px; }
+</style></head><body>
+<nav><div><a href='#predictions' class='star'>Predictions 2020</a><a href='#insights'>Key insights</a><a href='#caps'>Cap winners</a><a href='#player-form'>Player form</a><a href='#team-comparisons'>Team comparisons</a><a href='#top-performers'>Top performers</a></div></nav>
+<main>
 <h1>Sports Arena: IPL Performance Dashboard</h1>
 <p class='subtitle'>Indian Premier League 2008-2019, built from ball-by-ball data with Python, pandas, matplotlib and seaborn.</p>
 <div class='numbers'>
@@ -30,128 +43,20 @@ th { background: #eef3fb; }
 <div class='number'><b>12</b><span>seasons (2008-2019)</span></div>
 <div class='number'><b>13</b><span>teams</span></div>
 </div>
-<h2>Key insights</h2><ul class='insights'>
-<li>Chasing wins more: teams batting second won 55.5% of matches.</li>
-<li>The toss hardly matters: the toss winner won 52.3% of matches.</li>
-<li>Death overs (16-20) are the fastest scoring phase: 9.8 runs per over.</li>
-<li>Chennai Super Kings have the best all-time win rate: 61.0%.</li>
-<li>Best single season: V Kohli scored 973 runs in 2016.</li>
-</ul>
-<h2>Orange Cap and Purple Cap winners</h2><div class='table-box'>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>Season</th>
-      <th>Orange Cap</th>
-      <th>Runs</th>
-      <th>Purple Cap</th>
-      <th>Wickets</th>
-      <th>Economy</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>2008</td>
-      <td>SE Marsh</td>
-      <td>616</td>
-      <td>Sohail Tanvir</td>
-      <td>22</td>
-      <td>6.46</td>
-    </tr>
-    <tr>
-      <td>2009</td>
-      <td>ML Hayden</td>
-      <td>572</td>
-      <td>RP Singh</td>
-      <td>23</td>
-      <td>6.99</td>
-    </tr>
-    <tr>
-      <td>2010</td>
-      <td>SR Tendulkar</td>
-      <td>618</td>
-      <td>PP Ojha</td>
-      <td>21</td>
-      <td>7.29</td>
-    </tr>
-    <tr>
-      <td>2011</td>
-      <td>CH Gayle</td>
-      <td>608</td>
-      <td>SL Malinga</td>
-      <td>28</td>
-      <td>5.95</td>
-    </tr>
-    <tr>
-      <td>2012</td>
-      <td>CH Gayle</td>
-      <td>733</td>
-      <td>M Morkel</td>
-      <td>25</td>
-      <td>7.19</td>
-    </tr>
-    <tr>
-      <td>2013</td>
-      <td>MEK Hussey</td>
-      <td>733</td>
-      <td>DJ Bravo</td>
-      <td>32</td>
-      <td>7.95</td>
-    </tr>
-    <tr>
-      <td>2014</td>
-      <td>RV Uthappa</td>
-      <td>660</td>
-      <td>MM Sharma</td>
-      <td>23</td>
-      <td>8.40</td>
-    </tr>
-    <tr>
-      <td>2015</td>
-      <td>DA Warner</td>
-      <td>562</td>
-      <td>DJ Bravo</td>
-      <td>26</td>
-      <td>8.14</td>
-    </tr>
-    <tr>
-      <td>2016</td>
-      <td>V Kohli</td>
-      <td>973</td>
-      <td>B Kumar</td>
-      <td>23</td>
-      <td>7.42</td>
-    </tr>
-    <tr>
-      <td>2017</td>
-      <td>DA Warner</td>
-      <td>641</td>
-      <td>B Kumar</td>
-      <td>26</td>
-      <td>7.05</td>
-    </tr>
-    <tr>
-      <td>2018</td>
-      <td>KS Williamson</td>
-      <td>736</td>
-      <td>AJ Tye</td>
-      <td>24</td>
-      <td>8.04</td>
-    </tr>
-    <tr>
-      <td>2019</td>
-      <td>DA Warner</td>
-      <td>692</td>
-      <td>Imran Tahir</td>
-      <td>26</td>
-      <td>6.68</td>
-    </tr>
-  </tbody>
-</table>
+<h2 id='predictions'>Predictions for IPL 2020</h2>
+<p>Each team's strength is its win % over the last 3 seasons (weights 3, 2, 1), and the whole season was simulated 10,000 times. Award picks are the players with the best form over the same 3 seasons.</p>
+<div class='picks'>
+<div class='pick'><span>Champion (23.7% chance)</span><b>Chennai Super Kings</b></div>
+<div class='pick'><span>Orange Cap (most runs)</span><b>DA Warner</b></div>
+<div class='pick'><span>Purple Cap (most wickets)</span><b>K Rabada</b></div>
+<div class='pick'><span>Most sixes</span><b>AD Russell</b></div>
+<div class='pick'><span>Most Player of the Match awards</span><b>AD Russell</b></div>
 </div>
-<h2>Predictions for IPL 2020</h2>
-<p>Predicted champion: <b>Chennai Super Kings</b> (23.7% chance). Each team's strength is its win % over the last 3 seasons (weights 3, 2, 1), and the whole season was simulated 10,000 times.</p>
-<div class='table-box'><table border="1" class="dataframe">
+<div class='charts wide'>
+<figure><img src='prediction_title_2020.png' alt='Title and playoff chances, IPL 2020'><figcaption>Title and playoff chances, IPL 2020</figcaption></figure>
+<figure><img src='prediction_awards_2020.png' alt='Award candidates, IPL 2020 (orange = our pick)'><figcaption>Award candidates, IPL 2020 (orange = our pick)</figcaption></figure>
+</div>
+<h3>Title chances</h3><div class='table-box'><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>Team</th>
@@ -289,17 +194,132 @@ th { background: #eef3fb; }
     </tr>
   </tbody>
 </table></div>
-<div class='charts'>
-<figure><img src='prediction_title_2020.png' alt='Title and playoff chances, IPL 2020'><figcaption>Title and playoff chances, IPL 2020</figcaption></figure>
-<figure><img src='prediction_awards_2020.png' alt='Award candidates, IPL 2020'><figcaption>Award candidates, IPL 2020</figcaption></figure>
+<h2 id='insights'>Key insights</h2><ul class='insights'>
+<li>Chasing wins more: teams batting second won 55.5% of matches.</li>
+<li>The toss hardly matters: the toss winner won 52.3% of matches.</li>
+<li>Death overs (16-20) are the fastest scoring phase: 9.8 runs per over.</li>
+<li>Chennai Super Kings have the best all-time win rate: 61.0%.</li>
+<li>Best single season: V Kohli scored 973 runs in 2016.</li>
+</ul>
+<h2 id='caps'>Orange Cap and Purple Cap winners</h2><div class='table-box'>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Season</th>
+      <th>Orange Cap</th>
+      <th>Runs</th>
+      <th>Purple Cap</th>
+      <th>Wickets</th>
+      <th>Economy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2008</td>
+      <td>SE Marsh</td>
+      <td>616</td>
+      <td>Sohail Tanvir</td>
+      <td>22</td>
+      <td>6.46</td>
+    </tr>
+    <tr>
+      <td>2009</td>
+      <td>ML Hayden</td>
+      <td>572</td>
+      <td>RP Singh</td>
+      <td>23</td>
+      <td>6.99</td>
+    </tr>
+    <tr>
+      <td>2010</td>
+      <td>SR Tendulkar</td>
+      <td>618</td>
+      <td>PP Ojha</td>
+      <td>21</td>
+      <td>7.29</td>
+    </tr>
+    <tr>
+      <td>2011</td>
+      <td>CH Gayle</td>
+      <td>608</td>
+      <td>SL Malinga</td>
+      <td>28</td>
+      <td>5.95</td>
+    </tr>
+    <tr>
+      <td>2012</td>
+      <td>CH Gayle</td>
+      <td>733</td>
+      <td>M Morkel</td>
+      <td>25</td>
+      <td>7.19</td>
+    </tr>
+    <tr>
+      <td>2013</td>
+      <td>MEK Hussey</td>
+      <td>733</td>
+      <td>DJ Bravo</td>
+      <td>32</td>
+      <td>7.95</td>
+    </tr>
+    <tr>
+      <td>2014</td>
+      <td>RV Uthappa</td>
+      <td>660</td>
+      <td>MM Sharma</td>
+      <td>23</td>
+      <td>8.40</td>
+    </tr>
+    <tr>
+      <td>2015</td>
+      <td>DA Warner</td>
+      <td>562</td>
+      <td>DJ Bravo</td>
+      <td>26</td>
+      <td>8.14</td>
+    </tr>
+    <tr>
+      <td>2016</td>
+      <td>V Kohli</td>
+      <td>973</td>
+      <td>B Kumar</td>
+      <td>23</td>
+      <td>7.42</td>
+    </tr>
+    <tr>
+      <td>2017</td>
+      <td>DA Warner</td>
+      <td>641</td>
+      <td>B Kumar</td>
+      <td>26</td>
+      <td>7.05</td>
+    </tr>
+    <tr>
+      <td>2018</td>
+      <td>KS Williamson</td>
+      <td>736</td>
+      <td>AJ Tye</td>
+      <td>24</td>
+      <td>8.04</td>
+    </tr>
+    <tr>
+      <td>2019</td>
+      <td>DA Warner</td>
+      <td>692</td>
+      <td>Imran Tahir</td>
+      <td>26</td>
+      <td>6.68</td>
+    </tr>
+  </tbody>
+</table>
 </div>
-<h2>Player form</h2><div class='charts'>
+<h2 id='player-form'>Player form</h2><div class='charts'>
 <figure><img src='form_v_kohli_2016.png' alt='Kohli, IPL 2016: runs per innings and 5-innings rolling average'><figcaption>Kohli, IPL 2016: runs per innings and 5-innings rolling average</figcaption></figure>
 <figure><img src='career_v_kohli.png' alt='Kohli: runs and strike rate by season'><figcaption>Kohli: runs and strike rate by season</figcaption></figure>
 <figure><img src='bowler_sl_malinga.png' alt='Malinga: wickets and economy by season'><figcaption>Malinga: wickets and economy by season</figcaption></figure>
 <figure><img src='compare_v_kohli_vs_rg_sharma.png' alt='Kohli vs Rohit Sharma: runs per season'><figcaption>Kohli vs Rohit Sharma: runs per season</figcaption></figure>
 </div>
-<h2>Team comparisons</h2><div class='charts'>
+<h2 id='team-comparisons'>Team comparisons</h2><div class='charts'>
 <figure><img src='team_win_pct_alltime.png' alt='All-time win % by team'><figcaption>All-time win % by team</figcaption></figure>
 <figure><img src='team_win_pct_2016.png' alt='Team win % in IPL 2016'><figcaption>Team win % in IPL 2016</figcaption></figure>
 <figure><img src='phase_run_rate.png' alt='Run rate in Powerplay, Middle and Death overs'><figcaption>Run rate in Powerplay, Middle and Death overs</figcaption></figure>
@@ -309,7 +329,7 @@ th { background: #eef3fb; }
 <figure><img src='head_to_head.png' alt='Head to head: Mumbai Indians vs Chennai Super Kings'><figcaption>Head to head: Mumbai Indians vs Chennai Super Kings</figcaption></figure>
 <figure><img src='heatmap_team_season.png' alt='Win % by team and season'><figcaption>Win % by team and season</figcaption></figure>
 </div>
-<h2>Top performers</h2><div class='charts'>
+<h2 id='top-performers'>Top performers</h2><div class='charts'>
 <figure><img src='cap_winners.png' alt='Orange Cap and Purple Cap winners'><figcaption>Orange Cap and Purple Cap winners</figcaption></figure>
 <figure><img src='top_strike_rate_2016.png' alt='Top 10 strike rates, IPL 2016'><figcaption>Top 10 strike rates, IPL 2016</figcaption></figure>
 <figure><img src='top_economy_2016.png' alt='Best economy, IPL 2016'><figcaption>Best economy, IPL 2016</figcaption></figure>
