@@ -102,3 +102,14 @@ the data into the page as JSON; JavaScript filters it, adds it up and redraws th
 Those need a running Python server or an internet connection for their libraries. Our page is one HTML file
 that works offline, opens by double-click, and is served by the simple `http.server` in Docker without any
 change to the architecture. It also keeps the project small and every line explainable.
+
+**Q23. Did your model predict that Mumbai Indians would win IPL 2020?**
+Not as the favourite: Mumbai were our **#2 pick with a 21.2% chance**, just behind Chennai (23.7%). Mumbai's
+strength was 60.5: they won in 2017 and 2019, but their weak 2018 (42.9% wins) pulled the weighted average down.
+Mumbai did win, so the real champion was near the top of our list, which matches the backtest (the real
+champion was in our top 5 in 7 of 9 seasons). The Purple Cap pick, Rabada, was exactly right.
+
+**Q24. How did you run Docker on a Mac?**
+With Colima, an open-source tool that runs a small Linux machine for Docker (`brew install colima docker
+docker-compose`, then `colima start`). Docker Desktop would work the same way. The same Dockerfile and
+Compose file run unchanged on Linux, Windows or a Mac.

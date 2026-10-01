@@ -75,6 +75,13 @@ and no extra library**: it works when opened as a file, and when served by Docke
 4. **Backtest:** each season 2011–2019 was predicted using only earlier seasons. The favourite won 2 of 9 titles
    (a random pick wins 1 in 8), and the real champion was in our top 5 in 7 of 9 seasons. Individual awards are
    much harder to call, so treat the picks as informed guesses.
+5. **Checked against the real 2020 season** (which the model never saw): Mumbai Indians won the title, the
+   model's **#2 pick** (21.2%); KL Rahul won the Orange Cap (our #2 pick); and the **Purple Cap pick, K Rabada,
+   was exactly right**. 2 of the 4 predicted playoff teams made it.
+
+**Why Chennai ranked just above Mumbai:** strength = (3 × 2019 + 2 × 2018 + 1 × 2017 win %) ÷ 6.
+Mumbai: (3 × 68.8 + 2 × 42.9 + 70.6) ÷ 6 = **60.5**: their weak 2018 pulled them down. Chennai were suspended in
+2017, so only their two strong seasons count: **62.8**.
 
 <p align="center">
   <img src="outputs/prediction_title_2020.png" width="49%" alt="Predicted 2020 title chances">
@@ -92,9 +99,12 @@ Then open `outputs/index.html` in a browser.
 
 **Option B: Docker**
 ```bash
+colima start                 # Mac only, once after every restart (starts the Docker engine)
 docker compose up --build
 ```
 Then open **http://localhost:8080**. Stop with `Ctrl+C`, then run `docker compose down`.
+On a Mac, Docker was installed with Homebrew: `brew install colima docker docker-compose`
+(Docker Desktop works too). Tested: the pipeline passes every check and the dashboard is served on port 8080.
 
 **Option C: Google Colab** (no installation)
 Click the **Open in Colab** badge above, then choose **Runtime → Run all**.
@@ -147,7 +157,7 @@ sports-arena/
 ├── docs/
 │   ├── Marking_Scheme.md   each marking criterion → where the evidence is + demo script
 │   ├── Code_Explanation.md every file, formula and chart explained simply
-│   └── Viva_QA.md          22 likely viva questions with answers
+│   └── Viva_QA.md          24 likely viva questions with answers
 ├── CONTRIBUTING.md
 └── LICENSE                 MIT (code)
 ```

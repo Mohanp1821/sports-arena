@@ -24,7 +24,7 @@ or the web page (build_report).
 | Way | Command | Used for |
 |---|---|---|
 | Terminal | `./run_all.sh` | Everyday runs on a laptop |
-| Docker | `docker compose up --build` | A reproducible, containerised run, plus the dashboard at http://localhost:8080 |
+| Docker | `colima start` (Mac), then `docker compose up --build` | A reproducible, containerised run, plus the dashboard at http://localhost:8080 |
 | Google Colab | Open `notebooks/ipl_analysis.ipynb` | Explaining the code cell by cell in a browser |
 
 ---
@@ -206,10 +206,26 @@ harder, because one player's season depends on injuries, auctions and team role,
 We tried other weights (only last season; 1-1-1; 2-1; 5-3-1): none was clearly better, so we kept the simple
 3-2-1 to avoid **overfitting** (tuning the method to past results that will not repeat).
 
+### Step 5: why the favourites, and the real 2020 check
+- `strength_breakdown` shows **why** each team got its strength: its win % in 2017, 2018 and 2019.
+  Mumbai: (3 × 68.8 + 2 × 42.9 + 1 × 70.6) ÷ 6 = 60.5. Chennai were suspended in 2017, so only 2018 and 2019 count: 62.8.
+- `check_against_actual` compares the predictions with the **official 2020 results**, which are typed into
+  `ACTUAL_RESULTS` (source: iplt20.com) because the dataset ends in 2019. They are used **only** for this check,
+  never for the prediction itself.
+
+| Prediction | Our pick | Real 2020 result | Verdict |
+|---|---|---|---|
+| Champion | Chennai Super Kings | Mumbai Indians | Our #2 pick (21.2%) |
+| Orange Cap | DA Warner | KL Rahul, 670 runs | Our #2 pick |
+| Purple Cap | K Rabada | K Rabada, 30 wickets | Correct |
+| Most sixes | AD Russell | Ishan Kishan, 30 sixes | Not in our top 5 (#31) |
+| Playoff teams | CSK, MI, DC, KKR | MI, DC, SRH, RCB | 2 of 4 correct |
+
 ### Outputs
-`prediction_title_2020.png`, `prediction_awards_2020.png`, and four CSV tables
+`prediction_title_2020.png`, `prediction_awards_2020.png`, and six CSV tables
 (`prediction_title_chances.csv`, `prediction_awards.csv`, `prediction_backtest.csv`,
-`prediction_backtest_summary.csv`) that the dashboard reads.
+`prediction_backtest_summary.csv`, `prediction_strengths.csv`, `prediction_vs_actual_2020.csv`)
+that the dashboard reads.
 
 ---
 

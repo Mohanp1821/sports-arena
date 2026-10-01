@@ -158,6 +158,18 @@ git push origin v1.2
 
 
 # -----------------------------------------------------------------------------
+# STEP 9: check the 2020 prediction against the real results (on main)
+# -----------------------------------------------------------------------------
+git add src/predict.py src/build_report.py outputs/
+git commit -m "Compare the 2020 prediction with the official results"
+
+git add README.md docs/ git_commands.sh
+git commit -m "Document the 2020 check and the tested Docker setup"
+
+git push
+
+
+# -----------------------------------------------------------------------------
 # EVERYDAY COMMANDS (after the project is on GitHub)
 # -----------------------------------------------------------------------------
 # git status                          what changed?

@@ -11,7 +11,7 @@ open-source libraries, documentation, containerisation)
 | 2 | Repository & commit discipline | 3 | GitHub history, 4 feature branches, tags `v1.0`, `v1.1`, `v1.2`, `git_commands.sh` |
 | 3 | Architecture design (containerisation) | 4 | `Dockerfile`, `docker-compose.yml`, `docs/Code_Explanation.md` §11 |
 | 4 | Progress demonstrated (live demo) | 3 | `./run_all.sh`, `docker compose up`, `outputs/index.html` |
-| 5 | Q&A | 2 | `docs/Viva_QA.md` (22 questions with answers) |
+| 5 | Q&A | 2 | `docs/Viva_QA.md` (24 questions with answers) |
 | | **Total** | **15** | |
 
 ---
@@ -98,7 +98,8 @@ open outputs/index.html
 # 3. The Git history
 git log --oneline --graph --all
 
-# 4. (If Docker is installed) the containerised version
+# 4. The containerised version (tested and working)
+colima start                 # Mac: start the Docker engine first (once after every restart)
 docker compose up --build
 #    then open http://localhost:8080 ; stop with Ctrl+C and: docker compose down
 ```
@@ -108,7 +109,8 @@ Points to say during the demo:
 - "Step 2 found a real error in the dataset: 1,245 extras counted twice in 2018–19. We fixed it."
 - "Step 4 checks our Orange/Purple Cap winners and all 12 champions against the official records: all match."
 - "Step 5 predicts 2020: Chennai are favourites at 23.7%. We backtested it on 2011–2019: the real champion
-  was in our top 5 in 7 of 9 seasons."
+  was in our top 5 in 7 of 9 seasons. And against the real 2020 season: Mumbai won, our #2 pick, and the
+  Purple Cap pick was exactly right."
 - "The dashboard numbers are calculated by code; none are typed by hand."
 - **Interactive demo:** click *Explore (interactive)*, choose Team = Chennai Super Kings (the 🏆 marks
   their titles), click the 2010 bar to drill into that season, then type `MS Dhoni` in the player search.
@@ -119,5 +121,5 @@ Backup if something fails: the notebook runs in Google Colab from the **Open in 
 
 ## 5. Q&A (2 marks)
 
-Read `docs/Viva_QA.md`: 22 questions covering reproducibility, data cleaning, cricket formulas,
+Read `docs/Viva_QA.md`: 24 questions covering reproducibility, data cleaning, cricket formulas,
 predictions, Git branching, Docker and licences. `docs/Code_Explanation.md` explains every file in plain language.
