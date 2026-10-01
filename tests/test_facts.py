@@ -155,6 +155,23 @@ def test_prediction_model(matches):
     print("PASS  prediction maths: weighted form and title chances")
 
 
+def test_dashboard_data(matches, deliveries):
+    """The interactive dashboard's data must give the same answers as metrics.py."""
+    import build_report
+    data = build_report.explorer_data(matches, deliveries)
+    assert len(data["matches"]) == 756, "the dashboard should have all 756 matches"
+    assert len(data["champions"]) == 12, "the dashboard should have 12 champions"
+
+    # Kohli's 2016 runs, added up the same way the page's JavaScript does it.
+    # Columns of a batting row: [player, season, team, runs, balls, sixes, innings]
+    kohli_2016 = 0
+    for row in data["batting"]:
+        if row[0] == "V Kohli" and row[1] == 2016:
+            kohli_2016 += row[3]
+    assert kohli_2016 == 973, "Kohli 2016 should be 973 runs, got " + str(kohli_2016)
+    print("PASS  interactive dashboard data (756 matches, 12 champions, Kohli 2016 = 973)")
+
+
 def main():
     matches, deliveries = metrics.load_processed_data()
     test_dataset_size(matches)
@@ -164,6 +181,7 @@ def main():
     test_cap_winners(deliveries)
     test_champions(matches)
     test_prediction_model(matches)
+    test_dashboard_data(matches, deliveries)
     print("\nAll fact checks passed.")
 
 
