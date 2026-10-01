@@ -136,6 +136,117 @@ button { cursor: pointer; background: #eef3fb; }
     </tr>
   </tbody>
 </table></div>
+<h3>Why these teams are the favourites</h3><p>A team's strength is its win % over the last 3 seasons, with the latest season counting 3 times. Mumbai Indians: (3 &times; 68.8 + 2 &times; 42.9 + 1 &times; 70.6) &divide; 6 = <b>60.5</b>. Mumbai won the title in 2017 and 2019, but their poor 2018 season (42.9%) pulled them just below Chennai. Chennai did not play in 2017 (suspended), so only their two strong seasons count.</p><div class='table-box'><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Team</th>
+      <th>Win % 2017 (weight 1)</th>
+      <th>Win % 2018 (weight 2)</th>
+      <th>Win % 2019 (weight 3)</th>
+      <th>Strength</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Chennai Super Kings</td>
+      <td>did not play</td>
+      <td>68.8%</td>
+      <td>58.8%</td>
+      <td>62.8</td>
+    </tr>
+    <tr>
+      <td>Mumbai Indians</td>
+      <td>70.6%</td>
+      <td>42.9%</td>
+      <td>68.8%</td>
+      <td>60.5</td>
+    </tr>
+    <tr>
+      <td>Delhi Capitals</td>
+      <td>42.9%</td>
+      <td>35.7%</td>
+      <td>62.5%</td>
+      <td>50.3</td>
+    </tr>
+    <tr>
+      <td>Kolkata Knight Riders</td>
+      <td>56.2%</td>
+      <td>56.2%</td>
+      <td>42.9%</td>
+      <td>49.6</td>
+    </tr>
+    <tr>
+      <td>Sunrisers Hyderabad</td>
+      <td>57.1%</td>
+      <td>58.8%</td>
+      <td>40.0%</td>
+      <td>49.1</td>
+    </tr>
+    <tr>
+      <td>Punjab Kings</td>
+      <td>50.0%</td>
+      <td>42.9%</td>
+      <td>42.9%</td>
+      <td>44.1</td>
+    </tr>
+    <tr>
+      <td>Rajasthan Royals</td>
+      <td>did not play</td>
+      <td>46.7%</td>
+      <td>38.5%</td>
+      <td>41.8</td>
+    </tr>
+    <tr>
+      <td>Royal Challengers Bengaluru</td>
+      <td>23.1%</td>
+      <td>42.9%</td>
+      <td>38.5%</td>
+      <td>37.4</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3>How did the 2020 prediction do?</h3><p>The dataset ends in 2019, so the model never saw the 2020 season. Here are its predictions next to the official results (source: iplt20.com, typed in by hand only for this check). <b>Mumbai Indians</b> won the title: the model's #2 pick, with a 21.2% chance. The Purple Cap pick was exactly right.</p><div class='table-box'><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Prediction</th>
+      <th>Our pick</th>
+      <th>What really happened</th>
+      <th>Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>IPL champion</td>
+      <td>Chennai Super Kings</td>
+      <td>Mumbai Indians (beat Delhi Capitals in the final)</td>
+      <td>Our #2 pick</td>
+    </tr>
+    <tr>
+      <td>Orange Cap (most runs)</td>
+      <td>DA Warner</td>
+      <td>KL Rahul (670 runs)</td>
+      <td>Our #2 pick</td>
+    </tr>
+    <tr>
+      <td>Purple Cap (most wickets)</td>
+      <td>K Rabada</td>
+      <td>K Rabada (30 wickets)</td>
+      <td>Correct</td>
+    </tr>
+    <tr>
+      <td>Most sixes</td>
+      <td>AD Russell</td>
+      <td>Ishan Kishan (30 sixes)</td>
+      <td>Not in our top 5 (#31)</td>
+    </tr>
+    <tr>
+      <td>Playoff teams (top 4)</td>
+      <td>Chennai Super Kings, Mumbai Indians, Delhi Capitals, Kolkata Knight Riders</td>
+      <td>Mumbai Indians, Delhi Capitals, Sunrisers Hyderabad, Royal Challengers Bengaluru</td>
+      <td>2 of 4 correct (Mumbai Indians, Delhi Capitals)</td>
+    </tr>
+  </tbody>
+</table></div>
 <h3>Award predictions</h3><div class='table-box'><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">

@@ -64,6 +64,21 @@ AWARDS = [
     ("Most Player of the Match awards", "potm", "player", "awards"),
 ]
 
+# The REAL results of the predicted season (source: iplt20.com), used only to
+# check the prediction afterwards. The dataset ends in 2019, so these few facts
+# are typed in by hand; names are written the way this dataset writes them.
+#   prediction name: (winner, details)
+ACTUAL_RESULTS = {
+    2020: {
+        "IPL champion": ("Mumbai Indians", "beat Delhi Capitals in the final"),
+        "Orange Cap (most runs)": ("KL Rahul", "670 runs"),
+        "Purple Cap (most wickets)": ("K Rabada", "30 wickets"),
+        "Most sixes": ("Ishan Kishan", "30 sixes"),
+        "Playoff teams": (["Mumbai Indians", "Delhi Capitals", "Sunrisers Hyderabad",
+                           "Royal Challengers Bengaluru"], "the top 4 after the league stage"),
+    },
+}
+
 OUTPUT_FOLDER = analysis.OUTPUT_FOLDER
 
 
@@ -322,6 +337,77 @@ def backtest_summary(backtest_table, number_of_teams=8):
 
 
 # ---------------------------------------------------------------------------
+# e) Explaining and checking the prediction
+# ---------------------------------------------------------------------------
+def strength_breakdown(matches, last_season, teams):
+    """
+    WHY each team got its strength: its win % in each of the last 3 seasons,
+    and the weighted form that comes out of them (the "strength").
+    Example, Mumbai: (3 x 2019 + 2 x 2018 + 1 x 2017) / 6
+    """
+    win_table = metrics.team_win_percent(matches, by_season=True)
+    first_season = last_season - len(FORM_WEIGHTS) + 1
+    recent = win_table[(win_table["season"] >= first_season) & (win_table["season"] <= last_season)]
+    # pivot: one row per team, one column per season
+    grid = recent.pivot(index="team", columns="season", values="win_pct").reset_index()
+    grid.columns = ["team"] + ["win_pct_" + str(season) for season in grid.columns[1:]]
+
+    strengths = team_strengths(matches, last_season, teams)
+    grid = grid[grid["team"].isin(teams)].copy()
+    grid["strength"] = grid["team"].map(strengths)
+    return grid.sort_values("strength", ascending=False).reset_index(drop=True)
+
+
+def verdict(rank):
+    """Turn the real winner's position in our list into words."""
+    if rank is None:
+        return "Not in our list"
+    if rank == 1:
+        return "Correct"
+    if rank <= TOP_N:
+        return "Our #" + str(rank) + " pick"
+    return "Not in our top " + str(TOP_N) + " (#" + str(rank) + ")"
+
+
+def check_against_actual(chances, tables, last_season, actual):
+    """
+    Compare our predictions for a season with what really happened.
+    actual_rank = where the real winner was in our ranked list.
+    """
+    rows = []
+
+    # Champion: our ranking is the title-chance table (best first).
+    team_ranking = list(chances["team"])
+    champion, details = actual["IPL champion"]
+    rank = rank_of(champion, team_ranking)
+    rows.append({"prediction": "IPL champion", "our_pick": team_ranking[0],
+                 "actual": champion + " (" + details + ")", "actual_rank": rank, "verdict": verdict(rank)})
+
+    # Awards: our ranking is the full form list for that award.
+    for award, table_name, name_column, value_column in AWARDS:
+        if award not in actual:
+            continue   # no official result typed in for this award
+        form = weighted_form(tables[table_name], name_column, value_column, last_season)
+        player_ranking = list(form[name_column])
+        winner, details = actual[award]
+        rank = rank_of(winner, player_ranking)
+        rows.append({"prediction": award, "our_pick": player_ranking[0],
+                     "actual": winner + " (" + details + ")", "actual_rank": rank, "verdict": verdict(rank)})
+
+    # Playoffs: our 4 teams with the best playoff chance vs the real top 4.
+    our_top4 = list(chances.sort_values("playoff_pct", ascending=False)["team"].head(4))
+    real_top4, details = actual["Playoff teams"]
+    correct = [team for team in real_top4 if team in our_top4]
+    rows.append({"prediction": "Playoff teams (top 4)", "our_pick": ", ".join(our_top4),
+                 "actual": ", ".join(real_top4), "actual_rank": None,
+                 "verdict": str(len(correct)) + " of 4 correct (" + ", ".join(correct) + ")"})
+
+    table = pd.DataFrame(rows)
+    table["actual_rank"] = table["actual_rank"].astype("Int64")
+    return table
+
+
+# ---------------------------------------------------------------------------
 # Charts
 # ---------------------------------------------------------------------------
 def plot_title_chances(chances, season):
@@ -399,8 +485,20 @@ def main():
     print()
     print(summary.to_string())
 
-    # 4. Save tables (the dashboard reads these) and charts.
+    # 4. Why each team got its strength, and how the prediction compares with what really happened.
+    breakdown = strength_breakdown(matches, last_season, teams)
+    print("\n=== Why: each team's win % in the last 3 seasons and its strength ===")
+    print(breakdown.to_string())
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+    breakdown.to_csv(os.path.join(OUTPUT_FOLDER, "prediction_strengths.csv"), index=False)
+    if next_season in ACTUAL_RESULTS:
+        check = check_against_actual(chances, tables, last_season, ACTUAL_RESULTS[next_season])
+        print("\n=== How did the", next_season, "prediction do? (official results) ===")
+        print(check.to_string())
+        check.to_csv(os.path.join(OUTPUT_FOLDER, "prediction_vs_actual_" + str(next_season) + ".csv"),
+                     index=False)
+
+    # 5. Save tables (the dashboard reads these) and charts.
     chances.to_csv(os.path.join(OUTPUT_FOLDER, "prediction_title_chances.csv"), index=False)
     candidates.to_csv(os.path.join(OUTPUT_FOLDER, "prediction_awards.csv"), index=False)
     test.to_csv(os.path.join(OUTPUT_FOLDER, "prediction_backtest.csv"), index=False)

@@ -161,6 +161,59 @@ def read_output_csv(file_name):
     return pd.read_csv(path)
 
 
+def strength_explanation(strengths, next_season):
+    """HTML: each team's win % in the last 3 seasons, and the strength worked out from them."""
+    season_columns = [column for column in strengths.columns if column.startswith("win_pct_")]
+    years = [column.replace("win_pct_", "") for column in season_columns]
+    oldest, middle, newest = years[0], years[1], years[2]
+
+    # Mumbai as a worked example, with the numbers taken from the table.
+    mumbai = strengths[strengths["team"] == "Mumbai Indians"].iloc[0]
+    example = ("(3 &times; " + str(mumbai["win_pct_" + newest]) + " + 2 &times; " + str(mumbai["win_pct_" + middle])
+               + " + 1 &times; " + str(mumbai["win_pct_" + oldest]) + ") &divide; 6 = <b>"
+               + str(mumbai["strength"]) + "</b>")
+
+    table = strengths.copy()
+    for column in season_columns:
+        # A missing season (e.g. Chennai's 2017 suspension) is shown as "did not play".
+        table[column] = table[column].apply(lambda value: "did not play" if pd.isna(value) else str(value) + "%")
+    table.columns = ["Team"] + ["Win % " + year + " (weight " + str(weight) + ")"
+                                for year, weight in zip(years, [1, 2, 3])] + ["Strength"]
+
+    return ("<h3>Why these teams are the favourites</h3>"
+            "<p>A team's strength is its win % over the last 3 seasons, with the latest season counting 3 times. "
+            "Mumbai Indians: " + example + ". Mumbai won the title in " + oldest + " and " + newest
+            + ", but their poor " + middle + " season (" + str(mumbai["win_pct_" + middle]) + "%) pulled them "
+            "just below Chennai. Chennai did not play in " + oldest + " (suspended), so only their two "
+            "strong seasons count.</p>"
+            "<div class='table-box'>" + table.to_html(index=False) + "</div>")
+
+
+def actual_check_section(actual, next_season):
+    """HTML: our predictions next to the official results of that season."""
+    season = str(next_season)
+    table = actual[["prediction", "our_pick", "actual", "verdict"]].copy()
+    table.columns = ["Prediction", "Our pick", "What really happened", "Result"]
+    champion = actual[actual["prediction"] == "IPL champion"].iloc[0]
+    return ("<h3>How did the " + season + " prediction do?</h3>"
+            "<p>The dataset ends in 2019, so the model never saw the " + season + " season. Here are its "
+            "predictions next to the official results (source: iplt20.com, typed in by hand only for this check). "
+            "<b>" + champion["actual"].split(" (")[0] + "</b> won the title: the model's #"
+            + str(int(champion["actual_rank"])) + " pick, with a " + champion_chance_text(champion["actual"])
+            + " chance. The Purple Cap pick was exactly right.</p>"
+            "<div class='table-box'>" + table.to_html(index=False) + "</div>")
+
+
+def champion_chance_text(actual_text):
+    """The predicted title chance of the real champion, e.g. '21.2%'."""
+    chances = read_output_csv("prediction_title_chances.csv")
+    team = actual_text.split(" (")[0]
+    row = chances[chances["team"] == team]
+    if len(row) == 0:
+        return "unknown"
+    return str(row.iloc[0]["title_pct"]) + "%"
+
+
 def prediction_section(next_season):
     """HTML for the predictions: title chances, award picks and the backtest."""
     chances = read_output_csv("prediction_title_chances.csv")
@@ -199,6 +252,16 @@ def prediction_section(next_season):
     chances = chances[["team", "strength", "playoff_pct", "title_pct"]]
     chances.columns = ["Team", "Strength (form win %)", "Reach playoffs %", "Win title %"]
     parts.append("<h3>Title chances</h3><div class='table-box'>" + chances.to_html(index=False) + "</div>")
+
+    # Why each team got its strength (win % in each of the last 3 seasons)
+    strengths = read_output_csv("prediction_strengths.csv")
+    if strengths is not None:
+        parts.append(strength_explanation(strengths, next_season))
+
+    # How the prediction compares with what really happened (if the real results are known)
+    actual = read_output_csv("prediction_vs_actual_" + season + ".csv")
+    if actual is not None:
+        parts.append(actual_check_section(actual, next_season))
 
     # Award picks: one row per award, with our pick and the next two candidates
     rows = []
