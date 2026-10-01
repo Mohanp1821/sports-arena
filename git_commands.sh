@@ -130,6 +130,32 @@ git tag -a v1.1 -m "Sports Arena v1.1: 2020 predictions"
 git push origin main feature/predictions   # upload main and the new branch
 git push origin v1.1                       # upload the new tag
 
+# A small fix straight on main (no branch needed for a one-file change):
+git add src/build_report.py outputs/index.html
+git commit -m "Show prediction charts at the top of the dashboard with a section menu"
+git push
+
+
+# -----------------------------------------------------------------------------
+# STEP 8: make the dashboard interactive (fourth FEATURE BRANCH)
+# -----------------------------------------------------------------------------
+git checkout -b feature/interactive-dashboard
+
+git add src/dashboard_explorer.js src/build_report.py outputs/index.html
+git commit -m "Add interactive season, team and player filters to the dashboard"
+
+git add tests/test_facts.py
+git commit -m "Check the interactive dashboard data against metrics"
+
+git add README.md docs/ git_commands.sh
+git commit -m "Document the interactive dashboard"
+
+git checkout main
+git merge --no-ff feature/interactive-dashboard -m "Merge feature/interactive-dashboard into main"
+git tag -a v1.2 -m "Sports Arena v1.2: interactive dashboard"
+git push origin main feature/interactive-dashboard
+git push origin v1.2
+
 
 # -----------------------------------------------------------------------------
 # EVERYDAY COMMANDS (after the project is on GitHub)
