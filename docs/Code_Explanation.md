@@ -149,6 +149,8 @@ Colours come from a colour-blind-safe palette, and every chart has a title, axis
 6. **All 12 champions** (the winner of each season's final) match the official list.
 7. **Prediction maths:** the form score of 600, 400, 300 runs must be 483.3, and the simulated
    title chances of all teams must add up to 100%.
+8. **Dashboard data:** the interactive section's tables contain all 756 matches and 12 champions, and add up to
+   Kohli's 973 runs in 2016, the same as `metrics.py`.
 
 **Result:** all names match; all wickets match exactly; runs match exactly except 2018
 (Williamson 736 here vs 735 official). This 1-run gap comes from how the ball-by-ball source recorded
@@ -218,9 +220,32 @@ It builds one web page, `outputs/index.html`, containing:
 - 5 key insights, **calculated from the data** (no numbers are typed by hand);
 - the Orange Cap / Purple Cap table (`DataFrame.to_html()`);
 - **Predictions for IPL 2020**: title chances, award picks and the backtest table (read from the CSV files made by `predict.py`);
-- all 21 charts, grouped into Predictions, Player form, Team comparisons and Top performers.
+- an **interactive "Explore the data" section** (below);
+- all 21 charts, grouped into Predictions, Player form, Team comparisons and Top performers;
+- a menu bar fixed at the top with a link to every section.
 
 It is plain HTML with a small CSS style block, so it opens in any browser with no internet connection.
+
+### The interactive section (`explorer_section` + `src/dashboard_explorer.js`)
+
+| Part | Where | What it does |
+|---|---|---|
+| Data | `explorer_data()` in `build_report.py` | Makes 3 small tables: every match (date, teams, winner, margin, Player of the Match), and batting and bowling totals **per player, per season, per team**. They are written into the page as JSON text |
+| Filters | HTML made by `explorer_section()` | A Season drop-down, a Team drop-down, a Reset button, and a player search box (an HTML `datalist` suggests names as you type) |
+| Logic | `src/dashboard_explorer.js` | When a filter changes: keep the matching rows → add them up per player (like `groupby().sum()`) → calculate win %, strike rate and economy → redraw the cards, bar chart and tables |
+
+**How a filter works, step by step** (e.g. Season = 2016, Team = Mumbai Indians):
+1. The drop-down fires a `change` event, which calls `drawAll()`.
+2. `chosenMatches()` keeps the 2016 matches involving Mumbai; `winTable()` counts played and won → **win %**.
+3. `filterRows()` keeps the batting and bowling rows for 2016 and Mumbai; `totalsByPlayer()` adds them up.
+4. The top 10 are sorted by runs (batting) or by wickets then economy (bowling, like the Purple Cap).
+5. The bar chart is plain HTML: each bar is a `<span>` whose width is the win % (e.g. `width: 58%`).
+   Clicking a bar selects that team or season.
+
+**Why plain JavaScript and not a library like Plotly or Streamlit?** No extra dependency, nothing to install,
+and no internet needed: the page still works when opened straight from the folder, and Docker serves it
+as a normal static file. The formulas are the same as in `metrics.py`, and `tests/test_facts.py`
+checks that the dashboard's data gives the same answer (Kohli 2016 = 973 runs).
 
 ---
 
@@ -256,6 +281,7 @@ It is plain HTML with a small CSS style block, so it opens in any browser with n
   - `feature/visualizations`: charts, the Colab notebook and the dashboard.
   - `feature/docker`: the Dockerfile and the two-service Compose architecture.
   - `feature/predictions`: the 2020 champion and award predictions, added after the first release.
+  - `feature/interactive-dashboard`: the season/team filters, clickable chart and player search.
 - Small commits with clear messages ("Add data cleaning script") tell the story of the project.
-- The **`v1.0` tag** marks the first release; **`v1.1`** adds the predictions.
+- The **`v1.0` tag** marks the first release; **`v1.1`** adds the predictions; **`v1.2`** the interactive dashboard.
 - Every command, with explanations, is in `git_commands.sh`.

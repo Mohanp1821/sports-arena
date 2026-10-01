@@ -6,7 +6,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
 An open-source data visualisation project that analyses **every ball of the Indian Premier League
-from 2008 to 2019** (756 matches, 179,078 deliveries) and turns it into clear charts and a web dashboard.
+from 2008 to 2019** (756 matches, 179,078 deliveries) and turns it into clear charts and an **interactive web dashboard**.
 
 **Course:** Open Source Tools for Data Science (OST), mini project · **Author:** Mohan Pawar
 
@@ -25,9 +25,11 @@ These questions need analysis of **every ball**, not just final scores.
 3. **Top performers:** Orange Cap and Purple Cap winners for every season, and top-10 lists.
 4. **Predictions:** the likely 2020 champion and award winners (Orange Cap, Purple Cap, Most Sixes,
    Most Player of the Match awards), with a backtest showing how reliable the method is.
+5. **Interactive dashboard:** filter every number, chart and table by season and team, click the bars
+   to drill down, and search any player's career.
 
 Scope: IPL 2008–2019 (real Kaggle data). Built only with open-source tools: **Python, pandas,
-matplotlib, seaborn, Git, Docker**.
+matplotlib, seaborn, plain JavaScript, Git, Docker**.
 
 ## 3. Key results
 
@@ -50,6 +52,19 @@ matplotlib, seaborn, Git, Docker**.
 </p>
 
 All 21 charts are in `outputs/`. The full dashboard is `outputs/index.html`.
+
+### The interactive dashboard
+
+Open `outputs/index.html` and click **Explore (interactive)** in the top menu:
+
+| Control | What updates |
+|---|---|
+| **Season** and **Team** drop-downs | 4 summary cards, the win % bar chart, top 10 run scorers and wicket takers, every match result |
+| **Click a bar** in the chart | Selects that team (or that season), so you can drill down |
+| **Player search** (type a name) | That player's runs, strike rate, sixes, wickets and economy for every season |
+
+It is plain JavaScript (`src/dashboard_explorer.js`) with the data inside the page, so it needs **no internet
+and no extra library**: it works when opened as a file, and when served by Docker.
 
 ### How the predictions work
 
@@ -99,7 +114,7 @@ data/raw/ ──► verify_data.py ──► prepare_data.py ──► analysis.
 | 3 | `src/analysis.py` | Draws all charts, using the cricket formulas in `src/metrics.py` |
 | 4 | `tests/test_facts.py` | Checks the results against official IPL records (caps, champions, prediction maths) |
 | 5 | `src/predict.py` | Predicts the 2020 champion (10,000 simulated seasons) and award winners, and backtests the method |
-| 6 | `src/build_report.py` | Builds the web dashboard |
+| 6 | `src/build_report.py` | Builds the interactive web dashboard (filters run in `src/dashboard_explorer.js`) |
 
 **Docker architecture:** two services from one image. `pipeline` runs steps 1–6; `dashboard` serves the
 results on port 8080, and starts only if the pipeline succeeded.
@@ -124,14 +139,15 @@ sports-arena/
 │   ├── metrics.py          all cricket formulas
 │   ├── analysis.py         step 3
 │   ├── predict.py          step 5 (predictions)
-│   └── build_report.py     step 6
+│   ├── build_report.py     step 6
+│   └── dashboard_explorer.js   the dashboard's interactive filters
 ├── tests/test_facts.py     step 4
 ├── notebooks/ipl_analysis.ipynb   the same analysis, cell by cell (Colab)
 ├── outputs/                21 charts, prediction tables (.csv) + index.html dashboard
 ├── docs/
 │   ├── Marking_Scheme.md   each marking criterion → where the evidence is + demo script
 │   ├── Code_Explanation.md every file, formula and chart explained simply
-│   └── Viva_QA.md          20 likely viva questions with answers
+│   └── Viva_QA.md          22 likely viva questions with answers
 ├── CONTRIBUTING.md
 └── LICENSE                 MIT (code)
 ```

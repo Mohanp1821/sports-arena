@@ -8,6 +8,8 @@ Builds a simple web dashboard, outputs/index.html, that shows:
   - key insights
   - the Orange Cap / Purple Cap table
   - predictions for the next season (made by predict.py)
+  - an INTERACTIVE "Explore the data" section: filter by season and team,
+    click the bars, and search any player (the code is in dashboard_explorer.js)
   - every chart made by analysis.py
 
 Open outputs/index.html in any web browser. With Docker, the "dashboard"
@@ -18,10 +20,14 @@ Run it with:
 """
 
 import os
+import json
 import pandas as pd
 import metrics   # our own file: src/metrics.py
+import predict   # our own file: src/predict.py (for the list of champions)
 
 OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
+EXPLORER_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_explorer.js")
+DEFAULT_PLAYER = "V Kohli"   # player shown first in the player search
 
 # Each chart file, with the title shown above it on the dashboard.
 # The file names are the ones saved by analysis.py.
@@ -76,8 +82,8 @@ th { background: #eef3fb; }
 .table-box { overflow-x: auto; margin-bottom: 16px; }
 .note { color: #555; font-size: 14px; }
 nav { position: sticky; top: 0; z-index: 10; background: #1a1a1a; }
-nav div { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; flex-wrap: wrap; }
-nav a { color: white; text-decoration: none; padding: 10px 12px; font-size: 14px; }
+nav div { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; overflow-x: auto; }
+nav a { color: white; text-decoration: none; padding: 10px 12px; font-size: 14px; white-space: nowrap; }
 nav a:hover { background: #333; }
 nav a.star { background: #eb6834; font-weight: bold; }
 h2 { scroll-margin-top: 50px; }
@@ -86,6 +92,26 @@ h2 { scroll-margin-top: 50px; }
 .pick { background: white; border: 1px solid #ddd; border-left: 5px solid #eb6834; border-radius: 10px; padding: 10px 14px; }
 .pick span { display: block; color: #555; font-size: 13px; }
 .pick b { font-size: 20px; }
+.filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; background: white;
+           border: 1px solid #ddd; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; }
+.filters label { display: flex; flex-direction: column; font-size: 13px; color: #555; gap: 4px; }
+select, input, button { font: inherit; font-size: 15px; padding: 6px 10px; border: 1px solid #bbb;
+                        border-radius: 6px; background: white; color: #1a1a1a; }
+button { cursor: pointer; background: #eef3fb; }
+.panel { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 12px 16px; margin-top: 16px; }
+.panel h3, .panel h4 { margin: 0 0 10px; }
+.two-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.scroll { max-height: 360px; overflow-y: auto; }
+.bar-row { display: grid; grid-template-columns: minmax(90px, 230px) 1fr minmax(70px, auto);
+           gap: 10px; align-items: center; padding: 3px 4px; border-radius: 4px; font-size: 14px; }
+.bar-row.clickable { cursor: pointer; }
+.bar-row.clickable:hover { background: #f1f1ee; }
+.bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { background: #eeeeea; border-radius: 4px; height: 16px; overflow: hidden; }
+.bar-fill { display: block; height: 100%; background: #2a78d6; }
+.bar-row.highlight .bar-fill { background: #eb6834; }
+.bar-row.highlight { font-weight: bold; }
+.bar-value { white-space: nowrap; color: #333; }
 """
 
 
@@ -198,6 +224,109 @@ def prediction_section(next_season):
     return "\n".join(parts)
 
 
+def result_text(match):
+    """How a match was won, in words, e.g. 'by 140 runs' or 'by 7 wickets (D/L)'."""
+    if match["no_result"]:
+        return "No result"
+    if match["result"] == "tie":
+        return "Tie, won the super over"
+    if match["win_by_runs"] > 0:
+        text = "by " + str(match["win_by_runs"]) + " runs"
+    else:
+        text = "by " + str(match["win_by_wickets"]) + " wickets"
+    if match["dl_applied"] == 1:
+        text += " (D/L)"   # rain-shortened match, Duckworth-Lewis method
+    return text
+
+
+def explorer_data(matches, deliveries):
+    """
+    The small tables the interactive section needs, as plain lists.
+    The page's JavaScript filters and adds these up when a filter changes.
+    Each row is a list (not a dictionary) to keep the page small.
+    """
+    # One row per match: [season, date, team1, team2, winner, margin, player of the match]
+    match_rows = []
+    for i in range(len(matches)):
+        match = matches.iloc[i]
+        winner = "" if match["no_result"] else match["winner"]
+        potm = "" if match["no_result"] else match["player_of_match"]
+        match_rows.append([match["season"], match["date"].strftime("%Y-%m-%d"), match["team1"],
+                           match["team2"], winner, result_text(match), potm])
+    match_rows.sort(key=lambda row: row[1])   # oldest match first
+
+    # Per player, per season, per team: batting and bowling totals.
+    # add_ball_columns (metrics.py) applies the cricket rules and removes super overs.
+    balls = metrics.add_ball_columns(deliveries)
+    batting = balls.groupby(["batter", "season", "batting_team"]).agg(
+        runs=("batsman_runs", "sum"),
+        balls_faced=("is_ball_faced", "sum"),
+        sixes=("is_six", "sum"),
+        innings=("match_id", "nunique"),     # one innings per match in T20
+    ).reset_index()
+    bowling = balls.groupby(["bowler", "season", "bowling_team"]).agg(
+        wickets=("is_bowler_wicket", "sum"),
+        legal_balls=("is_legal_ball", "sum"),
+        runs_conceded=("runs_conceded", "sum"),
+    ).reset_index()
+
+    champions = predict.season_champions(matches)
+    players = sorted(set(batting["batter"]) | set(bowling["bowler"]))
+    return {
+        "seasons": sorted(matches["season"].unique()),
+        "teams": sorted(set(matches["team1"]) | set(matches["team2"])),
+        "players": players,
+        "default_player": DEFAULT_PLAYER,
+        "champions": dict(zip(champions["season"].astype(str), champions["champion"])),
+        "matches": match_rows,
+        "batting": batting.values.tolist(),
+        "bowling": bowling.values.tolist(),
+    }
+
+
+def explorer_section(matches, deliveries):
+    """HTML for the interactive section: the filters, empty boxes, the data and the script."""
+    parts = ["<h2 id='explore'>Explore the data (interactive)</h2>"]
+    parts.append("<p>Choose a season and a team: the numbers, chart and tables below update straight away. "
+                 "Click a bar in the chart to select that team or season.</p>")
+
+    # The filters. The JavaScript fills the drop-downs with every season and team.
+    parts.append("<div class='filters'>"
+                 "<label>Season<select id='filter-season'><option value='all'>All seasons</option></select></label>"
+                 "<label>Team<select id='filter-team'><option value='all'>All teams</option></select></label>"
+                 "<button id='filter-reset' type='button'>Reset filters</button></div>")
+
+    # Empty boxes: the JavaScript draws into these (each one has an id).
+    parts.append("<div class='numbers' id='explore-cards'></div>")
+    parts.append("<div class='panel'><h3 id='explore-chart-title'></h3><div id='explore-chart'></div></div>")
+    parts.append("<div class='two-columns'>"
+                 "<div class='panel'><h3>Top run scorers</h3><div class='table-box' id='explore-batting'></div></div>"
+                 "<div class='panel'><h3>Top wicket takers</h3><div class='table-box' id='explore-bowling'></div></div>"
+                 "</div>")
+    parts.append("<div class='panel'><h3>Match results</h3>"
+                 "<div class='table-box scroll' id='explore-results'></div></div>")
+
+    # Player search: typing shows a list of matching names (an HTML "datalist").
+    parts.append("<div class='panel'><h3>Player career</h3>"
+                 "<div class='filters'><label>Type a player's name"
+                 "<input id='filter-player' list='player-list' placeholder='e.g. V Kohli'></label></div>"
+                 "<datalist id='player-list'></datalist>"
+                 "<div id='player-chart'></div><div class='table-box' id='player-table'></div></div>")
+
+    # The data, as JSON text. numpy numbers are turned into normal Python numbers
+    # with .item(), and "</" is escaped so a name can never end the <script> tag early.
+    data = json.dumps(explorer_data(matches, deliveries), separators=(",", ":"),
+                      default=lambda value: value.item())
+    parts.append("<script type='application/json' id='explorer-data'>"
+                 + data.replace("</", "<\\/") + "</script>")
+
+    # The JavaScript itself is kept in its own file, src/dashboard_explorer.js,
+    # and copied into the page so it works offline.
+    with open(EXPLORER_SCRIPT, encoding="utf-8") as file:
+        parts.append("<script>\n" + file.read() + "\n</script>")
+    return "\n".join(parts)
+
+
 def section_id(name):
     """Turn a section name like 'Player form' into a link target like 'player-form'."""
     return name.lower().replace(" ", "-")
@@ -205,14 +334,14 @@ def section_id(name):
 
 def navigation_bar(next_season):
     """A menu fixed at the top of the page with a link to every section."""
-    links = [("predictions", "Predictions " + str(next_season)), ("insights", "Key insights"),
-             ("caps", "Cap winners")]
+    links = [("predictions", "Predictions " + str(next_season)), ("explore", "Explore (interactive)"),
+             ("insights", "Key insights"), ("caps", "Cap winners")]
     for section_name in CHART_SECTIONS:
         links.append((section_id(section_name), section_name))
 
     parts = ["<nav><div>"]
     for target, label in links:
-        css_class = " class='star'" if target == "predictions" else ""
+        css_class = " class='star'" if target in ["predictions", "explore"] else ""
         parts.append("<a href='#" + target + "'" + css_class + ">" + label + "</a>")
     parts.append("</div></nav>")
     return "".join(parts)
@@ -241,6 +370,9 @@ def make_page(matches, deliveries):
 
     # Predictions for the next season (made by predict.py), near the top so they are easy to find
     parts.append(prediction_section(next_season))
+
+    # Interactive section: filters, clickable chart and player search
+    parts.append(explorer_section(matches, deliveries))
 
     # Insights
     parts.append("<h2 id='insights'>Key insights</h2><ul class='insights'>")

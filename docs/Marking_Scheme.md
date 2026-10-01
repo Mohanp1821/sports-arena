@@ -8,10 +8,10 @@ open-source libraries, documentation, containerisation)
 | # | Criterion | Marks | Where the evidence is |
 |---|---|:---:|---|
 | 1 | Problem statement & scope | 3 | `README.md` sections 1–2, `data/README.md` |
-| 2 | Repository & commit discipline | 3 | GitHub history, 3 feature branches, tags `v1.0` and `v1.1`, `git_commands.sh` |
+| 2 | Repository & commit discipline | 3 | GitHub history, 4 feature branches, tags `v1.0`, `v1.1`, `v1.2`, `git_commands.sh` |
 | 3 | Architecture design (containerisation) | 4 | `Dockerfile`, `docker-compose.yml`, `docs/Code_Explanation.md` §11 |
 | 4 | Progress demonstrated (live demo) | 3 | `./run_all.sh`, `docker compose up`, `outputs/index.html` |
-| 5 | Q&A | 2 | `docs/Viva_QA.md` (20 questions with answers) |
+| 5 | Q&A | 2 | `docs/Viva_QA.md` (22 questions with answers) |
 | | **Total** | **15** | |
 
 ---
@@ -34,7 +34,7 @@ into clear insights on three themes:
 | In scope | Out of scope |
 |---|---|
 | IPL seasons 2008–2019 (756 matches, real Kaggle data) | Real data from 2020 onward (not in the dataset) |
-| Data cleaning, cricket metrics, 21 charts, web dashboard | Predicting single matches, or player auctions and injuries |
+| Data cleaning, cricket metrics, 21 charts, interactive web dashboard (season/team filters, player search) | Predicting single matches, or player auctions and injuries |
 | 2020 champion and award predictions from past form (explainable, backtested) | Complex machine-learning models |
 | Terminal, Docker and Colab ways to run | A live-updating website |
 
@@ -47,8 +47,8 @@ into clear insights on three themes:
 | Good practice | Evidence |
 |---|---|
 | Clear, small commits with meaningful messages | `git log --oneline --graph --all` |
-| Feature branches merged with `--no-ff` | `feature/visualizations`, `feature/docker` and `feature/predictions`, all visible in the graph |
-| Release tags | `v1.0` (first release) and `v1.1` (adds 2020 predictions) |
+| Feature branches merged with `--no-ff` | `feature/visualizations`, `feature/docker`, `feature/predictions` and `feature/interactive-dashboard`, all visible in the graph |
+| Release tags | `v1.0` (first release), `v1.1` (adds 2020 predictions), `v1.2` (interactive dashboard) |
 | Standard open-source files | `README.md`, `LICENSE` (MIT), `CONTRIBUTING.md`, `.gitignore`, `requirements.txt` |
 | Clean repository structure | `data/`, `src/`, `tests/`, `notebooks/`, `outputs/`, `docs/` |
 | Hosted publicly | https://github.com/Mohanp1821/sports-arena |
@@ -110,6 +110,8 @@ Points to say during the demo:
 - "Step 5 predicts 2020: Chennai are favourites at 23.7%. We backtested it on 2011–2019: the real champion
   was in our top 5 in 7 of 9 seasons."
 - "The dashboard numbers are calculated by code; none are typed by hand."
+- **Interactive demo:** click *Explore (interactive)*, choose Team = Chennai Super Kings (the 🏆 marks
+  their titles), click the 2010 bar to drill into that season, then type `MS Dhoni` in the player search.
 
 Backup if something fails: the notebook runs in Google Colab from the **Open in Colab** badge in `README.md`.
 
@@ -117,5 +119,5 @@ Backup if something fails: the notebook runs in Google Colab from the **Open in 
 
 ## 5. Q&A (2 marks)
 
-Read `docs/Viva_QA.md`: 20 questions covering reproducibility, data cleaning, cricket formulas,
+Read `docs/Viva_QA.md`: 22 questions covering reproducibility, data cleaning, cricket formulas,
 predictions, Git branching, Docker and licences. `docs/Code_Explanation.md` explains every file in plain language.

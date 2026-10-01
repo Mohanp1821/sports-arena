@@ -91,3 +91,14 @@ auctions or a player changing team role.
 With only 12 seasons there are very few examples of "who won the title", so a complex model would overfit.
 A weighted average and a simulation are transparent (every number can be checked on paper), need no extra
 library, and the fixed random seed (42) makes the results identical on every run.
+
+**Q21. How is your dashboard interactive?** (`src/dashboard_explorer.js`)
+In the **Explore** section you choose a season and a team, and the summary cards, the win % chart, the top 10
+batters and bowlers, and the match results all update at once. Clicking a bar drills down into that team or
+season, and the player search shows any player's season-by-season career. Python (`build_report.py`) writes
+the data into the page as JSON; JavaScript filters it, adds it up and redraws the page when a filter changes.
+
+**Q22. Why did you write the interactivity in plain JavaScript instead of Streamlit, Dash or Plotly?**
+Those need a running Python server or an internet connection for their libraries. Our page is one HTML file
+that works offline, opens by double-click, and is served by the simple `http.server` in Docker without any
+change to the architecture. It also keeps the project small and every line explainable.
