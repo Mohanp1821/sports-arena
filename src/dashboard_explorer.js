@@ -233,7 +233,7 @@ function drawWinChart(season, team) {
             return { label: row.team, value: row.winPct, key: row.team,
                      text: row.winPct + "% (" + row.wins + "/" + row.played + ")" };
         });
-        title = "Win % by team, " + (season === "all" ? "2008-2019" : season) + " (click a team to select it)";
+        title = "Win % by team, " + (season === "all" ? DATA.season_range : season) + " (click a team to select it)";
     } else {
         // One bar per season for the chosen team. Click a bar to pick that season.
         bars = [];

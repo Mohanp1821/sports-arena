@@ -120,8 +120,8 @@ def headline_numbers(matches, deliveries):
     return [
         (str(len(matches)), "matches"),
         (format(len(deliveries), ","), "balls analysed"),
-        (str(matches["season"].nunique()), "seasons (2008-2019)"),
-        (str(len(set(matches["team1"]))), "teams"),
+        (str(matches["season"].nunique()), "seasons (" + metrics.season_range_text(matches) + ")"),
+        (str(len(set(matches["team1_franchise"]))), "franchises"),
     ]
 
 
@@ -167,11 +167,13 @@ def strength_explanation(strengths, next_season):
     years = [column.replace("win_pct_", "") for column in season_columns]
     oldest, middle, newest = years[0], years[1], years[2]
 
-    # Mumbai as a worked example, with the numbers taken from the table.
-    mumbai = strengths[strengths["team"] == "Mumbai Indians"].iloc[0]
-    example = ("(3 &times; " + str(mumbai["win_pct_" + newest]) + " + 2 &times; " + str(mumbai["win_pct_" + middle])
-               + " + 1 &times; " + str(mumbai["win_pct_" + oldest]) + ") &divide; 6 = <b>"
-               + str(mumbai["strength"]) + "</b>")
+    # The strongest team as a worked example, with the numbers taken from the table
+    # (only if it played all 3 seasons, so the example uses all three weights).
+    full = strengths.dropna(subset=season_columns)
+    top = full.iloc[0]
+    example = (top["team"] + ": (3 &times; " + str(top["win_pct_" + newest]) + " + 2 &times; "
+               + str(top["win_pct_" + middle]) + " + 1 &times; " + str(top["win_pct_" + oldest])
+               + ") &divide; 6 = <b>" + str(top["strength"]) + "</b>")
 
     table = strengths.copy()
     for column in season_columns:
@@ -182,10 +184,7 @@ def strength_explanation(strengths, next_season):
 
     return ("<h3>Why these teams are the favourites</h3>"
             "<p>A team's strength is its win % over the last 3 seasons, with the latest season counting 3 times. "
-            "Mumbai Indians: " + example + ". Mumbai won the title in " + oldest + " and " + newest
-            + ", but their poor " + middle + " season (" + str(mumbai["win_pct_" + middle]) + "%) pulled them "
-            "just below Chennai. Chennai did not play in " + oldest + " (suspended), so only their two "
-            "strong seasons count.</p>"
+            + example + ". A season a team did not play is skipped, so only the seasons it played count.</p>"
             "<div class='table-box'>" + table.to_html(index=False) + "</div>")
 
 
@@ -278,7 +277,8 @@ def prediction_section(next_season):
     # Backtest: how often this method was right in the past
     summary = summary[["award", "seasons", "correct", "in_top_5"]]
     summary.columns = ["Prediction", "Seasons tested", "Exactly right", "Winner in our top 5"]
-    parts.append("<h3>How reliable is this? (backtest 2011-2019)</h3>"
+    parts.append("<h3>How reliable is this? (backtest " + str(int(read_output_csv("prediction_backtest.csv")["season"].min()))
+                 + "-" + str(int(read_output_csv("prediction_backtest.csv")["season"].max())) + ")</h3>"
                  "<p class='note'>For each past season we predicted using only earlier seasons, "
                  "then compared with the real result. A random pick of the champion is right "
                  "1 time in 8. Treat the predictions as informed guesses, not certainties: "
@@ -312,32 +312,33 @@ def explorer_data(matches, deliveries):
     match_rows = []
     for i in range(len(matches)):
         match = matches.iloc[i]
-        winner = "" if match["no_result"] else match["winner"]
+        winner = "" if match["no_result"] else match["winner_franchise"]
         potm = "" if match["no_result"] else match["player_of_match"]
-        match_rows.append([match["season"], match["date"].strftime("%Y-%m-%d"), match["team1"],
-                           match["team2"], winner, result_text(match), potm])
+        match_rows.append([match["season"], match["date"].strftime("%Y-%m-%d"), match["team1_franchise"],
+                           match["team2_franchise"], winner, result_text(match), potm])
     match_rows.sort(key=lambda row: row[1])   # oldest match first
 
     # Per player, per season, per team: batting and bowling totals.
     # add_ball_columns (metrics.py) applies the cricket rules and removes super overs.
     balls = metrics.add_ball_columns(deliveries)
-    batting = balls.groupby(["batter", "season", "batting_team"]).agg(
+    batting = balls.groupby(["batter", "season", "batting_team_franchise"]).agg(
         runs=("batsman_runs", "sum"),
         balls_faced=("is_ball_faced", "sum"),
         sixes=("is_six", "sum"),
         innings=("match_id", "nunique"),     # one innings per match in T20
     ).reset_index()
-    bowling = balls.groupby(["bowler", "season", "bowling_team"]).agg(
+    bowling = balls.groupby(["bowler", "season", "bowling_team_franchise"]).agg(
         wickets=("is_bowler_wicket", "sum"),
         legal_balls=("is_legal_ball", "sum"),
         runs_conceded=("runs_conceded", "sum"),
     ).reset_index()
 
-    champions = predict.season_champions(matches)
+    champions = metrics.season_champions(matches)
     players = sorted(set(batting["batter"]) | set(bowling["bowler"]))
     return {
+        "season_range": metrics.season_range_text(matches),
         "seasons": sorted(matches["season"].unique()),
-        "teams": sorted(set(matches["team1"]) | set(matches["team2"])),
+        "teams": sorted(set(matches["team1_franchise"]) | set(matches["team2_franchise"])),
         "players": players,
         "default_player": DEFAULT_PLAYER,
         "champions": dict(zip(champions["season"].astype(str), champions["champion"])),
@@ -422,7 +423,7 @@ def make_page(matches, deliveries):
 
     # Title
     parts.append("<h1>Sports Arena: IPL Performance Dashboard</h1>")
-    parts.append("<p class='subtitle'>Indian Premier League 2008-2019, built from ball-by-ball data "
+    parts.append("<p class='subtitle'>Indian Premier League " + metrics.season_range_text(matches) + ", built from ball-by-ball data "
                  "with Python, pandas, matplotlib and seaborn.</p>")
 
     # Headline number boxes

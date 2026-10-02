@@ -7,11 +7,16 @@ analysis.py and the test file import these functions.
 Each function does ONE job and uses simple pandas steps:
     filter rows -> groupby -> sum/count -> merge -> calculate a ratio
 
-Column names used from data/processed/deliveries_clean.csv:
-    match_id, inning, over (1-20), ball, batter, bowler, batting_team,
-    bowling_team, batsman_runs, wide_runs, noball_runs, bye_runs,
-    legbye_runs, total_runs, player_dismissed, dismissal_kind,
-    is_super_over, season, date
+Column names used from data/processed/deliveries_clean.csv.gz:
+    match_id, inning, over (1-20), ball, batter, non_striker, bowler,
+    batting_team / bowling_team             (the name used THAT season, for display)
+    batting_team_franchise / bowling_team_franchise   (today's name, for stats)
+    batsman_runs, wide_runs, noball_runs, bye_runs, legbye_runs, total_runs,
+    player_dismissed, dismissal_kind, fielder, is_super_over,
+    season, date, stage (League / Playoff), phase (Powerplay / Middle / Death)
+
+Team statistics always use the FRANCHISE columns, so Delhi Daredevils (to 2018)
+and Delhi Capitals (from 2019) count as one team.
 """
 
 import os
@@ -27,11 +32,24 @@ PROCESSED_FOLDER = os.path.join(PROJECT_FOLDER, "data", "processed")
 
 
 def load_processed_data(folder=PROCESSED_FOLDER):
-    """Read the cleaned CSV files made by prepare_data.py."""
+    """Read the cleaned CSV files made by prepare_data.py (the .gz file is read directly)."""
     matches = pd.read_csv(os.path.join(folder, "matches_clean.csv"), parse_dates=["date"])
-    deliveries = pd.read_csv(os.path.join(folder, "deliveries_clean.csv"),
+    deliveries = pd.read_csv(os.path.join(folder, "deliveries_clean.csv.gz"),
                              parse_dates=["date"], low_memory=False)
+    # Empty text cells are read as "missing"; give the text columns an empty string instead.
+    for column in ["playoff_name", "player_of_match", "winner", "winner_franchise"]:
+        matches[column] = matches[column].fillna("")
     return matches, deliveries
+
+
+def load_impact_players(folder=PROCESSED_FOLDER):
+    """Read the Impact Player substitutions (2023 onwards) made by prepare_data.py."""
+    return pd.read_csv(os.path.join(folder, "impact_players_clean.csv"))
+
+
+def season_range_text(matches):
+    """The seasons covered, as text, e.g. "2008-2026" (calculated, never typed in)."""
+    return str(matches["season"].min()) + "-" + str(matches["season"].max())
 
 
 # ---------------------------------------------------------------------------
@@ -100,8 +118,10 @@ def add_ball_columns(deliveries):
     df["is_four"] = df["batsman_runs"] == 4
     df["is_six"] = df["batsman_runs"] == 6
 
-    # Phase of the match (Powerplay / Middle / Death).
-    df["phase"] = df["over"].apply(phase_of_over)
+    # Phase of the match (Powerplay / Middle / Death). prepare_data.py already
+    # adds it; small hand-made test tables may not have it, so add it if missing.
+    if "phase" not in df.columns:
+        df["phase"] = df["over"].apply(phase_of_over)
     return df
 
 
@@ -312,27 +332,32 @@ def cap_winners(deliveries):
 def team_results(matches):
     """
     Turn each match into TWO rows, one for each team, with won = True/False.
+    "team" is the FRANCHISE (today's name), "team_name" the name used that season.
     No-result matches are removed because nobody won or lost them.
     """
     played = matches[matches["no_result"] == False]
+    keep = ["match_id", "season", "date", "venue", "city", "stage", "winner_franchise"]
 
     # Rows from team1's point of view.
-    side1 = played[["match_id", "season", "venue", "winner"]].copy()
-    side1["team"] = played["team1"]
-    side1["opponent"] = played["team2"]
+    side1 = played[keep].copy()
+    side1["team"] = played["team1_franchise"]
+    side1["team_name"] = played["team1"]
+    side1["opponent"] = played["team2_franchise"]
 
     # Rows from team2's point of view.
-    side2 = played[["match_id", "season", "venue", "winner"]].copy()
-    side2["team"] = played["team2"]
-    side2["opponent"] = played["team1"]
+    side2 = played[keep].copy()
+    side2["team"] = played["team2_franchise"]
+    side2["team_name"] = played["team2"]
+    side2["opponent"] = played["team1_franchise"]
 
     results = pd.concat([side1, side2], ignore_index=True)
-    results["won"] = results["team"] == results["winner"]
+    results["won"] = results["team"] == results["winner_franchise"]
+    results = results.sort_values(["date", "match_id", "team"]).reset_index(drop=True)
     return results
 
 
 def team_win_percent(matches, by_season=True):
-    """Win % = wins / matches played * 100 (per season, or all-time)."""
+    """Win % = wins / matches played * 100 (per season, or all-time), per franchise."""
     results = team_results(matches)
     group_columns = ["team", "season"] if by_season else ["team"]
     table = results.groupby(group_columns).agg(
@@ -349,23 +374,47 @@ def team_run_rate(deliveries):
     Overs faced = legal balls / 6.
     """
     df = add_ball_columns(deliveries)
-    table = df.groupby(["batting_team", "season"]).agg(
+    table = df.groupby(["batting_team_franchise", "season"]).agg(
         runs=("total_runs", "sum"),
         legal_balls=("is_legal_ball", "sum"),
     ).reset_index()
+    table = table.rename(columns={"batting_team_franchise": "batting_team"})
     table["run_rate"] = (table["runs"] / (table["legal_balls"] / 6)).round(2)
     return table
 
 
 def phase_run_rate(deliveries):
-    """Run rate for each team in each phase (Powerplay / Middle / Death), all seasons."""
+    """Run rate for each franchise in each phase (Powerplay / Middle / Death), all seasons."""
     df = add_ball_columns(deliveries)
-    table = df.groupby(["batting_team", "phase"]).agg(
+    table = df.groupby(["batting_team_franchise", "phase"]).agg(
         runs=("total_runs", "sum"),
         legal_balls=("is_legal_ball", "sum"),
     ).reset_index()
+    table = table.rename(columns={"batting_team_franchise": "batting_team"})
     table["run_rate"] = (table["runs"] / (table["legal_balls"] / 6)).round(2)
     return table
+
+
+def innings_totals(deliveries, matches):
+    """
+    One row per match innings (super overs removed): runs, wickets, legal balls,
+    and who batted. Used by many team and ground functions.
+    inning 1 = batting first, inning 2 = chasing.
+    """
+    df = add_ball_columns(deliveries)
+    df["is_wicket"] = df["player_dismissed"].notna() & (df["dismissal_kind"] != "retired hurt")
+    totals = df.groupby(["match_id", "inning"]).agg(
+        batting_team=("batting_team_franchise", "first"),
+        bowling_team=("bowling_team_franchise", "first"),
+        runs=("total_runs", "sum"),
+        wickets=("is_wicket", "sum"),
+        legal_balls=("is_legal_ball", "sum"),
+        sixes=("is_six", "sum"),
+    ).reset_index()
+    info = matches[["match_id", "season", "date", "venue", "city", "stage", "no_result",
+                    "rain_affected", "winner_franchise"]]
+    totals = totals.merge(info, on="match_id", how="left")
+    return totals
 
 
 def first_innings_scores(deliveries, matches):
@@ -374,15 +423,10 @@ def first_innings_scores(deliveries, matches):
     Rain-affected (D/L) and no-result matches are removed, because a
     shortened innings would pull the average down unfairly.
     """
-    df = remove_super_overs(deliveries)
-    first = df[df["inning"] == 1]
-    totals = first.groupby(["match_id", "season"])["total_runs"].sum().reset_index()
-
-    good_matches = matches[(matches["no_result"] == False) & (matches["rain_affected"] == False)]
-    totals = totals[totals["match_id"].isin(good_matches["match_id"])]
-
-    by_season = totals.groupby("season")["total_runs"].mean().round(1).reset_index()
-    by_season = by_season.rename(columns={"total_runs": "avg_first_innings"})
+    totals = innings_totals(deliveries, matches)
+    first = totals[(totals["inning"] == 1) & (totals["no_result"] == False) & (totals["rain_affected"] == False)]
+    by_season = first.groupby("season")["runs"].mean().round(1).reset_index()
+    by_season = by_season.rename(columns={"runs": "avg_first_innings"})
     return by_season
 
 
@@ -393,12 +437,12 @@ def bat_first_vs_chase(deliveries, matches):
     which is more reliable than guessing from the toss decision.
     """
     first = deliveries[deliveries["inning"] == 1]
-    bat_first = first.groupby("match_id")["batting_team"].first().reset_index()
-    bat_first = bat_first.rename(columns={"batting_team": "bat_first_team"})
+    bat_first = first.groupby("match_id")["batting_team_franchise"].first().reset_index()
+    bat_first = bat_first.rename(columns={"batting_team_franchise": "bat_first_team"})
 
     played = matches[matches["no_result"] == False]
     played = played.merge(bat_first, on="match_id", how="inner")
-    played["bat_first_won"] = played["winner"] == played["bat_first_team"]
+    played["bat_first_won"] = played["winner_franchise"] == played["bat_first_team"]
 
     table = played.groupby("season").agg(
         matches=("match_id", "count"),
@@ -415,7 +459,7 @@ def toss_impact(matches):
     winner, overall and split by what they chose (bat or field).
     """
     played = matches[matches["no_result"] == False].copy()
-    played["toss_winner_won"] = played["toss_winner"] == played["winner"]
+    played["toss_winner_won"] = played["toss_winner_franchise"] == played["winner_franchise"]
     table = played.groupby("toss_decision").agg(
         matches=("match_id", "count"),
         toss_winner_wins=("toss_winner_won", "sum"),
@@ -426,28 +470,39 @@ def toss_impact(matches):
     return table, round(overall, 1)
 
 
-# Home ground of each major team (standardised venue names from prepare_data.py).
-HOME_VENUES = {
-    "Chennai Super Kings": "MA Chidambaram Stadium, Chepauk",
-    "Mumbai Indians": "Wankhede Stadium",
-    "Kolkata Knight Riders": "Eden Gardens",
-    "Royal Challengers Bengaluru": "M Chinnaswamy Stadium",
-    "Delhi Capitals": "Feroz Shah Kotla",
-    "Punjab Kings": "Punjab Cricket Association IS Bindra Stadium, Mohali",
-    "Rajasthan Royals": "Sawai Mansingh Stadium",
-    "Sunrisers Hyderabad": "Rajiv Gandhi International Stadium, Uppal",
+# Home grounds of the 10 current franchises (standard venue names from prepare_data.py).
+# A list, because a team can move: Punjab Kings left Mohali for Mullanpur in 2024.
+HOME_GROUNDS = {
+    "Chennai Super Kings": ["MA Chidambaram Stadium, Chepauk"],
+    "Delhi Capitals": ["Arun Jaitley Stadium"],
+    "Gujarat Titans": ["Narendra Modi Stadium"],
+    "Kolkata Knight Riders": ["Eden Gardens"],
+    "Lucknow Super Giants": ["Ekana Cricket Stadium"],
+    "Mumbai Indians": ["Wankhede Stadium"],
+    "Punjab Kings": ["Punjab Cricket Association IS Bindra Stadium",
+                     "Maharaja Yadavindra Singh International Cricket Stadium"],
+    "Rajasthan Royals": ["Sawai Mansingh Stadium"],
+    "Royal Challengers Bengaluru": ["M Chinnaswamy Stadium"],
+    "Sunrisers Hyderabad": ["Rajiv Gandhi International Stadium, Uppal"],
 }
+CURRENT_FRANCHISES = list(HOME_GROUNDS.keys())
+
+
+def is_home_match(team, venue):
+    """True if the venue is one of the team's home grounds."""
+    return venue in HOME_GROUNDS.get(team, [])
 
 
 def home_away_performance(matches):
-    """Win % at the home ground vs everywhere else, for the 8 major teams."""
+    """Win % at the home ground(s) vs everywhere else, for the 10 current franchises."""
     results = team_results(matches)
-    results = results[results["team"].isin(HOME_VENUES.keys())].copy()
+    results = results[results["team"].isin(CURRENT_FRANCHISES)].copy()
 
-    # Look up each team's home ground and compare it with the match venue.
-    results["home_ground"] = results["team"].map(HOME_VENUES)
+    # Compare each match venue with the team's list of home grounds.
     results["location"] = "Away"
-    results.loc[results["venue"] == results["home_ground"], "location"] = "Home"
+    for i in results.index:
+        if is_home_match(results.at[i, "team"], results.at[i, "venue"]):
+            results.at[i, "location"] = "Home"
 
     table = results.groupby(["team", "location"]).agg(
         played=("match_id", "count"),
@@ -473,6 +528,18 @@ def head_to_head(matches, team_a, team_b):
     table["wins_b"] = table["played"] - table["wins_a"]
     table = table.rename(columns={"wins_a": team_a, "wins_b": team_b})
     return table
+
+
+def season_champions(matches):
+    """
+    The champion of each season = the winner of the FINAL,
+    which is the last match of the season (the latest date).
+    Returns the franchise and the name the team used that season.
+    """
+    finals = matches.sort_values(["date", "match_id"]).groupby("season").tail(1)
+    finals = finals[["season", "winner_franchise", "winner"]]
+    finals = finals.rename(columns={"winner_franchise": "champion", "winner": "champion_name"})
+    return finals.sort_values("season").reset_index(drop=True)
 
 
 def player_of_match_counts(matches, n=10):

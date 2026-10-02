@@ -64,20 +64,10 @@ AWARDS = [
     ("Most Player of the Match awards", "potm", "player", "awards"),
 ]
 
-# The REAL results of the predicted season (source: iplt20.com), used only to
-# check the prediction afterwards. The dataset ends in 2019, so these few facts
-# are typed in by hand; names are written the way this dataset writes them.
-#   prediction name: (winner, details)
-ACTUAL_RESULTS = {
-    2020: {
-        "IPL champion": ("Mumbai Indians", "beat Delhi Capitals in the final"),
-        "Orange Cap (most runs)": ("KL Rahul", "670 runs"),
-        "Purple Cap (most wickets)": ("K Rabada", "30 wickets"),
-        "Most sixes": ("Ishan Kishan", "30 sixes"),
-        "Playoff teams": (["Mumbai Indians", "Delhi Capitals", "Sunrisers Hyderabad",
-                           "Royal Challengers Bengaluru"], "the top 4 after the league stage"),
-    },
-}
+# The REAL results of a predicted season, if they are known, to check the
+# prediction afterwards. The data ends in 2026 and we predict 2027, which has
+# not been played yet, so this is empty (nothing is typed in by hand).
+ACTUAL_RESULTS = {}
 
 OUTPUT_FOLDER = analysis.OUTPUT_FOLDER
 
@@ -86,13 +76,8 @@ OUTPUT_FOLDER = analysis.OUTPUT_FOLDER
 # Past results we need
 # ---------------------------------------------------------------------------
 def season_champions(matches):
-    """
-    The champion of each season = the winner of the FINAL,
-    which is the last match of the season (the latest date).
-    """
-    finals = matches.sort_values("date").groupby("season").tail(1)
-    finals = finals[["season", "winner"]].rename(columns={"winner": "champion"})
-    return finals.sort_values("season").reset_index(drop=True)
+    """The champion (franchise) of each season. The formula lives in metrics.py."""
+    return metrics.season_champions(matches)
 
 
 def season_tables(matches, deliveries):
@@ -291,7 +276,7 @@ def backtest(matches, tables):
         history_end = season - 1
 
         # Champion: rank the teams that actually took part in this season.
-        teams = sorted(set(matches[matches["season"] == season]["team1"]))
+        teams = sorted(set(matches[matches["season"] == season]["team1_franchise"]))
         strengths = team_strengths(matches, history_end, teams)
         team_ranking = sorted(teams, key=strengths.get, reverse=True)
         actual = champions[champions["season"] == season]["champion"].iloc[0]
@@ -461,11 +446,11 @@ def main():
 
     matches, deliveries = metrics.load_processed_data()
     tables = season_tables(matches, deliveries)
-    last_season = int(matches["season"].max())     # 2019
-    next_season = last_season + 1                   # 2020
+    last_season = int(matches["season"].max())     # the last season in the data
+    next_season = last_season + 1                   # the season we predict
 
     # 1. Champion
-    teams = sorted(set(matches[matches["season"] == last_season]["team1"]))
+    teams = sorted(set(matches[matches["season"] == last_season]["team1_franchise"]))
     strengths = team_strengths(matches, last_season, teams)
     chances = title_chances(strengths)
     print("=== Predicted IPL", next_season, "champion (", SIMULATIONS, "simulated seasons) ===")

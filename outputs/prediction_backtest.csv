@@ -28,7 +28,7 @@ season,award,predicted,actual,actual_rank,correct,in_top_5
 2016,Orange Cap (most runs),DA Warner,V Kohli,3,False,True
 2016,Purple Cap (most wickets),DJ Bravo,B Kumar,5,False,True
 2016,Most sixes,CH Gayle,V Kohli,9,False,False
-2016,Most Player of the Match awards,A Nehra,V Kohli,15,False,False
+2016,Most Player of the Match awards,A Nehra,V Kohli,16,False,False
 2017,IPL champion,Gujarat Lions,Mumbai Indians,4,False,True
 2017,Orange Cap (most runs),V Kohli,DA Warner,2,False,True
 2017,Purple Cap (most wickets),B Kumar,B Kumar,1,True,True
@@ -44,3 +44,38 @@ season,award,predicted,actual,actual_rank,correct,in_top_5
 2019,Purple Cap (most wickets),Rashid Khan,Imran Tahir,30,False,False
 2019,Most sixes,KL Rahul,AD Russell,3,False,True
 2019,Most Player of the Match awards,AB de Villiers,AD Russell,16,False,False
+2020,IPL champion,Chennai Super Kings,Mumbai Indians,2,False,True
+2020,Orange Cap (most runs),DA Warner,KL Rahul,2,False,True
+2020,Purple Cap (most wickets),K Rabada,K Rabada,1,True,True
+2020,Most sixes,AD Russell,Ishan Kishan,31,False,False
+2020,Most Player of the Match awards,AD Russell,AB de Villiers / KL Rahul / RD Gaikwad / TA Boult,2,False,True
+2021,IPL champion,Mumbai Indians,Chennai Super Kings,3,False,True
+2021,Orange Cap (most runs),KL Rahul,RD Gaikwad,39,False,False
+2021,Purple Cap (most wickets),K Rabada,HV Patel,64,False,False
+2021,Most sixes,CH Gayle,KL Rahul,4,False,True
+2021,Most Player of the Match awards,RD Gaikwad,RD Gaikwad,1,True,True
+2022,IPL champion,Mumbai Indians,Gujarat Titans,6,False,False
+2022,Orange Cap (most runs),KL Rahul,JC Buttler,26,False,False
+2022,Purple Cap (most wickets),JJ Bumrah,YS Chahal,4,False,True
+2022,Most sixes,KL Rahul,JC Buttler,16,False,False
+2022,Most Player of the Match awards,RD Gaikwad,Kuldeep Yadav,,False,False
+2023,IPL champion,Gujarat Titans,Chennai Super Kings,8,False,False
+2023,Orange Cap (most runs),KL Rahul,Shubman Gill,5,False,True
+2023,Purple Cap (most wickets),YS Chahal,Mohammed Shami,4,False,True
+2023,Most sixes,JC Buttler,F du Plessis,9,False,False
+2023,Most Player of the Match awards,Kuldeep Yadav,Shubman Gill / YBK Jaiswal,17,False,False
+2024,IPL champion,Gujarat Titans,Kolkata Knight Riders,9,False,False
+2024,Orange Cap (most runs),Shubman Gill,V Kohli,6,False,False
+2024,Purple Cap (most wickets),MM Sharma,HV Patel,5,False,True
+2024,Most sixes,F du Plessis,Abhishek Sharma,58,False,False
+2024,Most Player of the Match awards,MP Stoinis,Abhishek Sharma / SP Narine / TM Head,,False,False
+2025,IPL champion,Kolkata Knight Riders,Royal Challengers Bengaluru,6,False,False
+2025,Orange Cap (most runs),V Kohli,B Sai Sudharsan,14,False,False
+2025,Purple Cap (most wickets),YS Chahal,M Prasidh Krishna,,False,False
+2025,Most sixes,H Klaasen,N Pooran,3,False,True
+2025,Most Player of the Match awards,SP Narine, / KH Pandya / SS Iyer,,False,False
+2026,IPL champion,Royal Challengers Bengaluru,Royal Challengers Bengaluru,1,True,True
+2026,Orange Cap (most runs),V Kohli,V Suryavanshi,44,False,False
+2026,Purple Cap (most wickets),M Prasidh Krishna,K Rabada,61,False,False
+2026,Most sixes,N Pooran,V Suryavanshi,11,False,False
+2026,Most Player of the Match awards,SS Iyer,Ishan Kishan / SV Samson / V Kohli / V Suryavanshi,10,False,False

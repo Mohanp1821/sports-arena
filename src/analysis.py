@@ -42,8 +42,8 @@ AQUA = "#1baf7a"
 GREY = "#8a8984"
 PHASE_COLOURS = {"Powerplay": BLUE, "Middle": ORANGE, "Death": AQUA}
 
-# The 8 teams that played in almost every season (used to keep charts readable).
-MAJOR_TEAMS = list(metrics.HOME_VENUES.keys())
+# The 10 franchises playing today (used to keep charts readable).
+MAJOR_TEAMS = metrics.CURRENT_FRANCHISES
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +188,7 @@ def plot_alltime_win_pct(matches):
         row = table.iloc[i]
         ax.text(row["win_pct"] + 0.5, i, str(row["win_pct"]) + "% (" + str(row["played"]) + " matches)",
                 va="center", fontsize=9)
-    ax.set_title("All-time win % by team (2008-2019)")
+    ax.set_title("All-time win % by franchise (" + metrics.season_range_text(matches) + ")")
     ax.set_xlabel("Win %")
     ax.set_ylabel("Team")
     ax.set_xlim(0, 75)
@@ -203,7 +203,7 @@ def plot_phase_run_rate(deliveries):
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.barplot(data=table, x="batting_team", y="run_rate", hue="phase",
                 hue_order=["Powerplay", "Middle", "Death"], palette=PHASE_COLOURS, ax=ax)
-    ax.set_title("Run rate by match phase (major teams, 2008-2019)")
+    ax.set_title("Run rate by match phase (current teams, " + metrics.season_range_text(deliveries) + ")")
     ax.set_xlabel("Team")
     ax.set_ylabel("Run rate (runs per over)")
     ax.tick_params(axis="x", rotation=40)
@@ -254,13 +254,13 @@ def plot_first_innings_trend(deliveries, matches):
 
 
 def plot_home_away(matches):
-    """Grouped bars: home vs away win % for the 8 major teams."""
+    """Grouped bars: home vs away win % for the 10 current franchises."""
     table = metrics.home_away_performance(matches)
 
     fig, ax = plt.subplots(figsize=(12, 5))
     sns.barplot(data=table, x="team", y="win_pct", hue="location",
                 hue_order=["Home", "Away"], palette={"Home": BLUE, "Away": ORANGE}, ax=ax)
-    ax.set_title("Home ground vs away win % (2008-2019)")
+    ax.set_title("Home ground vs away win % (" + metrics.season_range_text(matches) + ")")
     ax.set_xlabel("Team")
     ax.set_ylabel("Win %")
     ax.tick_params(axis="x", rotation=40)
@@ -455,7 +455,7 @@ def main():
     death = metrics.death_over_bowling(deliveries, min_overs=20).head(10)
     plot_top_bar(death, "bowler", "economy", "Death-over specialists: best economy in overs 16-20 (min 20 overs)",
                  "Economy (lower is better)", "death_over_specialists.png")
-    plot_top_bar(potm, "player", "awards", "Most Player of the Match awards (2008-2019)",
+    plot_top_bar(potm, "player", "awards", "Most Player of the Match awards (" + metrics.season_range_text(matches) + ")",
                  "Awards", "player_of_match.png")
 
     # Section 9: heatmap

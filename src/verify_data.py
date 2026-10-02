@@ -3,8 +3,14 @@ verify_data.py
 --------------
 Step 1 of the Sports Arena pipeline.
 
-This script checks that the raw dataset on your computer is EXACTLY the same
-as the one the project was built with. It does this using a SHA-256 checksum.
+This script checks that the data files on your computer are EXACTLY the same
+as the ones the project was built with. It does this using a SHA-256 checksum.
+
+Files checked:
+  data/merged/   the merged 2008-2026 dataset (the single source of truth)
+  data/          the player-name map and the Impact Player list
+  data/source/   the published explorer page the merged files were recovered from
+  data/raw/      the original Kaggle 2008-2019 files (kept for reference)
 
 What is a checksum?
     A checksum is a long "fingerprint" calculated from every byte of a file.
@@ -23,13 +29,18 @@ import sys       # built into Python, used to exit with an error code
 # Folder that holds this script (src/), and the project folder above it.
 SCRIPT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 PROJECT_FOLDER = os.path.dirname(SCRIPT_FOLDER)
-RAW_FOLDER = os.path.join(PROJECT_FOLDER, "data", "raw")
+DATA_FOLDER = os.path.join(PROJECT_FOLDER, "data")
 
-# The fingerprints we recorded when the project was built.
+# The fingerprints we recorded when the project was built (file path inside data/).
 # These same values are written in data/README.md.
 EXPECTED_CHECKSUMS = {
-    "matches.csv": "57241c8438ce93f1824e8a07f779dc1c588687cc8afa344b2974518ad35195cb",
-    "deliveries.csv": "412dca480d2bfd89138828331d45d687c29d7fb402f6b002803dd16952107314",
+    "merged/matches_2008_2026.csv": "a2ed25f1be44d4986aa98875e85096e44b3bf4defdc3ce5a5044c8dc037307a6",
+    "merged/deliveries_2008_2026.csv": "81c69222b95fcb3755b4de6e92df6aef5fc5a3480d0ff98b71186ff563406736",
+    "player_name_map.csv": "21505be19e2d0fbfc240b434d4664230323071d32f6ef176473c69b576e756f8",
+    "impact_players_2020_2026.csv": "ef45b304787c7736f75cfffa001e76c730a8b0058cfea5a7aac1a785e3774f34",
+    "source/ipl_2008_2026_explorer.html.gz": "e18f126c1e5034deb8d7846679de3c62f2af1cf5840e59b1c639c6cad8248d6d",
+    "raw/matches.csv": "57241c8438ce93f1824e8a07f779dc1c588687cc8afa344b2974518ad35195cb",
+    "raw/deliveries.csv": "412dca480d2bfd89138828331d45d687c29d7fb402f6b002803dd16952107314",
 }
 
 
@@ -49,11 +60,11 @@ def sha256_of_file(file_path):
 
 def main():
     """Check every expected file and print a clear result."""
-    print("Checking raw data in:", RAW_FOLDER)
+    print("Checking data in:", DATA_FOLDER)
     all_ok = True
 
     for file_name in EXPECTED_CHECKSUMS:
-        file_path = os.path.join(RAW_FOLDER, file_name)
+        file_path = os.path.join(DATA_FOLDER, file_name)
         expected = EXPECTED_CHECKSUMS[file_name]
 
         # Case 1: the file is missing.
