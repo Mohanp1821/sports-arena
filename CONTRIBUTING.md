@@ -22,8 +22,10 @@ Thank you for helping! Please keep all code **simple and commented**: this is a 
 - Prefer clear step-by-step pandas (`groupby`, `merge`) over clever one-liners.
 - Every chart has a title, axis labels and a legend (when there are 2+ series), and is saved to `outputs/`.
 - Explain every cricket formula in a comment.
-- Never edit files in `data/raw/`. Put cleaning steps in `src/prepare_data.py`.
-- If you change a function in `src/`, update the matching cell in `notebooks/ipl_analysis.ipynb`.
+- Never edit files in `data/merged/` (or `data/raw/`). Put cleaning steps in `src/prepare_data.py`.
+- Every number in charts, the dashboard and the chatbot must be calculated from the data; keep random seeds fixed.
+- The notebook imports the functions from `src/`; if you rename a function, update the notebook cell that calls it.
+- New chatbot answers need a check in `tests/test_chatbot.js`.
 
 ## Reporting problems
 

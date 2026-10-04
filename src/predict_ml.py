@@ -461,8 +461,9 @@ def logistic_weights(models):
     """The logistic regression weights (on standardised features): sign and size show each feature's effect."""
     logistic = models["Logistic regression"].named_steps["logisticregression"]
     importance = models["Gradient boosting"].feature_importances_
-    return pd.DataFrame({"feature": FEATURES, "logistic_weight": logistic.coef_[0].round(3),
-                         "boosting_importance": importance.round(3)})
+    # "+ 0.0" turns a rounded -0.0 into 0.0, so the file is identical on every computer.
+    return pd.DataFrame({"feature": FEATURES, "logistic_weight": logistic.coef_[0].round(3) + 0.0,
+                         "boosting_importance": importance.round(3) + 0.0})
 
 
 # ---------------------------------------------------------------------------
