@@ -12,17 +12,21 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 3b. Node.js (open source) runs the chatbot's question checks (tests/test_chatbot.js).
+RUN apt-get update && apt-get install -y --no-install-recommends nodejs && rm -rf /var/lib/apt/lists/*
+
 # 4. Copy the code, tests and data into the image.
 COPY src/ src/
 COPY tests/ tests/
 COPY data/ data/
 
 # 5. Default command: run the whole pipeline in order.
-#    verify data -> clean data -> charts -> fact checks -> Model A -> Model B -> dashboard pages
+#    verify data -> clean data -> charts -> fact checks -> Model A -> Model B -> dashboard pages -> chatbot checks
 CMD python src/verify_data.py && \
     python src/prepare_data.py && \
     python src/analysis.py && \
     python tests/test_facts.py && \
     python src/predict.py && \
     python src/predict_ml.py && \
-    python src/build_report.py
+    python src/build_report.py && \
+    node tests/test_chatbot.js

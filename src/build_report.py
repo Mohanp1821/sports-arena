@@ -25,10 +25,12 @@ import pandas as pd
 import metrics          # our own file: src/metrics.py
 import dashboard_data   # our own file: src/dashboard_data.py (tables for the analyst views)
 import match_centre     # our own file: src/match_centre.py (the ball-by-ball match centre page)
+import chat_facts       # our own file: src/chat_facts.py (the facts the chatbot may use)
 
 OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
 EXPLORER_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_explorer.js")
 ANALYTICS_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_analytics.js")
+CHATBOT_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "chatbot.js")
 CHASE_MODEL_FILE = os.path.join(OUTPUT_FOLDER, "chase_win_probability_model.csv")   # saved by analysis.py
 DEFAULT_PLAYER = "V Kohli"   # player shown first in the player search
 
@@ -128,6 +130,16 @@ button { cursor: pointer; background: #eef3fb; }
 .bar-row.highlight .bar-fill { background: #eb6834; }
 .bar-row.highlight { font-weight: bold; }
 .bar-value { white-space: nowrap; color: #333; }
+.chat { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 12px 16px; }
+#chat-log { height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px; }
+.chat-msg { max-width: 88%; padding: 8px 12px; border-radius: 10px; font-size: 15px; white-space: pre-wrap; }
+.chat-msg.user { align-self: flex-end; background: #2a78d6; color: white; }
+.chat-msg.bot { align-self: flex-start; background: #f1f1ee; }
+.chat-msg small { display: block; margin-top: 4px; color: #555; font-size: 12px; }
+#chat-form { display: flex; gap: 8px; margin-top: 8px; }
+#chat-input { flex: 1; }
+#chat-examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+#chat-examples button { font-size: 13px; padding: 4px 8px; }
 """
 
 
@@ -553,6 +565,27 @@ def analyst_sections(matches, deliveries, impact):
     return "\n".join(parts)
 
 
+def chat_section(matches, deliveries, impact):
+    """
+    HTML for the "Ask Sports Arena" chat panel. The facts (made by chat_facts.py)
+    and the answer engine (src/chatbot.js) are inside the page, so it works offline.
+    """
+    facts = chat_facts.build_facts(matches, deliveries, impact)
+    text = json.dumps(facts, separators=(",", ":"), default=lambda value: value.item())
+    with open(CHATBOT_SCRIPT, encoding="utf-8") as file:
+        script = file.read()
+    return ("<h2 id='ask'>Ask Sports Arena</h2>"
+            "<p>Ask about players, teams, grounds, caps, champions, matchups, the Impact Player era, a match on a date, "
+            "or the " + str(int(matches["season"].max()) + 1) + " predictions. Answers use only numbers calculated "
+            "from the data, and say where they come from.</p>"
+            "<div class='chat'><div id='chat-mode' class='note'>Offline mode (no internet or API key needed).</div>"
+            "<div id='chat-log'></div><form id='chat-form'><input id='chat-input' autocomplete='off' "
+            "placeholder='e.g. Kohli vs Bumrah, or Who won the Orange Cap in 2016?'><button type='submit'>Ask</button>"
+            "</form><div id='chat-examples'></div></div>"
+            "<script type='application/json' id='chat-facts'>" + text.replace("</", "<\\/") + "</script>"
+            "<script>\n" + script + "\n</script>")
+
+
 def section_id(name):
     """Turn a section name like 'Player form' into a link target like 'player-form'."""
     return name.lower().replace(" ", "-")
@@ -560,7 +593,7 @@ def section_id(name):
 
 def navigation_bar(next_season):
     """A menu fixed at the top of the page with a link to every section."""
-    links = [("predictions", "Predictions " + str(next_season) + ": A vs B"), ("explore", "Explore (interactive)"),
+    links = [("predictions", "Predictions " + str(next_season) + ": A vs B"), ("ask", "Ask Sports Arena"), ("explore", "Explore (interactive)"),
              ("rivalry", "Rivalries"), ("matchups", "Matchups"), ("grounds", "Grounds"),
              ("specialists", "Specialists"), ("impact-era", "Impact Player era"), ("trends", "Trends"),
              ("match-centre", "Match centre"), ("insights", "Key insights"), ("caps", "Cap winners")]
@@ -569,7 +602,7 @@ def navigation_bar(next_season):
 
     parts = ["<nav><div>"]
     for target, label in links:
-        css_class = " class='star'" if target in ["predictions", "explore"] else ""
+        css_class = " class='star'" if target in ["predictions", "ask", "explore"] else ""
         parts.append("<a href='#" + target + "'" + css_class + ">" + label + "</a>")
     parts.append("</div></nav>")
     return "".join(parts)
@@ -599,11 +632,15 @@ def make_page(matches, deliveries):
     # Predictions for the next season (made by predict.py), near the top so they are easy to find
     parts.append(prediction_section(matches, deliveries, next_season))
 
+    # The chatbot, straight after the predictions
+    impact = metrics.load_impact_players()
+    parts.append(chat_section(matches, deliveries, impact))
+
     # Interactive section: filters, clickable chart and player search
     parts.append(explorer_section(matches, deliveries))
 
     # Analyst views: rivalries, matchups, grounds, specialists, Impact Player era, trends
-    parts.append(analyst_sections(matches, deliveries, metrics.load_impact_players()))
+    parts.append(analyst_sections(matches, deliveries, impact))
 
     # Insights
     parts.append("<h2 id='insights'>Key insights</h2><ul class='insights'>")
