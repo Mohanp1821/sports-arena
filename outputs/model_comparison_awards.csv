@@ -1,0 +1,49 @@
+model,season,award,pick,actual,actual_rank
+Model A,2021,Orange Cap (most runs),KL Rahul,RD Gaikwad,39.0
+Model A,2021,Purple Cap (most wickets),K Rabada,HV Patel,64.0
+Model A,2021,Most sixes,CH Gayle,KL Rahul,4.0
+Model A,2021,Most Player of the Match awards,RD Gaikwad,RD Gaikwad,1.0
+Model A,2022,Orange Cap (most runs),KL Rahul,JC Buttler,26.0
+Model A,2022,Purple Cap (most wickets),JJ Bumrah,YS Chahal,4.0
+Model A,2022,Most sixes,KL Rahul,JC Buttler,16.0
+Model A,2022,Most Player of the Match awards,RD Gaikwad,Kuldeep Yadav,
+Model A,2023,Orange Cap (most runs),KL Rahul,Shubman Gill,5.0
+Model A,2023,Purple Cap (most wickets),YS Chahal,Mohammed Shami,4.0
+Model A,2023,Most sixes,JC Buttler,F du Plessis,9.0
+Model A,2023,Most Player of the Match awards,Kuldeep Yadav,Shubman Gill / YBK Jaiswal,17.0
+Model A,2024,Orange Cap (most runs),Shubman Gill,V Kohli,6.0
+Model A,2024,Purple Cap (most wickets),MM Sharma,HV Patel,5.0
+Model A,2024,Most sixes,F du Plessis,Abhishek Sharma,58.0
+Model A,2024,Most Player of the Match awards,MP Stoinis,Abhishek Sharma / SP Narine / TM Head,
+Model A,2025,Orange Cap (most runs),V Kohli,B Sai Sudharsan,14.0
+Model A,2025,Purple Cap (most wickets),YS Chahal,M Prasidh Krishna,
+Model A,2025,Most sixes,H Klaasen,N Pooran,3.0
+Model A,2025,Most Player of the Match awards,SP Narine,KH Pandya / SS Iyer,
+Model A,2026,Orange Cap (most runs),V Kohli,V Suryavanshi,44.0
+Model A,2026,Purple Cap (most wickets),M Prasidh Krishna,K Rabada,61.0
+Model A,2026,Most sixes,N Pooran,V Suryavanshi,11.0
+Model A,2026,Most Player of the Match awards,SS Iyer,Ishan Kishan / SV Samson / V Kohli / V Suryavanshi,9.0
+Model B,2021,Orange Cap (most runs),KL Rahul,RD Gaikwad,42.0
+Model B,2021,Purple Cap (most wickets),K Rabada,HV Patel,56.0
+Model B,2021,Most sixes,HH Pandya,KL Rahul,4.0
+Model B,2021,Most Player of the Match awards,KL Rahul,RD Gaikwad,37.0
+Model B,2022,Orange Cap (most runs),KL Rahul,JC Buttler,26.0
+Model B,2022,Purple Cap (most wickets),HV Patel,YS Chahal,5.0
+Model B,2022,Most sixes,KL Rahul,JC Buttler,15.0
+Model B,2022,Most Player of the Match awards,KL Rahul,Kuldeep Yadav,
+Model B,2023,Orange Cap (most runs),JC Buttler,Shubman Gill,4.0
+Model B,2023,Purple Cap (most wickets),YS Chahal,Mohammed Shami,3.0
+Model B,2023,Most sixes,JC Buttler,F du Plessis,13.0
+Model B,2023,Most Player of the Match awards,JC Buttler,Shubman Gill / YBK Jaiswal,7.0
+Model B,2024,Orange Cap (most runs),Shubman Gill,V Kohli,4.0
+Model B,2024,Purple Cap (most wickets),YS Chahal,HV Patel,4.0
+Model B,2024,Most sixes,Shubman Gill,Abhishek Sharma,49.0
+Model B,2024,Most Player of the Match awards,Shubman Gill,Abhishek Sharma / SP Narine / TM Head,28.0
+Model B,2025,Orange Cap (most runs),V Kohli,B Sai Sudharsan,7.0
+Model B,2025,Purple Cap (most wickets),YS Chahal,M Prasidh Krishna,
+Model B,2025,Most sixes,N Pooran,N Pooran,1.0
+Model B,2025,Most Player of the Match awards,V Kohli,KH Pandya / SS Iyer,51.0
+Model B,2026,Orange Cap (most runs),B Sai Sudharsan,V Suryavanshi,61.0
+Model B,2026,Purple Cap (most wickets),Arshdeep Singh,K Rabada,56.0
+Model B,2026,Most sixes,N Pooran,V Suryavanshi,34.0
+Model B,2026,Most Player of the Match awards,B Sai Sudharsan,Ishan Kishan / SV Samson / V Kohli / V Suryavanshi,3.0

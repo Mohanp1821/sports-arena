@@ -1,0 +1,423 @@
+model,season,match_id,team1,team2,p_team1,team1_won
+Model A,2021,1254058,Mumbai Indians,Royal Challengers Bengaluru,0.5983,0
+Model A,2021,1254059,Chennai Super Kings,Delhi Capitals,0.4967,0
+Model A,2021,1254060,Kolkata Knight Riders,Sunrisers Hyderabad,0.5031,1
+Model A,2021,1254061,Punjab Kings,Rajasthan Royals,0.5047,1
+Model A,2021,1254062,Mumbai Indians,Kolkata Knight Riders,0.5698,1
+Model A,2021,1254063,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.4737,1
+Model A,2021,1254064,Delhi Capitals,Rajasthan Royals,0.5582,0
+Model A,2021,1254065,Punjab Kings,Chennai Super Kings,0.4497,0
+Model A,2021,1254066,Mumbai Indians,Sunrisers Hyderabad,0.5728,1
+Model A,2021,1254067,Royal Challengers Bengaluru,Kolkata Knight Riders,0.4707,1
+Model A,2021,1254068,Punjab Kings,Delhi Capitals,0.4464,0
+Model A,2021,1254069,Chennai Super Kings,Rajasthan Royals,0.555,1
+Model A,2021,1254070,Mumbai Indians,Delhi Capitals,0.548,0
+Model A,2021,1254071,Punjab Kings,Sunrisers Hyderabad,0.4714,0
+Model A,2021,1254072,Chennai Super Kings,Kolkata Knight Riders,0.5188,1
+Model A,2021,1254073,Rajasthan Royals,Royal Challengers Bengaluru,0.493,0
+Model A,2021,1254074,Mumbai Indians,Punjab Kings,0.6006,0
+Model A,2021,1254075,Kolkata Knight Riders,Rajasthan Royals,0.5363,0
+Model A,2021,1254076,Chennai Super Kings,Royal Challengers Bengaluru,0.548,1
+Model A,2021,1254077,Delhi Capitals,Sunrisers Hyderabad,0.5252,1
+Model A,2021,1254078,Punjab Kings,Kolkata Knight Riders,0.4683,0
+Model A,2021,1254079,Royal Challengers Bengaluru,Delhi Capitals,0.4487,1
+Model A,2021,1254080,Sunrisers Hyderabad,Chennai Super Kings,0.4781,0
+Model A,2021,1254081,Rajasthan Royals,Mumbai Indians,0.3949,0
+Model A,2021,1254082,Kolkata Knight Riders,Delhi Capitals,0.4779,0
+Model A,2021,1254083,Punjab Kings,Royal Challengers Bengaluru,0.4977,1
+Model A,2021,1254084,Chennai Super Kings,Mumbai Indians,0.4487,0
+Model A,2021,1254085,Rajasthan Royals,Sunrisers Hyderabad,0.4667,1
+Model A,2021,1254086,Punjab Kings,Delhi Capitals,0.4464,0
+Model A,2021,1254104,Chennai Super Kings,Mumbai Indians,0.4487,1
+Model A,2021,1254087,Royal Challengers Bengaluru,Kolkata Knight Riders,0.4707,0
+Model A,2021,1254111,Rajasthan Royals,Punjab Kings,0.4953,1
+Model A,2021,1254105,Sunrisers Hyderabad,Delhi Capitals,0.4748,0
+Model A,2021,1254096,Mumbai Indians,Kolkata Knight Riders,0.5698,0
+Model A,2021,1254113,Royal Challengers Bengaluru,Chennai Super Kings,0.452,0
+Model A,2021,1254097,Delhi Capitals,Rajasthan Royals,0.5582,1
+Model A,2021,1254107,Punjab Kings,Sunrisers Hyderabad,0.4714,1
+Model A,2021,1254098,Kolkata Knight Riders,Chennai Super Kings,0.4812,0
+Model A,2021,1254108,Royal Challengers Bengaluru,Mumbai Indians,0.4017,1
+Model A,2021,1254100,Rajasthan Royals,Sunrisers Hyderabad,0.4667,0
+Model A,2021,1254092,Delhi Capitals,Kolkata Knight Riders,0.5221,0
+Model A,2021,1254099,Punjab Kings,Mumbai Indians,0.3994,0
+Model A,2021,1254103,Rajasthan Royals,Royal Challengers Bengaluru,0.493,0
+Model A,2021,1254091,Sunrisers Hyderabad,Chennai Super Kings,0.4781,0
+Model A,2021,1254102,Kolkata Knight Riders,Punjab Kings,0.5317,0
+Model A,2021,1254089,Chennai Super Kings,Rajasthan Royals,0.555,0
+Model A,2021,1254112,Mumbai Indians,Delhi Capitals,0.548,0
+Model A,2021,1254090,Royal Challengers Bengaluru,Punjab Kings,0.5023,1
+Model A,2021,1254109,Sunrisers Hyderabad,Kolkata Knight Riders,0.4969,0
+Model A,2021,1254110,Chennai Super Kings,Delhi Capitals,0.4967,0
+Model A,2021,1254093,Rajasthan Royals,Mumbai Indians,0.3949,0
+Model A,2021,1254095,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5263,1
+Model A,2021,1254094,Chennai Super Kings,Punjab Kings,0.5503,0
+Model A,2021,1254106,Kolkata Knight Riders,Rajasthan Royals,0.5363,1
+Model A,2021,1254088,Mumbai Indians,Sunrisers Hyderabad,0.5728,1
+Model A,2021,1254101,Delhi Capitals,Royal Challengers Bengaluru,0.5513,0
+Model A,2021,1254114,Delhi Capitals,Chennai Super Kings,0.5033,0
+Model A,2021,1254115,Royal Challengers Bengaluru,Kolkata Knight Riders,0.4707,0
+Model A,2021,1254116,Delhi Capitals,Kolkata Knight Riders,0.5221,0
+Model A,2021,1254117,Chennai Super Kings,Kolkata Knight Riders,0.5188,1
+Model A,2022,1304047,Chennai Super Kings,Kolkata Knight Riders,0.5377,0
+Model A,2022,1304048,Mumbai Indians,Delhi Capitals,0.5004,0
+Model A,2022,1304049,Royal Challengers Bengaluru,Punjab Kings,0.5479,0
+Model A,2022,1304050,Lucknow Super Giants,Gujarat Titans,0.5,0
+Model A,2022,1304051,Rajasthan Royals,Sunrisers Hyderabad,0.5317,1
+Model A,2022,1304052,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4917,0
+Model A,2022,1304053,Chennai Super Kings,Lucknow Super Giants,0.5392,0
+Model A,2022,1304054,Punjab Kings,Kolkata Knight Riders,0.4603,0
+Model A,2022,1304055,Rajasthan Royals,Mumbai Indians,0.3939,1
+Model A,2022,1304056,Gujarat Titans,Delhi Capitals,0.4575,1
+Model A,2022,1304057,Punjab Kings,Chennai Super Kings,0.4231,1
+Model A,2022,1304058,Lucknow Super Giants,Sunrisers Hyderabad,0.5952,1
+Model A,2022,1304059,Rajasthan Royals,Royal Challengers Bengaluru,0.426,0
+Model A,2022,1304060,Mumbai Indians,Kolkata Knight Riders,0.5415,0
+Model A,2022,1304061,Delhi Capitals,Lucknow Super Giants,0.5425,0
+Model A,2022,1304062,Punjab Kings,Gujarat Titans,0.4618,0
+Model A,2022,1304063,Chennai Super Kings,Sunrisers Hyderabad,0.6324,0
+Model A,2022,1304064,Mumbai Indians,Royal Challengers Bengaluru,0.5332,0
+Model A,2022,1304065,Delhi Capitals,Kolkata Knight Riders,0.5411,1
+Model A,2022,1304066,Rajasthan Royals,Lucknow Super Giants,0.4357,1
+Model A,2022,1304067,Gujarat Titans,Sunrisers Hyderabad,0.5952,0
+Model A,2022,1304068,Chennai Super Kings,Royal Challengers Bengaluru,0.5294,1
+Model A,2022,1304069,Punjab Kings,Mumbai Indians,0.4194,1
+Model A,2022,1304070,Gujarat Titans,Rajasthan Royals,0.5643,1
+Model A,2022,1304071,Kolkata Knight Riders,Sunrisers Hyderabad,0.5967,0
+Model A,2022,1304072,Lucknow Super Giants,Mumbai Indians,0.457,1
+Model A,2022,1304073,Royal Challengers Bengaluru,Delhi Capitals,0.4672,1
+Model A,2022,1304074,Punjab Kings,Sunrisers Hyderabad,0.5579,0
+Model A,2022,1304075,Chennai Super Kings,Gujarat Titans,0.5392,0
+Model A,2022,1304076,Rajasthan Royals,Kolkata Knight Riders,0.4342,1
+Model A,2022,1304077,Royal Challengers Bengaluru,Lucknow Super Giants,0.5098,1
+Model A,2022,1304078,Punjab Kings,Delhi Capitals,0.4198,0
+Model A,2022,1304079,Mumbai Indians,Chennai Super Kings,0.5038,0
+Model A,2022,1304080,Rajasthan Royals,Delhi Capitals,0.3943,1
+Model A,2022,1304081,Gujarat Titans,Kolkata Knight Riders,0.4985,1
+Model A,2022,1304082,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.6047,0
+Model A,2022,1304083,Lucknow Super Giants,Mumbai Indians,0.457,1
+Model A,2022,1304084,Punjab Kings,Chennai Super Kings,0.4231,1
+Model A,2022,1304085,Rajasthan Royals,Royal Challengers Bengaluru,0.426,1
+Model A,2022,1304086,Sunrisers Hyderabad,Gujarat Titans,0.4048,0
+Model A,2022,1304087,Kolkata Knight Riders,Delhi Capitals,0.4589,0
+Model A,2022,1304088,Lucknow Super Giants,Punjab Kings,0.5382,1
+Model A,2022,1304089,Royal Challengers Bengaluru,Gujarat Titans,0.5098,0
+Model A,2022,1304090,Rajasthan Royals,Mumbai Indians,0.3939,0
+Model A,2022,1304091,Lucknow Super Giants,Delhi Capitals,0.4575,1
+Model A,2022,1304092,Chennai Super Kings,Sunrisers Hyderabad,0.6324,1
+Model A,2022,1304093,Rajasthan Royals,Kolkata Knight Riders,0.4342,0
+Model A,2022,1304094,Gujarat Titans,Punjab Kings,0.5382,0
+Model A,2022,1304095,Royal Challengers Bengaluru,Chennai Super Kings,0.4706,1
+Model A,2022,1304096,Delhi Capitals,Sunrisers Hyderabad,0.6356,1
+Model A,2022,1304097,Mumbai Indians,Gujarat Titans,0.543,1
+Model A,2022,1304098,Punjab Kings,Rajasthan Royals,0.5264,0
+Model A,2022,1304099,Lucknow Super Giants,Kolkata Knight Riders,0.4985,1
+Model A,2022,1304100,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.6047,1
+Model A,2022,1304101,Chennai Super Kings,Delhi Capitals,0.4966,1
+Model A,2022,1304102,Kolkata Knight Riders,Mumbai Indians,0.4585,1
+Model A,2022,1304103,Gujarat Titans,Lucknow Super Giants,0.5,1
+Model A,2022,1304104,Rajasthan Royals,Delhi Capitals,0.3943,0
+Model A,2022,1304105,Chennai Super Kings,Mumbai Indians,0.4962,0
+Model A,2022,1304106,Punjab Kings,Royal Challengers Bengaluru,0.4521,1
+Model A,2022,1304107,Kolkata Knight Riders,Sunrisers Hyderabad,0.5967,1
+Model A,2022,1304108,Chennai Super Kings,Gujarat Titans,0.5392,0
+Model A,2022,1304109,Rajasthan Royals,Lucknow Super Giants,0.4357,1
+Model A,2022,1304110,Delhi Capitals,Punjab Kings,0.5802,1
+Model A,2022,1304111,Sunrisers Hyderabad,Mumbai Indians,0.364,1
+Model A,2022,1304112,Lucknow Super Giants,Kolkata Knight Riders,0.4985,1
+Model A,2022,1304113,Gujarat Titans,Royal Challengers Bengaluru,0.4902,0
+Model A,2022,1304114,Chennai Super Kings,Rajasthan Royals,0.6025,0
+Model A,2022,1304115,Delhi Capitals,Mumbai Indians,0.4996,0
+Model A,2022,1304116,Sunrisers Hyderabad,Punjab Kings,0.4421,0
+Model A,2022,1312197,Rajasthan Royals,Gujarat Titans,0.4357,0
+Model A,2022,1312198,Royal Challengers Bengaluru,Lucknow Super Giants,0.5098,1
+Model A,2022,1312199,Royal Challengers Bengaluru,Rajasthan Royals,0.574,0
+Model A,2022,1312200,Rajasthan Royals,Gujarat Titans,0.4357,0
+Model A,2023,1359475,Chennai Super Kings,Gujarat Titans,0.3719,0
+Model A,2023,1359476,Punjab Kings,Kolkata Knight Riders,0.4947,1
+Model A,2023,1359477,Lucknow Super Giants,Delhi Capitals,0.5236,1
+Model A,2023,1359478,Rajasthan Royals,Sunrisers Hyderabad,0.5674,1
+Model A,2023,1359479,Mumbai Indians,Royal Challengers Bengaluru,0.4313,0
+Model A,2023,1359480,Chennai Super Kings,Lucknow Super Giants,0.4253,1
+Model A,2023,1359481,Delhi Capitals,Gujarat Titans,0.4213,0
+Model A,2023,1359482,Punjab Kings,Rajasthan Royals,0.4895,1
+Model A,2023,1359483,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4589,1
+Model A,2023,1359484,Sunrisers Hyderabad,Lucknow Super Giants,0.3808,0
+Model A,2023,1359485,Rajasthan Royals,Delhi Capitals,0.4699,1
+Model A,2023,1359486,Mumbai Indians,Chennai Super Kings,0.4885,0
+Model A,2023,1359487,Gujarat Titans,Kolkata Knight Riders,0.6127,0
+Model A,2023,1359488,Punjab Kings,Sunrisers Hyderabad,0.557,0
+Model A,2023,1359489,Royal Challengers Bengaluru,Lucknow Super Giants,0.4823,0
+Model A,2023,1359490,Delhi Capitals,Mumbai Indians,0.5629,0
+Model A,2023,1359491,Rajasthan Royals,Chennai Super Kings,0.5216,1
+Model A,2023,1359492,Punjab Kings,Gujarat Titans,0.3822,0
+Model A,2023,1359493,Sunrisers Hyderabad,Kolkata Knight Riders,0.4377,1
+Model A,2023,1359494,Royal Challengers Bengaluru,Delhi Capitals,0.5059,1
+Model A,2023,1359495,Lucknow Super Giants,Punjab Kings,0.5639,0
+Model A,2023,1359496,Kolkata Knight Riders,Mumbai Indians,0.5278,0
+Model A,2023,1359497,Gujarat Titans,Rajasthan Royals,0.6078,0
+Model A,2023,1359498,Chennai Super Kings,Royal Challengers Bengaluru,0.4427,1
+Model A,2023,1359499,Mumbai Indians,Sunrisers Hyderabad,0.5347,1
+Model A,2023,1359500,Lucknow Super Giants,Rajasthan Royals,0.5535,1
+Model A,2023,1359501,Royal Challengers Bengaluru,Punjab Kings,0.5464,1
+Model A,2023,1359502,Kolkata Knight Riders,Delhi Capitals,0.4647,0
+Model A,2023,1359503,Sunrisers Hyderabad,Chennai Super Kings,0.4539,0
+Model A,2023,1359504,Gujarat Titans,Lucknow Super Giants,0.5556,1
+Model A,2023,1359505,Punjab Kings,Mumbai Indians,0.5225,1
+Model A,2023,1359506,Royal Challengers Bengaluru,Rajasthan Royals,0.536,1
+Model A,2023,1359507,Chennai Super Kings,Kolkata Knight Riders,0.4837,1
+Model A,2023,1359508,Delhi Capitals,Sunrisers Hyderabad,0.5967,1
+Model A,2023,1359509,Gujarat Titans,Mumbai Indians,0.6388,1
+Model A,2023,1359510,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4589,1
+Model A,2023,1359511,Rajasthan Royals,Chennai Super Kings,0.5216,1
+Model A,2023,1359512,Lucknow Super Giants,Punjab Kings,0.5639,1
+Model A,2023,1359513,Kolkata Knight Riders,Gujarat Titans,0.3873,0
+Model A,2023,1359514,Sunrisers Hyderabad,Delhi Capitals,0.4033,1
+Model A,2023,1359515,Chennai Super Kings,Punjab Kings,0.489,0
+Model A,2023,1359516,Rajasthan Royals,Mumbai Indians,0.533,0
+Model A,2023,1359517,Royal Challengers Bengaluru,Lucknow Super Giants,0.4823,1
+Model A,2023,1359518,Delhi Capitals,Gujarat Titans,0.4213,1
+Model A,2023,1359520,Punjab Kings,Mumbai Indians,0.5225,0
+Model A,2023,1359521,Kolkata Knight Riders,Sunrisers Hyderabad,0.5623,1
+Model A,2023,1359522,Rajasthan Royals,Gujarat Titans,0.3922,0
+Model A,2023,1359523,Mumbai Indians,Chennai Super Kings,0.4885,0
+Model A,2023,1359524,Royal Challengers Bengaluru,Delhi Capitals,0.5059,0
+Model A,2023,1359525,Gujarat Titans,Lucknow Super Giants,0.5556,1
+Model A,2023,1359526,Rajasthan Royals,Sunrisers Hyderabad,0.5674,0
+Model A,2023,1359527,Punjab Kings,Kolkata Knight Riders,0.4947,0
+Model A,2023,1359528,Royal Challengers Bengaluru,Mumbai Indians,0.5687,0
+Model A,2023,1359529,Chennai Super Kings,Delhi Capitals,0.4485,1
+Model A,2023,1359530,Kolkata Knight Riders,Rajasthan Royals,0.4948,0
+Model A,2023,1359531,Mumbai Indians,Gujarat Titans,0.3612,1
+Model A,2023,1359532,Sunrisers Hyderabad,Lucknow Super Giants,0.3808,0
+Model A,2023,1359533,Punjab Kings,Delhi Capitals,0.4594,1
+Model A,2023,1359534,Royal Challengers Bengaluru,Rajasthan Royals,0.536,1
+Model A,2023,1359535,Chennai Super Kings,Kolkata Knight Riders,0.4837,0
+Model A,2023,1359536,Gujarat Titans,Sunrisers Hyderabad,0.6702,1
+Model A,2023,1359537,Lucknow Super Giants,Mumbai Indians,0.5859,1
+Model A,2023,1359538,Delhi Capitals,Punjab Kings,0.5406,1
+Model A,2023,1359539,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.3976,0
+Model A,2023,1359540,Punjab Kings,Rajasthan Royals,0.4895,0
+Model A,2023,1359541,Chennai Super Kings,Delhi Capitals,0.4485,1
+Model A,2023,1359542,Lucknow Super Giants,Kolkata Knight Riders,0.5587,1
+Model A,2023,1359543,Sunrisers Hyderabad,Mumbai Indians,0.4653,0
+Model A,2023,1359544,Royal Challengers Bengaluru,Gujarat Titans,0.427,0
+Model A,2023,1370350,Chennai Super Kings,Gujarat Titans,0.3719,1
+Model A,2023,1370351,Mumbai Indians,Lucknow Super Giants,0.4141,1
+Model A,2023,1370352,Gujarat Titans,Mumbai Indians,0.6388,1
+Model A,2023,1370353,Gujarat Titans,Chennai Super Kings,0.6281,0
+Model A,2024,1422119,Royal Challengers Bengaluru,Chennai Super Kings,0.4968,0
+Model A,2024,1422120,Delhi Capitals,Punjab Kings,0.4978,0
+Model A,2024,1422121,Kolkata Knight Riders,Sunrisers Hyderabad,0.5807,1
+Model A,2024,1422122,Rajasthan Royals,Lucknow Super Giants,0.4646,1
+Model A,2024,1422123,Gujarat Titans,Mumbai Indians,0.5993,1
+Model A,2024,1422124,Punjab Kings,Royal Challengers Bengaluru,0.4576,0
+Model A,2024,1422125,Chennai Super Kings,Gujarat Titans,0.4416,1
+Model A,2024,1422126,Sunrisers Hyderabad,Mumbai Indians,0.4118,1
+Model A,2024,1422127,Rajasthan Royals,Delhi Capitals,0.5298,1
+Model A,2024,1422128,Royal Challengers Bengaluru,Kolkata Knight Riders,0.5463,0
+Model A,2024,1422129,Lucknow Super Giants,Punjab Kings,0.5627,1
+Model A,2024,1422130,Sunrisers Hyderabad,Gujarat Titans,0.3188,0
+Model A,2024,1422131,Delhi Capitals,Chennai Super Kings,0.4522,1
+Model A,2024,1422132,Mumbai Indians,Rajasthan Royals,0.4762,0
+Model A,2024,1422133,Lucknow Super Giants,Royal Challengers Bengaluru,0.5205,1
+Model A,2024,1422134,Kolkata Knight Riders,Delhi Capitals,0.4983,1
+Model A,2024,1422135,Gujarat Titans,Punjab Kings,0.603,0
+Model A,2024,1422136,Chennai Super Kings,Sunrisers Hyderabad,0.6282,0
+Model A,2024,1422137,Royal Challengers Bengaluru,Rajasthan Royals,0.5149,0
+Model A,2024,1422138,Mumbai Indians,Delhi Capitals,0.5061,1
+Model A,2024,1422139,Lucknow Super Giants,Gujarat Titans,0.4587,1
+Model A,2024,1426260,Kolkata Knight Riders,Chennai Super Kings,0.4505,0
+Model A,2024,1426261,Sunrisers Hyderabad,Punjab Kings,0.4155,1
+Model A,2024,1426262,Rajasthan Royals,Gujarat Titans,0.4238,0
+Model A,2024,1426263,Royal Challengers Bengaluru,Mumbai Indians,0.5386,0
+Model A,2024,1426264,Lucknow Super Giants,Delhi Capitals,0.5649,0
+Model A,2024,1426265,Punjab Kings,Rajasthan Royals,0.4724,0
+Model A,2024,1426266,Lucknow Super Giants,Kolkata Knight Riders,0.5666,0
+Model A,2024,1426267,Chennai Super Kings,Mumbai Indians,0.5418,1
+Model A,2024,1426268,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.3749,1
+Model A,2024,1426269,Kolkata Knight Riders,Rajasthan Royals,0.4685,0
+Model A,2024,1426270,Gujarat Titans,Delhi Capitals,0.6051,0
+Model A,2024,1426271,Mumbai Indians,Punjab Kings,0.5038,1
+Model A,2024,1426272,Chennai Super Kings,Lucknow Super Giants,0.4827,0
+Model A,2024,1426273,Sunrisers Hyderabad,Delhi Capitals,0.4176,1
+Model A,2024,1426274,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4537,1
+Model A,2024,1426275,Punjab Kings,Gujarat Titans,0.397,0
+Model A,2024,1426276,Mumbai Indians,Rajasthan Royals,0.4762,0
+Model A,2024,1426277,Chennai Super Kings,Lucknow Super Giants,0.4827,0
+Model A,2024,1426278,Delhi Capitals,Gujarat Titans,0.3949,1
+Model A,2024,1426279,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.6251,1
+Model A,2024,1426280,Kolkata Knight Riders,Punjab Kings,0.4961,0
+Model A,2024,1426281,Delhi Capitals,Mumbai Indians,0.4939,1
+Model A,2024,1426282,Lucknow Super Giants,Rajasthan Royals,0.5354,0
+Model A,2024,1426283,Gujarat Titans,Royal Challengers Bengaluru,0.5616,0
+Model A,2024,1426284,Chennai Super Kings,Sunrisers Hyderabad,0.6282,1
+Model A,2024,1426285,Delhi Capitals,Kolkata Knight Riders,0.5017,0
+Model A,2024,1426286,Mumbai Indians,Lucknow Super Giants,0.441,0
+Model A,2024,1426287,Chennai Super Kings,Punjab Kings,0.5456,0
+Model A,2024,1426288,Sunrisers Hyderabad,Rajasthan Royals,0.3889,1
+Model A,2024,1426289,Kolkata Knight Riders,Mumbai Indians,0.4923,1
+Model A,2024,1426290,Gujarat Titans,Royal Challengers Bengaluru,0.5616,0
+Model A,2024,1426291,Chennai Super Kings,Punjab Kings,0.5456,1
+Model A,2024,1426292,Kolkata Knight Riders,Lucknow Super Giants,0.4334,1
+Model A,2024,1426293,Sunrisers Hyderabad,Mumbai Indians,0.4118,0
+Model A,2024,1426294,Delhi Capitals,Rajasthan Royals,0.4702,1
+Model A,2024,1426295,Lucknow Super Giants,Sunrisers Hyderabad,0.6442,0
+Model A,2024,1426296,Royal Challengers Bengaluru,Punjab Kings,0.5424,1
+Model A,2024,1426297,Gujarat Titans,Chennai Super Kings,0.5584,1
+Model A,2024,1426298,Kolkata Knight Riders,Mumbai Indians,0.4923,1
+Model A,2024,1426299,Rajasthan Royals,Chennai Super Kings,0.4819,0
+Model A,2024,1426300,Royal Challengers Bengaluru,Delhi Capitals,0.5446,1
+Model A,2024,1426302,Delhi Capitals,Lucknow Super Giants,0.4351,1
+Model A,2024,1426303,Rajasthan Royals,Punjab Kings,0.5276,0
+Model A,2024,1426305,Lucknow Super Giants,Mumbai Indians,0.559,1
+Model A,2024,1426306,Royal Challengers Bengaluru,Chennai Super Kings,0.4968,1
+Model A,2024,1426307,Punjab Kings,Sunrisers Hyderabad,0.5845,0
+Model A,2024,1426309,Sunrisers Hyderabad,Kolkata Knight Riders,0.4193,0
+Model A,2024,1426310,Royal Challengers Bengaluru,Rajasthan Royals,0.5149,0
+Model A,2024,1426311,Sunrisers Hyderabad,Rajasthan Royals,0.3889,1
+Model A,2024,1426312,Sunrisers Hyderabad,Kolkata Knight Riders,0.4193,0
+Model A,2025,1473438,Kolkata Knight Riders,Royal Challengers Bengaluru,0.5517,0
+Model A,2025,1473439,Sunrisers Hyderabad,Rajasthan Royals,0.4423,1
+Model A,2025,1473440,Mumbai Indians,Chennai Super Kings,0.4209,0
+Model A,2025,1473441,Lucknow Super Giants,Delhi Capitals,0.5444,0
+Model A,2025,1473442,Punjab Kings,Gujarat Titans,0.4245,1
+Model A,2025,1473443,Rajasthan Royals,Kolkata Knight Riders,0.4817,0
+Model A,2025,1473444,Sunrisers Hyderabad,Lucknow Super Giants,0.4534,0
+Model A,2025,1473445,Royal Challengers Bengaluru,Chennai Super Kings,0.4872,1
+Model A,2025,1473446,Gujarat Titans,Mumbai Indians,0.5922,1
+Model A,2025,1473447,Sunrisers Hyderabad,Delhi Capitals,0.4978,0
+Model A,2025,1473448,Rajasthan Royals,Chennai Super Kings,0.5207,1
+Model A,2025,1473449,Kolkata Knight Riders,Mumbai Indians,0.6166,0
+Model A,2025,1473450,Lucknow Super Giants,Punjab Kings,0.5714,0
+Model A,2025,1473451,Royal Challengers Bengaluru,Gujarat Titans,0.4736,0
+Model A,2025,1473452,Kolkata Knight Riders,Sunrisers Hyderabad,0.5758,1
+Model A,2025,1473453,Lucknow Super Giants,Mumbai Indians,0.5882,1
+Model A,2025,1473454,Delhi Capitals,Chennai Super Kings,0.465,1
+Model A,2025,1473455,Rajasthan Royals,Punjab Kings,0.5825,1
+Model A,2025,1473457,Sunrisers Hyderabad,Gujarat Titans,0.4493,0
+Model A,2025,1473458,Royal Challengers Bengaluru,Mumbai Indians,0.5665,1
+Model A,2025,1473456,Lucknow Super Giants,Kolkata Knight Riders,0.4704,1
+Model A,2025,1473459,Punjab Kings,Chennai Super Kings,0.4378,1
+Model A,2025,1473460,Gujarat Titans,Rajasthan Royals,0.4928,1
+Model A,2025,1473461,Royal Challengers Bengaluru,Delhi Capitals,0.5222,0
+Model A,2025,1473462,Chennai Super Kings,Kolkata Knight Riders,0.461,0
+Model A,2025,1473463,Gujarat Titans,Lucknow Super Giants,0.5041,0
+Model A,2025,1473464,Punjab Kings,Sunrisers Hyderabad,0.4748,0
+Model A,2025,1473465,Rajasthan Royals,Royal Challengers Bengaluru,0.5335,0
+Model A,2025,1473466,Mumbai Indians,Delhi Capitals,0.4554,1
+Model A,2025,1473467,Lucknow Super Giants,Chennai Super Kings,0.5094,0
+Model A,2025,1473468,Punjab Kings,Kolkata Knight Riders,0.3998,1
+Model A,2025,1473469,Delhi Capitals,Rajasthan Royals,0.4444,1
+Model A,2025,1473470,Sunrisers Hyderabad,Mumbai Indians,0.5424,0
+Model A,2025,1473471,Royal Challengers Bengaluru,Punjab Kings,0.5495,0
+Model A,2025,1473472,Delhi Capitals,Gujarat Titans,0.4515,0
+Model A,2025,1473473,Lucknow Super Giants,Rajasthan Royals,0.4887,1
+Model A,2025,1473474,Punjab Kings,Royal Challengers Bengaluru,0.4505,0
+Model A,2025,1473475,Chennai Super Kings,Mumbai Indians,0.5791,0
+Model A,2025,1473476,Gujarat Titans,Kolkata Knight Riders,0.4745,1
+Model A,2025,1473477,Lucknow Super Giants,Delhi Capitals,0.5444,0
+Model A,2025,1473478,Sunrisers Hyderabad,Mumbai Indians,0.5424,0
+Model A,2025,1473479,Royal Challengers Bengaluru,Rajasthan Royals,0.4665,1
+Model A,2025,1473480,Chennai Super Kings,Sunrisers Hyderabad,0.5372,0
+Model A,2025,1473482,Mumbai Indians,Lucknow Super Giants,0.4118,1
+Model A,2025,1473483,Delhi Capitals,Royal Challengers Bengaluru,0.4778,0
+Model A,2025,1473484,Gujarat Titans,Rajasthan Royals,0.4928,0
+Model A,2025,1473485,Kolkata Knight Riders,Delhi Capitals,0.5736,1
+Model A,2025,1473486,Chennai Super Kings,Punjab Kings,0.5622,0
+Model A,2025,1473487,Mumbai Indians,Rajasthan Royals,0.4008,1
+Model A,2025,1473488,Gujarat Titans,Sunrisers Hyderabad,0.5507,1
+Model A,2025,1473489,Royal Challengers Bengaluru,Chennai Super Kings,0.4872,1
+Model A,2025,1473490,Kolkata Knight Riders,Rajasthan Royals,0.5183,1
+Model A,2025,1473491,Punjab Kings,Lucknow Super Giants,0.4286,1
+Model A,2025,1473493,Mumbai Indians,Gujarat Titans,0.4078,0
+Model A,2025,1473494,Kolkata Knight Riders,Chennai Super Kings,0.539,0
+Model A,2025,1473497,Punjab Kings,Rajasthan Royals,0.4175,1
+Model A,2025,1473498,Delhi Capitals,Gujarat Titans,0.4515,0
+Model A,2025,1473499,Lucknow Super Giants,Sunrisers Hyderabad,0.5466,0
+Model A,2025,1473500,Chennai Super Kings,Rajasthan Royals,0.4793,0
+Model A,2025,1473501,Mumbai Indians,Delhi Capitals,0.4554,1
+Model A,2025,1473502,Lucknow Super Giants,Gujarat Titans,0.4959,1
+Model A,2025,1473503,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4756,1
+Model A,2025,1485779,Punjab Kings,Delhi Capitals,0.4726,0
+Model A,2025,1473504,Chennai Super Kings,Gujarat Titans,0.4864,1
+Model A,2025,1473505,Sunrisers Hyderabad,Kolkata Knight Riders,0.4242,1
+Model A,2025,1473506,Mumbai Indians,Punjab Kings,0.4828,0
+Model A,2025,1473507,Lucknow Super Giants,Royal Challengers Bengaluru,0.5222,0
+Model A,2025,1473508,Punjab Kings,Royal Challengers Bengaluru,0.4505,0
+Model A,2025,1473509,Mumbai Indians,Gujarat Titans,0.4078,1
+Model A,2025,1473510,Mumbai Indians,Punjab Kings,0.4828,0
+Model A,2025,1473511,Royal Challengers Bengaluru,Punjab Kings,0.5495,1
+Model A,2026,1527674,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4351,0
+Model A,2026,1527675,Kolkata Knight Riders,Mumbai Indians,0.5356,0
+Model A,2026,1527676,Chennai Super Kings,Rajasthan Royals,0.497,0
+Model A,2026,1527677,Gujarat Titans,Punjab Kings,0.521,0
+Model A,2026,1527678,Lucknow Super Giants,Delhi Capitals,0.4902,0
+Model A,2026,1527679,Sunrisers Hyderabad,Kolkata Knight Riders,0.4623,1
+Model A,2026,1527680,Chennai Super Kings,Punjab Kings,0.4556,0
+Model A,2026,1527681,Mumbai Indians,Delhi Capitals,0.487,0
+Model A,2026,1527682,Rajasthan Royals,Gujarat Titans,0.4378,1
+Model A,2026,1527683,Sunrisers Hyderabad,Lucknow Super Giants,0.4947,0
+Model A,2026,1527684,Royal Challengers Bengaluru,Chennai Super Kings,0.5897,1
+Model A,2026,1527686,Rajasthan Royals,Mumbai Indians,0.4754,1
+Model A,2026,1527687,Gujarat Titans,Delhi Capitals,0.525,1
+Model A,2026,1527688,Kolkata Knight Riders,Lucknow Super Giants,0.5324,0
+Model A,2026,1527689,Royal Challengers Bengaluru,Rajasthan Royals,0.5868,0
+Model A,2026,1527690,Sunrisers Hyderabad,Punjab Kings,0.4809,0
+Model A,2026,1527691,Chennai Super Kings,Delhi Capitals,0.4596,1
+Model A,2026,1527692,Lucknow Super Giants,Gujarat Titans,0.4653,0
+Model A,2026,1527693,Royal Challengers Bengaluru,Mumbai Indians,0.5628,1
+Model A,2026,1529264,Sunrisers Hyderabad,Rajasthan Royals,0.5224,1
+Model A,2026,1529265,Chennai Super Kings,Kolkata Knight Riders,0.4372,1
+Model A,2026,1529266,Lucknow Super Giants,Royal Challengers Bengaluru,0.4403,0
+Model A,2026,1529267,Mumbai Indians,Punjab Kings,0.483,0
+Model A,2026,1529268,Kolkata Knight Riders,Gujarat Titans,0.4977,0
+Model A,2026,1529269,Royal Challengers Bengaluru,Delhi Capitals,0.55,0
+Model A,2026,1529270,Sunrisers Hyderabad,Chennai Super Kings,0.5254,1
+Model A,2026,1529271,Rajasthan Royals,Kolkata Knight Riders,0.4401,0
+Model A,2026,1529272,Punjab Kings,Lucknow Super Giants,0.5138,1
+Model A,2026,1529273,Mumbai Indians,Gujarat Titans,0.4621,1
+Model A,2026,1529274,Sunrisers Hyderabad,Delhi Capitals,0.4849,1
+Model A,2026,1529275,Rajasthan Royals,Lucknow Super Giants,0.4723,1
+Model A,2026,1529276,Chennai Super Kings,Mumbai Indians,0.4725,1
+Model A,2026,1529277,Gujarat Titans,Royal Challengers Bengaluru,0.4748,0
+Model A,2026,1529278,Delhi Capitals,Punjab Kings,0.496,0
+Model A,2026,1529279,Rajasthan Royals,Sunrisers Hyderabad,0.4776,0
+Model A,2026,1529280,Chennai Super Kings,Gujarat Titans,0.4349,0
+Model A,2026,1529281,Kolkata Knight Riders,Lucknow Super Giants,0.5324,1
+Model A,2026,1529282,Delhi Capitals,Royal Challengers Bengaluru,0.45,0
+Model A,2026,1529283,Punjab Kings,Rajasthan Royals,0.5414,0
+Model A,2026,1529284,Mumbai Indians,Sunrisers Hyderabad,0.5021,0
+Model A,2026,1529285,Royal Challengers Bengaluru,Gujarat Titans,0.5252,0
+Model A,2026,1529286,Rajasthan Royals,Delhi Capitals,0.4625,0
+Model A,2026,1529287,Mumbai Indians,Chennai Super Kings,0.5275,0
+Model A,2026,1529288,Sunrisers Hyderabad,Kolkata Knight Riders,0.4623,0
+Model A,2026,1529289,Punjab Kings,Gujarat Titans,0.479,0
+Model A,2026,1529290,Lucknow Super Giants,Mumbai Indians,0.5032,0
+Model A,2026,1529291,Delhi Capitals,Chennai Super Kings,0.5404,0
+Model A,2026,1529292,Sunrisers Hyderabad,Punjab Kings,0.4809,1
+Model A,2026,1529293,Lucknow Super Giants,Royal Challengers Bengaluru,0.4403,1
+Model A,2026,1529294,Delhi Capitals,Kolkata Knight Riders,0.4773,0
+Model A,2026,1529295,Gujarat Titans,Rajasthan Royals,0.5622,1
+Model A,2026,1529296,Lucknow Super Giants,Chennai Super Kings,0.5307,0
+Model A,2026,1529297,Mumbai Indians,Royal Challengers Bengaluru,0.4372,0
+Model A,2026,1529298,Punjab Kings,Delhi Capitals,0.504,0
+Model A,2026,1529299,Gujarat Titans,Sunrisers Hyderabad,0.54,1
+Model A,2026,1529300,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4725,0
+Model A,2026,1529301,Punjab Kings,Mumbai Indians,0.517,0
+Model A,2026,1529302,Chennai Super Kings,Lucknow Super Giants,0.4693,0
+Model A,2026,1529303,Kolkata Knight Riders,Gujarat Titans,0.4977,1
+Model A,2026,1529304,Royal Challengers Bengaluru,Punjab Kings,0.546,1
+Model A,2026,1529305,Rajasthan Royals,Delhi Capitals,0.4625,0
+Model A,2026,1529306,Chennai Super Kings,Sunrisers Hyderabad,0.4746,0
+Model A,2026,1529307,Lucknow Super Giants,Rajasthan Royals,0.5277,0
+Model A,2026,1529308,Mumbai Indians,Kolkata Knight Riders,0.4644,0
+Model A,2026,1529309,Gujarat Titans,Chennai Super Kings,0.5651,1
+Model A,2026,1529310,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4351,1
+Model A,2026,1529311,Lucknow Super Giants,Punjab Kings,0.4862,0
+Model A,2026,1529312,Rajasthan Royals,Mumbai Indians,0.4754,1
+Model A,2026,1529313,Delhi Capitals,Kolkata Knight Riders,0.4773,1
+Model A,2026,1535462,Royal Challengers Bengaluru,Gujarat Titans,0.5252,1
+Model A,2026,1535463,Rajasthan Royals,Sunrisers Hyderabad,0.4776,1
+Model A,2026,1535464,Rajasthan Royals,Gujarat Titans,0.4378,0
+Model A,2026,1535465,Gujarat Titans,Royal Challengers Bengaluru,0.4748,0

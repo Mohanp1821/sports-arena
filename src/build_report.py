@@ -206,109 +206,171 @@ def strength_explanation(strengths, next_season):
     table.columns = ["Team"] + ["Win % " + year + " (weight " + str(weight) + ")"
                                 for year, weight in zip(years, [1, 2, 3])] + ["Strength"]
 
-    return ("<h3>Why these teams are the favourites</h3>"
+    return ("<h3>Model A: why each team got its strength</h3>"
             "<p>A team's strength is its win % over the last 3 seasons, with the latest season counting 3 times. "
             + example + ". A season a team did not play is skipped, so only the seasons it played count.</p>"
             "<div class='table-box'>" + table.to_html(index=False) + "</div>")
 
 
-def actual_check_section(actual, next_season):
-    """HTML: our predictions next to the official results of that season."""
+def table_html(table, columns, titles):
+    """A pandas table as HTML, with chosen columns and friendly column titles."""
+    part = table[columns].copy()
+    part.columns = titles
+    return "<div class='table-box'>" + part.to_html(index=False, na_rep="-") + "</div>"
+
+
+def figure_html(file_name, title):
+    """A chart from outputs/ with its caption (only if analysis/predict made it)."""
+    if not os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
+        return ""
+    return ("<figure><img src='" + file_name + "' alt='" + title + "'><figcaption>" + title
+            + "</figcaption></figure>")
+
+
+def award_pick_rows(awards_a, awards_b):
+    """One row per award: Model A's pick and next two, Model B's pick and next two."""
+    rows = []
+    for award in awards_a["award"].unique():
+        a = awards_a[awards_a["award"] == award]
+        b = awards_b[awards_b["award"] == award]
+        rows.append({
+            "Award": award,
+            "Model A pick": a.iloc[0]["player"] + " (" + a.iloc[0]["team"] + ")",
+            "Model A form score": str(a.iloc[0]["form"]) + " " + a.iloc[0]["measure"] + " a season",
+            "Model A next": ", ".join(a.iloc[1:3]["player"]),
+            "Model B pick": b.iloc[0]["player"] + " (" + b.iloc[0]["team"] + ")",
+            "Model B predicts": str(b.iloc[0]["predicted"]) + " " + b.iloc[0]["measure"],
+            "Model B next": ", ".join(b.iloc[1:3]["player"]),
+        })
+    return pd.DataFrame(rows)
+
+
+def limits_note(matches, deliveries, award_backtest, scores, last_season):
+    """
+    What the models cannot know, with the numbers worked out from the data:
+    the breakout season of the latest Orange Cap winner, and how close to a
+    coin flip pre-season predictions are.
+    """
+    caps = metrics.cap_winners(deliveries)
+    latest = caps[caps["season"] == last_season].iloc[0]
+    batting = metrics.batting_stats(deliveries, ["batter", "season"])
+    player = latest["orange_cap"]
+    before = batting[(batting["batter"] == player) & (batting["season"] == last_season - 1)]
+    runs_before = int(before["runs"].iloc[0]) if len(before) else 0
+    ranks = award_backtest[(award_backtest["season"] == last_season) & (award_backtest["award"] == "Orange Cap (most runs)")]
+    rank_text = []
+    for model in ["Model A", "Model B"]:
+        rank = ranks[ranks["model"] == model]["actual_rank"].iloc[0]
+        rank_text.append(model + " had him " + ("#" + str(int(rank)) if pd.notna(rank) else "outside its list"))
+    overall = scores[scores["season"] == "2021-2026"].set_index("model")
+    return ("<div class='panel'><h3>What the models cannot know</h3><ul>"
+            "<li><b>Auctions, trades and releases.</b> Both models read <code>data/squads_2027.csv</code>, which starts as "
+            "each franchise's " + str(last_season) + " players. Edit it after the auction and run the pipeline again.</li>"
+            "<li><b>Injuries and availability</b> during the season.</li>"
+            "<li><b>Breakout players.</b> " + player + " scored " + str(runs_before) + " runs in " + str(last_season - 1)
+            + " and " + str(latest["runs"]) + " in " + str(last_season) + " to win the Orange Cap; before that season, "
+            + " and ".join(rank_text) + " in the Orange Cap list. Past numbers cannot see a jump like that coming.</li>"
+            "<li><b>T20 is close to a coin flip before a ball is bowled.</b> In the 2021-2026 backtest Model A picked "
+            + str(overall.loc["Model A", "accuracy_pct"]) + "% of winners and Model B " + str(overall.loc["Model B", "accuracy_pct"])
+            + "%, against 50% for a coin flip, and neither beat the coin flip's log loss ("
+            + str(overall.loc["Random guess (50%)", "log_loss"]) + "). Treat the title chances as rough guides, not certainties.</li>"
+            "</ul></div>")
+
+
+def prediction_section(matches, deliveries, next_season):
+    """HTML for "IPL 2027 predictions: Model A vs Model B" (made by predict.py and predict_ml.py)."""
+    comparison = read_output_csv("prediction_" + str(next_season) + "_comparison.csv")
+    chances_a = read_output_csv("prediction_title_chances.csv")
+    chances_b = read_output_csv("prediction_model_b_title_chances.csv")
+    awards_a = read_output_csv("prediction_awards.csv")
+    awards_b = read_output_csv("prediction_model_b_awards.csv")
+    scores = read_output_csv("model_comparison_matches.csv")
+    titles = read_output_csv("model_comparison_titles.csv")
+    award_backtest = read_output_csv("model_comparison_awards.csv")
+    if comparison is None or awards_b is None or scores is None:
+        return ""   # the prediction scripts have not been run, so there is nothing to show
     season = str(next_season)
-    table = actual[["prediction", "our_pick", "actual", "verdict"]].copy()
-    table.columns = ["Prediction", "Our pick", "What really happened", "Result"]
-    champion = actual[actual["prediction"] == "IPL champion"].iloc[0]
-    return ("<h3>How did the " + season + " prediction do?</h3>"
-            "<p>The dataset ends in 2019, so the model never saw the " + season + " season. Here are its "
-            "predictions next to the official results (source: iplt20.com, typed in by hand only for this check). "
-            "<b>" + champion["actual"].split(" (")[0] + "</b> won the title: the model's #"
-            + str(int(champion["actual_rank"])) + " pick, with a " + champion_chance_text(champion["actual"])
-            + " chance. The Purple Cap pick was exactly right.</p>"
-            "<div class='table-box'>" + table.to_html(index=False) + "</div>")
+    last_season = next_season - 1
+    parts = ["<h2 id='predictions'>IPL " + season + " predictions: Model A vs Model B</h2>"]
+    parts.append("<p><b>Model A (explainable):</b> each team's strength is its form win % over the last 3 seasons "
+                 "(weights 3, 2, 1); team A beats team B with chance A / (A + B). <b>Model B (machine learning):</b> "
+                 "logistic regression and gradient boosting, averaged, using only pre-season information: Elo rating, "
+                 "last-10 form, head-to-head, ground record, home ground, squad strength and the Impact Player era. "
+                 "Both play the " + season + " season " + format(predict_simulations(), ",") + " times in the real "
+                 "10-team format (two groups of 5, 14 league games each, then Qualifier 1, Eliminator, Qualifier 2 and the Final).</p>")
 
-
-def champion_chance_text(actual_text):
-    """The predicted title chance of the real champion, e.g. '21.2%'."""
-    chances = read_output_csv("prediction_title_chances.csv")
-    team = actual_text.split(" (")[0]
-    row = chances[chances["team"] == team]
-    if len(row) == 0:
-        return "unknown"
-    return str(row.iloc[0]["title_pct"]) + "%"
-
-
-def prediction_section(next_season):
-    """HTML for the predictions: title chances, award picks and the backtest."""
-    chances = read_output_csv("prediction_title_chances.csv")
-    awards = read_output_csv("prediction_awards.csv")
-    summary = read_output_csv("prediction_backtest_summary.csv")
-    if chances is None or awards is None or summary is None:
-        return ""   # predict.py has not been run, so there is nothing to show
-
-    season = str(next_season)
-    parts = ["<h2 id='predictions'>Predictions for IPL " + season + "</h2>"]
-    parts.append("<p>Each team's strength is its win % over the last 3 seasons (weights 3, 2, 1), "
-                 "and the whole season was simulated 10,000 times. Award picks are the players "
-                 "with the best form over the same 3 seasons.</p>")
-
-    # Headline cards: the predicted champion and the pick for each award
-    favourite = chances.iloc[0]
-    parts.append("<div class='picks'>")
-    parts.append("<div class='pick'><span>Champion (" + str(favourite["title_pct"]) + "% chance)</span><b>"
-                 + favourite["team"] + "</b></div>")
-    for award in awards["award"].unique():
-        pick = awards[awards["award"] == award].iloc[0]
-        parts.append("<div class='pick'><span>" + award + "</span><b>" + pick["player"] + "</b></div>")
+    favourite_a = chances_a.iloc[0]
+    favourite_b = chances_b.iloc[0]
+    parts.append("<div class='picks'>"
+                 "<div class='pick'><span>Model A favourite (" + str(favourite_a["title_pct"]) + "% title chance)</span><b>"
+                 + favourite_a["team"] + "</b></div>"
+                 "<div class='pick'><span>Model B favourite (" + str(favourite_b["title_pct"]) + "% title chance)</span><b>"
+                 + favourite_b["team"] + "</b></div>")
+    for award in ["Orange Cap (most runs)", "Purple Cap (most wickets)"]:
+        pick_a = awards_a[awards_a["award"] == award].iloc[0]["player"]
+        pick_b = awards_b[awards_b["award"] == award].iloc[0]["player"]
+        parts.append("<div class='pick'><span>" + award + ": A / B</span><b>" + pick_a
+                     + (" (both)" if pick_a == pick_b else " / " + pick_b) + "</b></div>")
     parts.append("</div>")
 
-    # Prediction charts, full width so they are easy to read
-    parts.append("<div class='charts wide'>")
-    for file_name, title in [("prediction_title_" + season + ".png", "Title and playoff chances, IPL " + season),
-                             ("prediction_awards_" + season + ".png", "Award candidates, IPL " + season
-                              + " (orange = our pick)")]:
-        if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
-            parts.append("<figure><img src='" + file_name + "' alt='" + title + "'>"
-                         "<figcaption>" + title + "</figcaption></figure>")
-    parts.append("</div>")
+    parts.append("<div class='charts wide'>" + figure_html("prediction_" + season + "_models.png",
+                 "Title chances, IPL " + season + ": Model A vs Model B") + "</div>")
+    table = comparison.merge(chances_a[["team", "strength"]], on="team").merge(
+        chances_b[["team", "squad_strength", "elo"]], on="team")
+    parts.append("<h3>Title and playoff chances</h3>" + table_html(
+        table, ["team", "title_pct_a", "playoff_pct_a", "title_pct_b", "playoff_pct_b", "strength", "squad_strength", "elo"],
+        ["Team", "Model A title %", "Model A playoffs %", "Model B title %", "Model B playoffs %",
+         "Model A strength (form win %)", "Model B squad strength", "Model B Elo"]))
 
-    # Title chances table
-    chances = chances[["team", "strength", "playoff_pct", "title_pct"]]
-    chances.columns = ["Team", "Strength (form win %)", "Reach playoffs %", "Win title %"]
-    parts.append("<h3>Title chances</h3><div class='table-box'>" + chances.to_html(index=False) + "</div>")
+    groups = read_output_csv("prediction_groups.csv")
+    if groups is not None and len(groups) > 0:
+        parts.append("<p class='note'>Simulated groups (seeded by titles, then finals reached, in a snake). "
+                     "Teams on the same row play each other twice.</p>"
+                     + table_html(groups, ["seed_row", "group_a", "group_b"], ["Row", "Group A", "Group B"]))
 
-    # Why each team got its strength (win % in each of the last 3 seasons)
     strengths = read_output_csv("prediction_strengths.csv")
     if strengths is not None:
         parts.append(strength_explanation(strengths, next_season))
 
-    # How the prediction compares with what really happened (if the real results are known)
-    actual = read_output_csv("prediction_vs_actual_" + season + ".csv")
-    if actual is not None:
-        parts.append(actual_check_section(actual, next_season))
+    parts.append("<h3>Award picks</h3><p class='note'>Model A: the 2027-squad player with the best form score. "
+                 "Model B: a linear regression on each player's previous two seasons.</p>"
+                 + "<div class='table-box'>" + award_pick_rows(awards_a, awards_b).to_html(index=False) + "</div>")
 
-    # Award picks: one row per award, with our pick and the next two candidates
-    rows = []
-    for award in awards["award"].unique():
-        candidates = awards[awards["award"] == award]
-        pick = candidates.iloc[0]
-        others = ", ".join(candidates.iloc[1:3]["player"])
-        rows.append({"Award": award, "Our pick": pick["player"],
-                     "Form score": str(pick["form"]) + " " + pick["measure"] + " per season",
-                     "Next best": others})
-    parts.append("<h3>Award predictions</h3><div class='table-box'>"
-                 + pd.DataFrame(rows).to_html(index=False) + "</div>")
+    features = read_output_csv("model_b_features.csv")
+    if features is not None:
+        parts.append("<h3>What Model B looks at</h3><p class='note'>Logistic regression weight (features scaled to the "
+                     "same size: + helps team A, - hurts) and how much the gradient-boosting trees used each feature.</p>"
+                     + table_html(features, ["feature", "logistic_weight", "boosting_importance"],
+                                  ["Feature", "Logistic weight", "Boosting importance"]))
 
-    # Backtest: how often this method was right in the past
-    summary = summary[["award", "seasons", "correct", "in_top_5"]]
-    summary.columns = ["Prediction", "Seasons tested", "Exactly right", "Winner in our top 5"]
-    parts.append("<h3>How reliable is this? (backtest " + str(int(read_output_csv("prediction_backtest.csv")["season"].min()))
-                 + "-" + str(int(read_output_csv("prediction_backtest.csv")["season"].max())) + ")</h3>"
-                 "<p class='note'>For each past season we predicted using only earlier seasons, "
-                 "then compared with the real result. A random pick of the champion is right "
-                 "1 time in 8. Treat the predictions as informed guesses, not certainties: "
-                 "player auctions, injuries and new talent are not in the data.</p>"
-                 "<div class='table-box'>" + summary.to_html(index=False) + "</div>")
+    overall = scores[scores["season"] == "2021-2026"]
+    parts.append("<h3>Which model was better? Walk-forward backtest 2021-2026</h3>"
+                 "<p>For each season both models learned only from earlier seasons, then predicted all "
+                 + str(int(overall["matches"].iloc[0])) + " matches and the title.</p>"
+                 + table_html(overall, ["model", "matches", "accuracy_pct", "log_loss", "brier"],
+                              ["Model", "Matches", "Accuracy %", "Log loss (lower is better)", "Brier (lower is better)"])
+                 + "<div class='charts'>" + figure_html("model_comparison_backtest.png", "Backtest scores 2021-2026")
+                 + figure_html("model_calibration.png", "Calibration: does 60% mean 60%?") + "</div>"
+                 + "<h3>Where the real champion ranked</h3>"
+                 + table_html(titles, ["season", "teams", "champion", "favourite_a", "champion_rank_a", "champion_title_pct_a",
+                                       "favourite_b", "champion_rank_b", "champion_title_pct_b", "random_title_pct"],
+                              ["Season", "Teams", "Champion", "Model A favourite", "A: champion's rank", "A: champion's title %",
+                               "Model B favourite", "B: champion's rank", "B: champion's title %", "Random pick %"]))
+    summary = award_backtest.groupby(["model", "award"], sort=False).agg(
+        exact=("actual_rank", lambda ranks: int((ranks == 1).sum())),
+        top5=("actual_rank", lambda ranks: int((ranks <= 5).sum())),
+        seasons=("season", "count")).reset_index()
+    parts.append("<h3>Award picks in the backtest</h3>" + table_html(
+        summary, ["model", "award", "seasons", "exact", "top5"],
+        ["Model", "Award", "Seasons", "Exactly right", "Winner in top 5"]))
+    parts.append(limits_note(matches, deliveries, award_backtest, scores, last_season))
     return "\n".join(parts)
+
+
+def predict_simulations():
+    """The number of simulated seasons (from predict.py, so it is never typed in twice)."""
+    import predict
+    return predict.SIMULATIONS
 
 
 def result_text(match):
@@ -498,7 +560,7 @@ def section_id(name):
 
 def navigation_bar(next_season):
     """A menu fixed at the top of the page with a link to every section."""
-    links = [("predictions", "Predictions " + str(next_season)), ("explore", "Explore (interactive)"),
+    links = [("predictions", "Predictions " + str(next_season) + ": A vs B"), ("explore", "Explore (interactive)"),
              ("rivalry", "Rivalries"), ("matchups", "Matchups"), ("grounds", "Grounds"),
              ("specialists", "Specialists"), ("impact-era", "Impact Player era"), ("trends", "Trends"),
              ("match-centre", "Match centre"), ("insights", "Key insights"), ("caps", "Cap winners")]
@@ -526,7 +588,7 @@ def make_page(matches, deliveries):
     # Title
     parts.append("<h1>Sports Arena: IPL Performance Dashboard</h1>")
     parts.append("<p class='subtitle'>Indian Premier League " + metrics.season_range_text(matches) + ", built from ball-by-ball data "
-                 "with Python, pandas, matplotlib and seaborn.</p>")
+                 "with Python, pandas, matplotlib, seaborn, scikit-learn and plain JavaScript.</p>")
 
     # Headline number boxes
     parts.append("<div class='numbers'>")
@@ -535,7 +597,7 @@ def make_page(matches, deliveries):
     parts.append("</div>")
 
     # Predictions for the next season (made by predict.py), near the top so they are easy to find
-    parts.append(prediction_section(next_season))
+    parts.append(prediction_section(matches, deliveries, next_season))
 
     # Interactive section: filters, clickable chart and player search
     parts.append(explorer_section(matches, deliveries))

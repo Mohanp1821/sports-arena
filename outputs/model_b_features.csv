@@ -1,0 +1,8 @@
+feature,logistic_weight,boosting_importance
+elo_diff,0.159,0.183
+form_diff,-0.079,0.042
+h2h,-0.133,0.045
+venue_diff,-0.011,0.2
+home,0.152,0.074
+squad_diff,0.109,0.409
+impact_era,0.0,0.047

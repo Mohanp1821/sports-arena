@@ -53,102 +53,176 @@ button { cursor: pointer; background: #eef3fb; }
 .bar-row.highlight { font-weight: bold; }
 .bar-value { white-space: nowrap; color: #333; }
 </style></head><body>
-<nav><div><a href='#predictions' class='star'>Predictions 2027</a><a href='#explore' class='star'>Explore (interactive)</a><a href='#rivalry'>Rivalries</a><a href='#matchups'>Matchups</a><a href='#grounds'>Grounds</a><a href='#specialists'>Specialists</a><a href='#impact-era'>Impact Player era</a><a href='#trends'>Trends</a><a href='#match-centre'>Match centre</a><a href='#insights'>Key insights</a><a href='#caps'>Cap winners</a><a href='#player-form'>Player form</a><a href='#team-comparisons'>Team comparisons</a><a href='#top-performers'>Top performers</a><a href='#trends-and-the-impact-player-era'>Trends and the Impact Player era</a></div></nav>
+<nav><div><a href='#predictions' class='star'>Predictions 2027: A vs B</a><a href='#explore' class='star'>Explore (interactive)</a><a href='#rivalry'>Rivalries</a><a href='#matchups'>Matchups</a><a href='#grounds'>Grounds</a><a href='#specialists'>Specialists</a><a href='#impact-era'>Impact Player era</a><a href='#trends'>Trends</a><a href='#match-centre'>Match centre</a><a href='#insights'>Key insights</a><a href='#caps'>Cap winners</a><a href='#player-form'>Player form</a><a href='#team-comparisons'>Team comparisons</a><a href='#top-performers'>Top performers</a><a href='#trends-and-the-impact-player-era'>Trends and the Impact Player era</a></div></nav>
 <main>
 <h1>Sports Arena: IPL Performance Dashboard</h1>
-<p class='subtitle'>Indian Premier League 2008-2026, built from ball-by-ball data with Python, pandas, matplotlib and seaborn.</p>
+<p class='subtitle'>Indian Premier League 2008-2026, built from ball-by-ball data with Python, pandas, matplotlib, seaborn, scikit-learn and plain JavaScript.</p>
 <div class='numbers'>
 <div class='number'><b>1243</b><span>matches</span></div>
 <div class='number'><b>295,729</b><span>balls analysed</span></div>
 <div class='number'><b>19</b><span>seasons (2008-2026)</span></div>
 <div class='number'><b>15</b><span>franchises</span></div>
 </div>
-<h2 id='predictions'>Predictions for IPL 2027</h2>
-<p>Each team's strength is its win % over the last 3 seasons (weights 3, 2, 1), and the whole season was simulated 10,000 times. Award picks are the players with the best form over the same 3 seasons.</p>
-<div class='picks'>
-<div class='pick'><span>Champion (24.6% chance)</span><b>Royal Challengers Bengaluru</b></div>
-<div class='pick'><span>Orange Cap (most runs)</span><b>B Sai Sudharsan</b></div>
-<div class='pick'><span>Purple Cap (most wickets)</span><b>B Kumar</b></div>
-<div class='pick'><span>Most sixes</span><b>V Suryavanshi</b></div>
-<div class='pick'><span>Most Player of the Match awards</span><b>SV Samson</b></div>
+<h2 id='predictions'>IPL 2027 predictions: Model A vs Model B</h2>
+<p><b>Model A (explainable):</b> each team's strength is its form win % over the last 3 seasons (weights 3, 2, 1); team A beats team B with chance A / (A + B). <b>Model B (machine learning):</b> logistic regression and gradient boosting, averaged, using only pre-season information: Elo rating, last-10 form, head-to-head, ground record, home ground, squad strength and the Impact Player era. Both play the 2027 season 10,000 times in the real 10-team format (two groups of 5, 14 league games each, then Qualifier 1, Eliminator, Qualifier 2 and the Final).</p>
+<div class='picks'><div class='pick'><span>Model A favourite (22.5% title chance)</span><b>Royal Challengers Bengaluru</b></div><div class='pick'><span>Model B favourite (20.7% title chance)</span><b>Royal Challengers Bengaluru</b></div>
+<div class='pick'><span>Orange Cap (most runs): A / B</span><b>B Sai Sudharsan (both)</b></div>
+<div class='pick'><span>Purple Cap (most wickets): A / B</span><b>B Kumar (both)</b></div>
 </div>
-<div class='charts wide'>
-<figure><img src='prediction_title_2027.png' alt='Title and playoff chances, IPL 2027'><figcaption>Title and playoff chances, IPL 2027</figcaption></figure>
-<figure><img src='prediction_awards_2027.png' alt='Award candidates, IPL 2027 (orange = our pick)'><figcaption>Award candidates, IPL 2027 (orange = our pick)</figcaption></figure>
-</div>
-<h3>Title chances</h3><div class='table-box'><table border="1" class="dataframe">
+<div class='charts wide'><figure><img src='prediction_2027_models.png' alt='Title chances, IPL 2027: Model A vs Model B'><figcaption>Title chances, IPL 2027: Model A vs Model B</figcaption></figure></div>
+<h3>Title and playoff chances</h3><div class='table-box'><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>Team</th>
-      <th>Strength (form win %)</th>
-      <th>Reach playoffs %</th>
-      <th>Win title %</th>
+      <th>Model A title %</th>
+      <th>Model A playoffs %</th>
+      <th>Model B title %</th>
+      <th>Model B playoffs %</th>
+      <th>Model A strength (form win %)</th>
+      <th>Model B squad strength</th>
+      <th>Model B Elo</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>Royal Challengers Bengaluru</td>
+      <td>22.5</td>
+      <td>62.8</td>
+      <td>20.7</td>
+      <td>59.1</td>
       <td>66.6</td>
-      <td>67.5</td>
-      <td>24.6</td>
-    </tr>
-    <tr>
-      <td>Gujarat Titans</td>
-      <td>56.4</td>
-      <td>53.1</td>
-      <td>14.6</td>
-    </tr>
-    <tr>
-      <td>Sunrisers Hyderabad</td>
-      <td>54.8</td>
-      <td>49.6</td>
-      <td>12.6</td>
-    </tr>
-    <tr>
-      <td>Punjab Kings</td>
-      <td>53.7</td>
-      <td>47.5</td>
-      <td>11.6</td>
-    </tr>
-    <tr>
-      <td>Delhi Capitals</td>
-      <td>51.3</td>
-      <td>44.0</td>
-      <td>10.1</td>
-    </tr>
-    <tr>
-      <td>Kolkata Knight Riders</td>
-      <td>50.1</td>
-      <td>40.9</td>
-      <td>9.8</td>
+      <td>5497.8</td>
+      <td>1550.3</td>
     </tr>
     <tr>
       <td>Rajasthan Royals</td>
+      <td>8.6</td>
+      <td>39.6</td>
+      <td>17.0</td>
+      <td>54.6</td>
       <td>47.6</td>
-      <td>36.4</td>
-      <td>8.1</td>
+      <td>5457.1</td>
+      <td>1497.6</td>
+    </tr>
+    <tr>
+      <td>Sunrisers Hyderabad</td>
+      <td>13.5</td>
+      <td>49.9</td>
+      <td>13.0</td>
+      <td>48.1</td>
+      <td>54.8</td>
+      <td>5182.4</td>
+      <td>1516.7</td>
+    </tr>
+    <tr>
+      <td>Kolkata Knight Riders</td>
+      <td>9.6</td>
+      <td>42.2</td>
+      <td>8.0</td>
+      <td>35.9</td>
+      <td>50.1</td>
+      <td>4157.6</td>
+      <td>1499.6</td>
     </tr>
     <tr>
       <td>Chennai Super Kings</td>
+      <td>3.8</td>
+      <td>23.4</td>
+      <td>7.8</td>
+      <td>37.9</td>
       <td>39.3</td>
-      <td>21.9</td>
-      <td>3.1</td>
+      <td>3959.4</td>
+      <td>1475.2</td>
+    </tr>
+    <tr>
+      <td>Punjab Kings</td>
+      <td>11.5</td>
+      <td>45.3</td>
+      <td>7.5</td>
+      <td>33.6</td>
+      <td>53.7</td>
+      <td>4020.1</td>
+      <td>1503.2</td>
+    </tr>
+    <tr>
+      <td>Delhi Capitals</td>
+      <td>10.3</td>
+      <td>43.0</td>
+      <td>7.1</td>
+      <td>35.5</td>
+      <td>51.3</td>
+      <td>3602.5</td>
+      <td>1504.3</td>
+    </tr>
+    <tr>
+      <td>Gujarat Titans</td>
+      <td>13.9</td>
+      <td>49.6</td>
+      <td>6.9</td>
+      <td>32.2</td>
+      <td>56.4</td>
+      <td>6316.0</td>
+      <td>1525.3</td>
     </tr>
     <tr>
       <td>Mumbai Indians</td>
+      <td>3.4</td>
+      <td>22.9</td>
+      <td>6.7</td>
+      <td>33.4</td>
       <td>37.8</td>
-      <td>20.8</td>
-      <td>3.1</td>
+      <td>3829.6</td>
+      <td>1467.4</td>
     </tr>
     <tr>
       <td>Lucknow Super Giants</td>
+      <td>3.0</td>
+      <td>21.2</td>
+      <td>5.3</td>
+      <td>29.6</td>
       <td>36.9</td>
-      <td>18.3</td>
-      <td>2.5</td>
+      <td>3557.6</td>
+      <td>1461.2</td>
     </tr>
   </tbody>
 </table></div>
-<h3>Why these teams are the favourites</h3><p>A team's strength is its win % over the last 3 seasons, with the latest season counting 3 times. Royal Challengers Bengaluru: (3 &times; 68.8 + 2 &times; 73.3 + 1 &times; 46.7) &divide; 6 = <b>66.6</b>. A season a team did not play is skipped, so only the seasons it played count.</p><div class='table-box'><table border="1" class="dataframe">
+<p class='note'>Simulated groups (seeded by titles, then finals reached, in a snake). Teams on the same row play each other twice.</p><div class='table-box'><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Row</th>
+      <th>Group A</th>
+      <th>Group B</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Chennai Super Kings</td>
+      <td>Mumbai Indians</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Royal Challengers Bengaluru</td>
+      <td>Kolkata Knight Riders</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Gujarat Titans</td>
+      <td>Sunrisers Hyderabad</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Punjab Kings</td>
+      <td>Rajasthan Royals</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Delhi Capitals</td>
+      <td>Lucknow Super Giants</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3>Model A: why each team got its strength</h3><p>A team's strength is its win % over the last 3 seasons, with the latest season counting 3 times. Royal Challengers Bengaluru: (3 &times; 68.8 + 2 &times; 73.3 + 1 &times; 46.7) &divide; 6 = <b>66.6</b>. A season a team did not play is skipped, so only the seasons it played count.</p><div class='table-box'><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>Team</th>
@@ -231,84 +305,310 @@ button { cursor: pointer; background: #eef3fb; }
     </tr>
   </tbody>
 </table></div>
-<h3>Award predictions</h3><div class='table-box'><table border="1" class="dataframe">
+<h3>Award picks</h3><p class='note'>Model A: the 2027-squad player with the best form score. Model B: a linear regression on each player's previous two seasons.</p><div class='table-box'><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>Award</th>
-      <th>Our pick</th>
-      <th>Form score</th>
-      <th>Next best</th>
+      <th>Model A pick</th>
+      <th>Model A form score</th>
+      <th>Model A next</th>
+      <th>Model B pick</th>
+      <th>Model B predicts</th>
+      <th>Model B next</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>Orange Cap (most runs)</td>
-      <td>B Sai Sudharsan</td>
-      <td>701.8 runs per season</td>
+      <td>B Sai Sudharsan (Gujarat Titans)</td>
+      <td>701.8 runs a season</td>
       <td>V Kohli, Shubman Gill</td>
+      <td>B Sai Sudharsan (Gujarat Titans)</td>
+      <td>596.3 runs</td>
+      <td>Shubman Gill, V Kohli</td>
     </tr>
     <tr>
       <td>Purple Cap (most wickets)</td>
-      <td>B Kumar</td>
-      <td>21.5 wickets per season</td>
+      <td>B Kumar (Royal Challengers Bengaluru)</td>
+      <td>21.5 wickets a season</td>
       <td>M Prasidh Krishna, JC Archer</td>
+      <td>B Kumar (Royal Challengers Bengaluru)</td>
+      <td>14.4 wickets</td>
+      <td>JR Hazlewood, Mohammed Siraj</td>
     </tr>
     <tr>
       <td>Most sixes</td>
-      <td>V Suryavanshi</td>
-      <td>52.8 sixes per season</td>
+      <td>V Suryavanshi (Rajasthan Royals)</td>
+      <td>52.8 sixes a season</td>
       <td>Abhishek Sharma, C Connolly</td>
+      <td>V Suryavanshi (Rajasthan Royals)</td>
+      <td>42.6 sixes</td>
+      <td>Abhishek Sharma, MR Marsh</td>
     </tr>
     <tr>
       <td>Most Player of the Match awards</td>
-      <td>SV Samson</td>
-      <td>2.8 awards per season</td>
+      <td>SV Samson (Chennai Super Kings)</td>
+      <td>2.8 awards a season</td>
       <td>Ishan Kishan, SS Iyer</td>
+      <td>Shubman Gill (Gujarat Titans)</td>
+      <td>1.5 awards</td>
+      <td>V Kohli, B Sai Sudharsan</td>
     </tr>
   </tbody>
 </table></div>
-<h3>How reliable is this? (backtest 2011-2026)</h3><p class='note'>For each past season we predicted using only earlier seasons, then compared with the real result. A random pick of the champion is right 1 time in 8. Treat the predictions as informed guesses, not certainties: player auctions, injuries and new talent are not in the data.</p><div class='table-box'><table border="1" class="dataframe">
+<h3>What Model B looks at</h3><p class='note'>Logistic regression weight (features scaled to the same size: + helps team A, - hurts) and how much the gradient-boosting trees used each feature.</p><div class='table-box'><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
-      <th>Prediction</th>
-      <th>Seasons tested</th>
-      <th>Exactly right</th>
-      <th>Winner in our top 5</th>
+      <th>Feature</th>
+      <th>Logistic weight</th>
+      <th>Boosting importance</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>IPL champion</td>
-      <td>16</td>
-      <td>3</td>
-      <td>10</td>
+      <td>elo_diff</td>
+      <td>0.159</td>
+      <td>0.183</td>
     </tr>
     <tr>
-      <td>Orange Cap (most runs)</td>
-      <td>16</td>
-      <td>0</td>
-      <td>5</td>
+      <td>form_diff</td>
+      <td>-0.079</td>
+      <td>0.042</td>
     </tr>
     <tr>
-      <td>Purple Cap (most wickets)</td>
-      <td>16</td>
-      <td>2</td>
-      <td>8</td>
+      <td>h2h</td>
+      <td>-0.133</td>
+      <td>0.045</td>
     </tr>
     <tr>
-      <td>Most sixes</td>
-      <td>16</td>
-      <td>3</td>
-      <td>7</td>
+      <td>venue_diff</td>
+      <td>-0.011</td>
+      <td>0.200</td>
     </tr>
     <tr>
-      <td>Most Player of the Match awards</td>
-      <td>16</td>
-      <td>2</td>
-      <td>3</td>
+      <td>home</td>
+      <td>0.152</td>
+      <td>0.074</td>
+    </tr>
+    <tr>
+      <td>squad_diff</td>
+      <td>0.109</td>
+      <td>0.409</td>
+    </tr>
+    <tr>
+      <td>impact_era</td>
+      <td>0.000</td>
+      <td>0.047</td>
     </tr>
   </tbody>
 </table></div>
+<h3>Which model was better? Walk-forward backtest 2021-2026</h3><p>For each season both models learned only from earlier seasons, then predicted all 422 matches and the title.</p><div class='table-box'><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Model</th>
+      <th>Matches</th>
+      <th>Accuracy %</th>
+      <th>Log loss (lower is better)</th>
+      <th>Brier (lower is better)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Model A</td>
+      <td>422</td>
+      <td>51.2</td>
+      <td>0.7001</td>
+      <td>0.2534</td>
+    </tr>
+    <tr>
+      <td>Logistic regression</td>
+      <td>422</td>
+      <td>49.1</td>
+      <td>0.7074</td>
+      <td>0.2570</td>
+    </tr>
+    <tr>
+      <td>Gradient boosting</td>
+      <td>422</td>
+      <td>49.5</td>
+      <td>0.7047</td>
+      <td>0.2557</td>
+    </tr>
+    <tr>
+      <td>Model B</td>
+      <td>422</td>
+      <td>50.7</td>
+      <td>0.7039</td>
+      <td>0.2553</td>
+    </tr>
+    <tr>
+      <td>Random guess (50%)</td>
+      <td>422</td>
+      <td>50.0</td>
+      <td>0.6931</td>
+      <td>0.2500</td>
+    </tr>
+  </tbody>
+</table></div><div class='charts'><figure><img src='model_comparison_backtest.png' alt='Backtest scores 2021-2026'><figcaption>Backtest scores 2021-2026</figcaption></figure><figure><img src='model_calibration.png' alt='Calibration: does 60% mean 60%?'><figcaption>Calibration: does 60% mean 60%?</figcaption></figure></div><h3>Where the real champion ranked</h3><div class='table-box'><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Season</th>
+      <th>Teams</th>
+      <th>Champion</th>
+      <th>Model A favourite</th>
+      <th>A: champion's rank</th>
+      <th>A: champion's title %</th>
+      <th>Model B favourite</th>
+      <th>B: champion's rank</th>
+      <th>B: champion's title %</th>
+      <th>Random pick %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2021</td>
+      <td>8</td>
+      <td>Chennai Super Kings</td>
+      <td>Mumbai Indians</td>
+      <td>3</td>
+      <td>15.1</td>
+      <td>Mumbai Indians</td>
+      <td>7</td>
+      <td>6.0</td>
+      <td>12.5</td>
+    </tr>
+    <tr>
+      <td>2022</td>
+      <td>10</td>
+      <td>Gujarat Titans</td>
+      <td>Mumbai Indians</td>
+      <td>4</td>
+      <td>10.1</td>
+      <td>Royal Challengers Bengaluru</td>
+      <td>7</td>
+      <td>8.3</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <td>2023</td>
+      <td>10</td>
+      <td>Chennai Super Kings</td>
+      <td>Gujarat Titans</td>
+      <td>9</td>
+      <td>4.7</td>
+      <td>Rajasthan Royals</td>
+      <td>9</td>
+      <td>5.6</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <td>2024</td>
+      <td>10</td>
+      <td>Kolkata Knight Riders</td>
+      <td>Gujarat Titans</td>
+      <td>9</td>
+      <td>5.6</td>
+      <td>Gujarat Titans</td>
+      <td>7</td>
+      <td>8.9</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <td>2025</td>
+      <td>10</td>
+      <td>Royal Challengers Bengaluru</td>
+      <td>Kolkata Knight Riders</td>
+      <td>6</td>
+      <td>9.6</td>
+      <td>Kolkata Knight Riders</td>
+      <td>6</td>
+      <td>8.6</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <td>2026</td>
+      <td>10</td>
+      <td>Royal Challengers Bengaluru</td>
+      <td>Royal Challengers Bengaluru</td>
+      <td>1</td>
+      <td>18.4</td>
+      <td>Punjab Kings</td>
+      <td>3</td>
+      <td>11.9</td>
+      <td>10.0</td>
+    </tr>
+  </tbody>
+</table></div>
+<h3>Award picks in the backtest</h3><div class='table-box'><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Model</th>
+      <th>Award</th>
+      <th>Seasons</th>
+      <th>Exactly right</th>
+      <th>Winner in top 5</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Model A</td>
+      <td>Orange Cap (most runs)</td>
+      <td>6</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Model A</td>
+      <td>Purple Cap (most wickets)</td>
+      <td>6</td>
+      <td>0</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>Model A</td>
+      <td>Most sixes</td>
+      <td>6</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>Model A</td>
+      <td>Most Player of the Match awards</td>
+      <td>6</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Model B</td>
+      <td>Orange Cap (most runs)</td>
+      <td>6</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>Model B</td>
+      <td>Purple Cap (most wickets)</td>
+      <td>6</td>
+      <td>0</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>Model B</td>
+      <td>Most sixes</td>
+      <td>6</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>Model B</td>
+      <td>Most Player of the Match awards</td>
+      <td>6</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class='panel'><h3>What the models cannot know</h3><ul><li><b>Auctions, trades and releases.</b> Both models read <code>data/squads_2027.csv</code>, which starts as each franchise's 2026 players. Edit it after the auction and run the pipeline again.</li><li><b>Injuries and availability</b> during the season.</li><li><b>Breakout players.</b> V Suryavanshi scored 252 runs in 2025 and 776 in 2026 to win the Orange Cap; before that season, Model A had him #44 and Model B had him #61 in the Orange Cap list. Past numbers cannot see a jump like that coming.</li><li><b>T20 is close to a coin flip before a ball is bowled.</b> In the 2021-2026 backtest Model A picked 51.2% of winners and Model B 50.7%, against 50% for a coin flip, and neither beat the coin flip's log loss (0.6931). Treat the title chances as rough guides, not certainties.</li></ul></div>
 <h2 id='explore'>Explore the data (interactive)</h2>
 <p>Choose a season and a team: the numbers, chart and tables below update straight away. Click a bar in the chart to select that team or season.</p>
 <div class='filters'><label>Season<select id='filter-season'><option value='all'>All seasons</option></select></label><label>Team<select id='filter-team'><option value='all'>All teams</option></select></label><button id='filter-reset' type='button'>Reset filters</button></div>

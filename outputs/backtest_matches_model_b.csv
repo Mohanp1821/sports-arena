@@ -1,0 +1,1267 @@
+model,season,match_id,team1,team2,p_team1,team1_won
+Logistic regression,2021,1254058,Mumbai Indians,Royal Challengers Bengaluru,0.6025,0
+Gradient boosting,2021,1254058,Mumbai Indians,Royal Challengers Bengaluru,0.7669,0
+Model B,2021,1254058,Mumbai Indians,Royal Challengers Bengaluru,0.6847,0
+Logistic regression,2021,1254059,Chennai Super Kings,Delhi Capitals,0.4108,0
+Gradient boosting,2021,1254059,Chennai Super Kings,Delhi Capitals,0.4357,0
+Model B,2021,1254059,Chennai Super Kings,Delhi Capitals,0.4233,0
+Logistic regression,2021,1254060,Kolkata Knight Riders,Sunrisers Hyderabad,0.4647,1
+Gradient boosting,2021,1254060,Kolkata Knight Riders,Sunrisers Hyderabad,0.4889,1
+Model B,2021,1254060,Kolkata Knight Riders,Sunrisers Hyderabad,0.4768,1
+Logistic regression,2021,1254061,Punjab Kings,Rajasthan Royals,0.5072,1
+Gradient boosting,2021,1254061,Punjab Kings,Rajasthan Royals,0.5096,1
+Model B,2021,1254061,Punjab Kings,Rajasthan Royals,0.5084,1
+Logistic regression,2021,1254062,Mumbai Indians,Kolkata Knight Riders,0.5486,1
+Gradient boosting,2021,1254062,Mumbai Indians,Kolkata Knight Riders,0.572,1
+Model B,2021,1254062,Mumbai Indians,Kolkata Knight Riders,0.5603,1
+Logistic regression,2021,1254063,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.4605,1
+Gradient boosting,2021,1254063,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.4993,1
+Model B,2021,1254063,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.4799,1
+Logistic regression,2021,1254064,Delhi Capitals,Rajasthan Royals,0.553,0
+Gradient boosting,2021,1254064,Delhi Capitals,Rajasthan Royals,0.3888,0
+Model B,2021,1254064,Delhi Capitals,Rajasthan Royals,0.4709,0
+Logistic regression,2021,1254065,Punjab Kings,Chennai Super Kings,0.5049,0
+Gradient boosting,2021,1254065,Punjab Kings,Chennai Super Kings,0.5338,0
+Model B,2021,1254065,Punjab Kings,Chennai Super Kings,0.5193,0
+Logistic regression,2021,1254066,Mumbai Indians,Sunrisers Hyderabad,0.5794,1
+Gradient boosting,2021,1254066,Mumbai Indians,Sunrisers Hyderabad,0.5467,1
+Model B,2021,1254066,Mumbai Indians,Sunrisers Hyderabad,0.563,1
+Logistic regression,2021,1254067,Royal Challengers Bengaluru,Kolkata Knight Riders,0.4722,1
+Gradient boosting,2021,1254067,Royal Challengers Bengaluru,Kolkata Knight Riders,0.5428,1
+Model B,2021,1254067,Royal Challengers Bengaluru,Kolkata Knight Riders,0.5075,1
+Logistic regression,2021,1254068,Punjab Kings,Delhi Capitals,0.3743,0
+Gradient boosting,2021,1254068,Punjab Kings,Delhi Capitals,0.3527,0
+Model B,2021,1254068,Punjab Kings,Delhi Capitals,0.3635,0
+Logistic regression,2021,1254069,Chennai Super Kings,Rajasthan Royals,0.5298,1
+Gradient boosting,2021,1254069,Chennai Super Kings,Rajasthan Royals,0.522,1
+Model B,2021,1254069,Chennai Super Kings,Rajasthan Royals,0.5259,1
+Logistic regression,2021,1254070,Mumbai Indians,Delhi Capitals,0.5046,0
+Gradient boosting,2021,1254070,Mumbai Indians,Delhi Capitals,0.4915,0
+Model B,2021,1254070,Mumbai Indians,Delhi Capitals,0.4981,0
+Logistic regression,2021,1254071,Punjab Kings,Sunrisers Hyderabad,0.4539,0
+Gradient boosting,2021,1254071,Punjab Kings,Sunrisers Hyderabad,0.5388,0
+Model B,2021,1254071,Punjab Kings,Sunrisers Hyderabad,0.4964,0
+Logistic regression,2021,1254072,Chennai Super Kings,Kolkata Knight Riders,0.473,1
+Gradient boosting,2021,1254072,Chennai Super Kings,Kolkata Knight Riders,0.452,1
+Model B,2021,1254072,Chennai Super Kings,Kolkata Knight Riders,0.4625,1
+Logistic regression,2021,1254073,Rajasthan Royals,Royal Challengers Bengaluru,0.4816,0
+Gradient boosting,2021,1254073,Rajasthan Royals,Royal Challengers Bengaluru,0.4937,0
+Model B,2021,1254073,Rajasthan Royals,Royal Challengers Bengaluru,0.4877,0
+Logistic regression,2021,1254074,Mumbai Indians,Punjab Kings,0.5975,0
+Gradient boosting,2021,1254074,Mumbai Indians,Punjab Kings,0.6439,0
+Model B,2021,1254074,Mumbai Indians,Punjab Kings,0.6207,0
+Logistic regression,2021,1254075,Kolkata Knight Riders,Rajasthan Royals,0.4705,0
+Gradient boosting,2021,1254075,Kolkata Knight Riders,Rajasthan Royals,0.3701,0
+Model B,2021,1254075,Kolkata Knight Riders,Rajasthan Royals,0.4203,0
+Logistic regression,2021,1254076,Chennai Super Kings,Royal Challengers Bengaluru,0.5004,1
+Gradient boosting,2021,1254076,Chennai Super Kings,Royal Challengers Bengaluru,0.4696,1
+Model B,2021,1254076,Chennai Super Kings,Royal Challengers Bengaluru,0.485,1
+Logistic regression,2021,1254077,Delhi Capitals,Sunrisers Hyderabad,0.5749,1
+Gradient boosting,2021,1254077,Delhi Capitals,Sunrisers Hyderabad,0.501,1
+Model B,2021,1254077,Delhi Capitals,Sunrisers Hyderabad,0.538,1
+Logistic regression,2021,1254078,Punjab Kings,Kolkata Knight Riders,0.5054,0
+Gradient boosting,2021,1254078,Punjab Kings,Kolkata Knight Riders,0.5927,0
+Model B,2021,1254078,Punjab Kings,Kolkata Knight Riders,0.549,0
+Logistic regression,2021,1254079,Royal Challengers Bengaluru,Delhi Capitals,0.4223,1
+Gradient boosting,2021,1254079,Royal Challengers Bengaluru,Delhi Capitals,0.4078,1
+Model B,2021,1254079,Royal Challengers Bengaluru,Delhi Capitals,0.415,1
+Logistic regression,2021,1254080,Sunrisers Hyderabad,Chennai Super Kings,0.5649,0
+Gradient boosting,2021,1254080,Sunrisers Hyderabad,Chennai Super Kings,0.6038,0
+Model B,2021,1254080,Sunrisers Hyderabad,Chennai Super Kings,0.5844,0
+Logistic regression,2021,1254081,Rajasthan Royals,Mumbai Indians,0.3206,0
+Gradient boosting,2021,1254081,Rajasthan Royals,Mumbai Indians,0.1852,0
+Model B,2021,1254081,Rajasthan Royals,Mumbai Indians,0.2529,0
+Logistic regression,2021,1254082,Kolkata Knight Riders,Delhi Capitals,0.4488,0
+Gradient boosting,2021,1254082,Kolkata Knight Riders,Delhi Capitals,0.4422,0
+Model B,2021,1254082,Kolkata Knight Riders,Delhi Capitals,0.4455,0
+Logistic regression,2021,1254083,Punjab Kings,Royal Challengers Bengaluru,0.5323,1
+Gradient boosting,2021,1254083,Punjab Kings,Royal Challengers Bengaluru,0.5406,1
+Model B,2021,1254083,Punjab Kings,Royal Challengers Bengaluru,0.5365,1
+Logistic regression,2021,1254084,Chennai Super Kings,Mumbai Indians,0.4393,0
+Gradient boosting,2021,1254084,Chennai Super Kings,Mumbai Indians,0.4344,0
+Model B,2021,1254084,Chennai Super Kings,Mumbai Indians,0.4369,0
+Logistic regression,2021,1254085,Rajasthan Royals,Sunrisers Hyderabad,0.4729,1
+Gradient boosting,2021,1254085,Rajasthan Royals,Sunrisers Hyderabad,0.5382,1
+Model B,2021,1254085,Rajasthan Royals,Sunrisers Hyderabad,0.5055,1
+Logistic regression,2021,1254086,Punjab Kings,Delhi Capitals,0.3743,0
+Gradient boosting,2021,1254086,Punjab Kings,Delhi Capitals,0.3527,0
+Model B,2021,1254086,Punjab Kings,Delhi Capitals,0.3635,0
+Logistic regression,2021,1254104,Chennai Super Kings,Mumbai Indians,0.439,1
+Gradient boosting,2021,1254104,Chennai Super Kings,Mumbai Indians,0.4344,1
+Model B,2021,1254104,Chennai Super Kings,Mumbai Indians,0.4367,1
+Logistic regression,2021,1254087,Royal Challengers Bengaluru,Kolkata Knight Riders,0.4718,0
+Gradient boosting,2021,1254087,Royal Challengers Bengaluru,Kolkata Knight Riders,0.5454,0
+Model B,2021,1254087,Royal Challengers Bengaluru,Kolkata Knight Riders,0.5086,0
+Logistic regression,2021,1254111,Rajasthan Royals,Punjab Kings,0.4916,1
+Gradient boosting,2021,1254111,Rajasthan Royals,Punjab Kings,0.4906,1
+Model B,2021,1254111,Rajasthan Royals,Punjab Kings,0.4911,1
+Logistic regression,2021,1254105,Sunrisers Hyderabad,Delhi Capitals,0.4256,0
+Gradient boosting,2021,1254105,Sunrisers Hyderabad,Delhi Capitals,0.4964,0
+Model B,2021,1254105,Sunrisers Hyderabad,Delhi Capitals,0.461,0
+Logistic regression,2021,1254096,Mumbai Indians,Kolkata Knight Riders,0.5479,0
+Gradient boosting,2021,1254096,Mumbai Indians,Kolkata Knight Riders,0.5536,0
+Model B,2021,1254096,Mumbai Indians,Kolkata Knight Riders,0.5508,0
+Logistic regression,2021,1254113,Royal Challengers Bengaluru,Chennai Super Kings,0.5004,0
+Gradient boosting,2021,1254113,Royal Challengers Bengaluru,Chennai Super Kings,0.5346,0
+Model B,2021,1254113,Royal Challengers Bengaluru,Chennai Super Kings,0.5175,0
+Logistic regression,2021,1254097,Delhi Capitals,Rajasthan Royals,0.5525,1
+Gradient boosting,2021,1254097,Delhi Capitals,Rajasthan Royals,0.3152,1
+Model B,2021,1254097,Delhi Capitals,Rajasthan Royals,0.4339,1
+Logistic regression,2021,1254107,Punjab Kings,Sunrisers Hyderabad,0.4543,1
+Gradient boosting,2021,1254107,Punjab Kings,Sunrisers Hyderabad,0.5411,1
+Model B,2021,1254107,Punjab Kings,Sunrisers Hyderabad,0.4977,1
+Logistic regression,2021,1254098,Kolkata Knight Riders,Chennai Super Kings,0.528,0
+Gradient boosting,2021,1254098,Kolkata Knight Riders,Chennai Super Kings,0.5638,0
+Model B,2021,1254098,Kolkata Knight Riders,Chennai Super Kings,0.5459,0
+Logistic regression,2021,1254108,Royal Challengers Bengaluru,Mumbai Indians,0.3988,1
+Gradient boosting,2021,1254108,Royal Challengers Bengaluru,Mumbai Indians,0.2479,1
+Model B,2021,1254108,Royal Challengers Bengaluru,Mumbai Indians,0.3234,1
+Logistic regression,2021,1254100,Rajasthan Royals,Sunrisers Hyderabad,0.4726,0
+Gradient boosting,2021,1254100,Rajasthan Royals,Sunrisers Hyderabad,0.5382,0
+Model B,2021,1254100,Rajasthan Royals,Sunrisers Hyderabad,0.5054,0
+Logistic regression,2021,1254092,Delhi Capitals,Kolkata Knight Riders,0.5516,0
+Gradient boosting,2021,1254092,Delhi Capitals,Kolkata Knight Riders,0.5761,0
+Model B,2021,1254092,Delhi Capitals,Kolkata Knight Riders,0.5639,0
+Logistic regression,2021,1254099,Punjab Kings,Mumbai Indians,0.4023,0
+Gradient boosting,2021,1254099,Punjab Kings,Mumbai Indians,0.3042,0
+Model B,2021,1254099,Punjab Kings,Mumbai Indians,0.3533,0
+Logistic regression,2021,1254103,Rajasthan Royals,Royal Challengers Bengaluru,0.4802,0
+Gradient boosting,2021,1254103,Rajasthan Royals,Royal Challengers Bengaluru,0.4966,0
+Model B,2021,1254103,Rajasthan Royals,Royal Challengers Bengaluru,0.4884,0
+Logistic regression,2021,1254091,Sunrisers Hyderabad,Chennai Super Kings,0.5651,0
+Gradient boosting,2021,1254091,Sunrisers Hyderabad,Chennai Super Kings,0.6103,0
+Model B,2021,1254091,Sunrisers Hyderabad,Chennai Super Kings,0.5877,0
+Logistic regression,2021,1254102,Kolkata Knight Riders,Punjab Kings,0.4952,0
+Gradient boosting,2021,1254102,Kolkata Knight Riders,Punjab Kings,0.4095,0
+Model B,2021,1254102,Kolkata Knight Riders,Punjab Kings,0.4524,0
+Logistic regression,2021,1254089,Chennai Super Kings,Rajasthan Royals,0.5292,0
+Gradient boosting,2021,1254089,Chennai Super Kings,Rajasthan Royals,0.5246,0
+Model B,2021,1254089,Chennai Super Kings,Rajasthan Royals,0.5269,0
+Logistic regression,2021,1254112,Mumbai Indians,Delhi Capitals,0.5032,0
+Gradient boosting,2021,1254112,Mumbai Indians,Delhi Capitals,0.4943,0
+Model B,2021,1254112,Mumbai Indians,Delhi Capitals,0.4988,0
+Logistic regression,2021,1254090,Royal Challengers Bengaluru,Punjab Kings,0.467,1
+Gradient boosting,2021,1254090,Royal Challengers Bengaluru,Punjab Kings,0.4529,1
+Model B,2021,1254090,Royal Challengers Bengaluru,Punjab Kings,0.4599,1
+Logistic regression,2021,1254109,Sunrisers Hyderabad,Kolkata Knight Riders,0.5356,0
+Gradient boosting,2021,1254109,Sunrisers Hyderabad,Kolkata Knight Riders,0.5111,0
+Model B,2021,1254109,Sunrisers Hyderabad,Kolkata Knight Riders,0.5233,0
+Logistic regression,2021,1254110,Chennai Super Kings,Delhi Capitals,0.4109,0
+Gradient boosting,2021,1254110,Chennai Super Kings,Delhi Capitals,0.4357,0
+Model B,2021,1254110,Chennai Super Kings,Delhi Capitals,0.4233,0
+Logistic regression,2021,1254093,Rajasthan Royals,Mumbai Indians,0.3205,0
+Gradient boosting,2021,1254093,Rajasthan Royals,Mumbai Indians,0.1852,0
+Model B,2021,1254093,Rajasthan Royals,Mumbai Indians,0.2528,0
+Logistic regression,2021,1254095,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5396,1
+Gradient boosting,2021,1254095,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5007,1
+Model B,2021,1254095,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5201,1
+Logistic regression,2021,1254094,Chennai Super Kings,Punjab Kings,0.4951,0
+Gradient boosting,2021,1254094,Chennai Super Kings,Punjab Kings,0.4662,0
+Model B,2021,1254094,Chennai Super Kings,Punjab Kings,0.4807,0
+Logistic regression,2021,1254106,Kolkata Knight Riders,Rajasthan Royals,0.471,1
+Gradient boosting,2021,1254106,Kolkata Knight Riders,Rajasthan Royals,0.3937,1
+Model B,2021,1254106,Kolkata Knight Riders,Rajasthan Royals,0.4324,1
+Logistic regression,2021,1254088,Mumbai Indians,Sunrisers Hyderabad,0.5792,1
+Gradient boosting,2021,1254088,Mumbai Indians,Sunrisers Hyderabad,0.5467,1
+Model B,2021,1254088,Mumbai Indians,Sunrisers Hyderabad,0.5629,1
+Logistic regression,2021,1254101,Delhi Capitals,Royal Challengers Bengaluru,0.5778,0
+Gradient boosting,2021,1254101,Delhi Capitals,Royal Challengers Bengaluru,0.5897,0
+Model B,2021,1254101,Delhi Capitals,Royal Challengers Bengaluru,0.5837,0
+Logistic regression,2021,1254114,Delhi Capitals,Chennai Super Kings,0.5891,0
+Gradient boosting,2021,1254114,Delhi Capitals,Chennai Super Kings,0.5643,0
+Model B,2021,1254114,Delhi Capitals,Chennai Super Kings,0.5767,0
+Logistic regression,2021,1254115,Royal Challengers Bengaluru,Kolkata Knight Riders,0.4725,0
+Gradient boosting,2021,1254115,Royal Challengers Bengaluru,Kolkata Knight Riders,0.5428,0
+Model B,2021,1254115,Royal Challengers Bengaluru,Kolkata Knight Riders,0.5076,0
+Logistic regression,2021,1254116,Delhi Capitals,Kolkata Knight Riders,0.5516,0
+Gradient boosting,2021,1254116,Delhi Capitals,Kolkata Knight Riders,0.5761,0
+Model B,2021,1254116,Delhi Capitals,Kolkata Knight Riders,0.5639,0
+Logistic regression,2021,1254117,Chennai Super Kings,Kolkata Knight Riders,0.4725,1
+Gradient boosting,2021,1254117,Chennai Super Kings,Kolkata Knight Riders,0.4336,1
+Model B,2021,1254117,Chennai Super Kings,Kolkata Knight Riders,0.4531,1
+Logistic regression,2022,1304047,Chennai Super Kings,Kolkata Knight Riders,0.4844,0
+Gradient boosting,2022,1304047,Chennai Super Kings,Kolkata Knight Riders,0.4881,0
+Model B,2022,1304047,Chennai Super Kings,Kolkata Knight Riders,0.4863,0
+Logistic regression,2022,1304048,Mumbai Indians,Delhi Capitals,0.4502,0
+Gradient boosting,2022,1304048,Mumbai Indians,Delhi Capitals,0.4516,0
+Model B,2022,1304048,Mumbai Indians,Delhi Capitals,0.4509,0
+Logistic regression,2022,1304049,Royal Challengers Bengaluru,Punjab Kings,0.5566,0
+Gradient boosting,2022,1304049,Royal Challengers Bengaluru,Punjab Kings,0.526,0
+Model B,2022,1304049,Royal Challengers Bengaluru,Punjab Kings,0.5413,0
+Logistic regression,2022,1304050,Lucknow Super Giants,Gujarat Titans,0.5208,0
+Gradient boosting,2022,1304050,Lucknow Super Giants,Gujarat Titans,0.516,0
+Model B,2022,1304050,Lucknow Super Giants,Gujarat Titans,0.5184,0
+Logistic regression,2022,1304051,Rajasthan Royals,Sunrisers Hyderabad,0.5383,1
+Gradient boosting,2022,1304051,Rajasthan Royals,Sunrisers Hyderabad,0.4784,1
+Model B,2022,1304051,Rajasthan Royals,Sunrisers Hyderabad,0.5084,1
+Logistic regression,2022,1304052,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4799,0
+Gradient boosting,2022,1304052,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4809,0
+Model B,2022,1304052,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4804,0
+Logistic regression,2022,1304053,Chennai Super Kings,Lucknow Super Giants,0.5321,0
+Gradient boosting,2022,1304053,Chennai Super Kings,Lucknow Super Giants,0.4985,0
+Model B,2022,1304053,Chennai Super Kings,Lucknow Super Giants,0.5153,0
+Logistic regression,2022,1304054,Punjab Kings,Kolkata Knight Riders,0.5053,0
+Gradient boosting,2022,1304054,Punjab Kings,Kolkata Knight Riders,0.546,0
+Model B,2022,1304054,Punjab Kings,Kolkata Knight Riders,0.5257,0
+Logistic regression,2022,1304055,Rajasthan Royals,Mumbai Indians,0.4537,1
+Gradient boosting,2022,1304055,Rajasthan Royals,Mumbai Indians,0.4197,1
+Model B,2022,1304055,Rajasthan Royals,Mumbai Indians,0.4367,1
+Logistic regression,2022,1304056,Gujarat Titans,Delhi Capitals,0.449,1
+Gradient boosting,2022,1304056,Gujarat Titans,Delhi Capitals,0.471,1
+Model B,2022,1304056,Gujarat Titans,Delhi Capitals,0.46,1
+Logistic regression,2022,1304057,Punjab Kings,Chennai Super Kings,0.4577,1
+Gradient boosting,2022,1304057,Punjab Kings,Chennai Super Kings,0.5404,1
+Model B,2022,1304057,Punjab Kings,Chennai Super Kings,0.4991,1
+Logistic regression,2022,1304058,Lucknow Super Giants,Sunrisers Hyderabad,0.5815,1
+Gradient boosting,2022,1304058,Lucknow Super Giants,Sunrisers Hyderabad,0.5814,1
+Model B,2022,1304058,Lucknow Super Giants,Sunrisers Hyderabad,0.5814,1
+Logistic regression,2022,1304059,Rajasthan Royals,Royal Challengers Bengaluru,0.4922,0
+Gradient boosting,2022,1304059,Rajasthan Royals,Royal Challengers Bengaluru,0.5327,0
+Model B,2022,1304059,Rajasthan Royals,Royal Challengers Bengaluru,0.5124,0
+Logistic regression,2022,1304060,Mumbai Indians,Kolkata Knight Riders,0.4888,0
+Gradient boosting,2022,1304060,Mumbai Indians,Kolkata Knight Riders,0.3979,0
+Model B,2022,1304060,Mumbai Indians,Kolkata Knight Riders,0.4433,0
+Logistic regression,2022,1304061,Delhi Capitals,Lucknow Super Giants,0.5303,0
+Gradient boosting,2022,1304061,Delhi Capitals,Lucknow Super Giants,0.5061,0
+Model B,2022,1304061,Delhi Capitals,Lucknow Super Giants,0.5182,0
+Logistic regression,2022,1304062,Punjab Kings,Gujarat Titans,0.4811,0
+Gradient boosting,2022,1304062,Punjab Kings,Gujarat Titans,0.5509,0
+Model B,2022,1304062,Punjab Kings,Gujarat Titans,0.516,0
+Logistic regression,2022,1304063,Chennai Super Kings,Sunrisers Hyderabad,0.584,0
+Gradient boosting,2022,1304063,Chennai Super Kings,Sunrisers Hyderabad,0.5701,0
+Model B,2022,1304063,Chennai Super Kings,Sunrisers Hyderabad,0.5771,0
+Logistic regression,2022,1304064,Mumbai Indians,Royal Challengers Bengaluru,0.4855,0
+Gradient boosting,2022,1304064,Mumbai Indians,Royal Challengers Bengaluru,0.384,0
+Model B,2022,1304064,Mumbai Indians,Royal Challengers Bengaluru,0.4347,0
+Logistic regression,2022,1304065,Delhi Capitals,Kolkata Knight Riders,0.5333,1
+Gradient boosting,2022,1304065,Delhi Capitals,Kolkata Knight Riders,0.4784,1
+Model B,2022,1304065,Delhi Capitals,Kolkata Knight Riders,0.5058,1
+Logistic regression,2022,1304066,Rajasthan Royals,Lucknow Super Giants,0.4563,1
+Gradient boosting,2022,1304066,Rajasthan Royals,Lucknow Super Giants,0.4908,1
+Model B,2022,1304066,Rajasthan Royals,Lucknow Super Giants,0.4735,1
+Logistic regression,2022,1304067,Gujarat Titans,Sunrisers Hyderabad,0.5612,0
+Gradient boosting,2022,1304067,Gujarat Titans,Sunrisers Hyderabad,0.5223,0
+Model B,2022,1304067,Gujarat Titans,Sunrisers Hyderabad,0.5417,0
+Logistic regression,2022,1304068,Chennai Super Kings,Royal Challengers Bengaluru,0.4855,1
+Gradient boosting,2022,1304068,Chennai Super Kings,Royal Challengers Bengaluru,0.4625,1
+Model B,2022,1304068,Chennai Super Kings,Royal Challengers Bengaluru,0.474,1
+Logistic regression,2022,1304069,Punjab Kings,Mumbai Indians,0.4579,1
+Gradient boosting,2022,1304069,Punjab Kings,Mumbai Indians,0.4993,1
+Model B,2022,1304069,Punjab Kings,Mumbai Indians,0.4786,1
+Logistic regression,2022,1304070,Gujarat Titans,Rajasthan Royals,0.523,1
+Gradient boosting,2022,1304070,Gujarat Titans,Rajasthan Royals,0.4985,1
+Model B,2022,1304070,Gujarat Titans,Rajasthan Royals,0.5108,1
+Logistic regression,2022,1304071,Kolkata Knight Riders,Sunrisers Hyderabad,0.5077,0
+Gradient boosting,2022,1304071,Kolkata Knight Riders,Sunrisers Hyderabad,0.5273,0
+Model B,2022,1304071,Kolkata Knight Riders,Sunrisers Hyderabad,0.5175,0
+Logistic regression,2022,1304072,Lucknow Super Giants,Mumbai Indians,0.4974,1
+Gradient boosting,2022,1304072,Lucknow Super Giants,Mumbai Indians,0.423,1
+Model B,2022,1304072,Lucknow Super Giants,Mumbai Indians,0.4602,1
+Logistic regression,2022,1304073,Royal Challengers Bengaluru,Delhi Capitals,0.5163,1
+Gradient boosting,2022,1304073,Royal Challengers Bengaluru,Delhi Capitals,0.585,1
+Model B,2022,1304073,Royal Challengers Bengaluru,Delhi Capitals,0.5507,1
+Logistic regression,2022,1304074,Punjab Kings,Sunrisers Hyderabad,0.5424,0
+Gradient boosting,2022,1304074,Punjab Kings,Sunrisers Hyderabad,0.5254,0
+Model B,2022,1304074,Punjab Kings,Sunrisers Hyderabad,0.5339,0
+Logistic regression,2022,1304075,Chennai Super Kings,Gujarat Titans,0.5527,0
+Gradient boosting,2022,1304075,Chennai Super Kings,Gujarat Titans,0.5081,0
+Model B,2022,1304075,Chennai Super Kings,Gujarat Titans,0.5304,0
+Logistic regression,2022,1304076,Rajasthan Royals,Kolkata Knight Riders,0.5013,1
+Gradient boosting,2022,1304076,Rajasthan Royals,Kolkata Knight Riders,0.546,1
+Model B,2022,1304076,Rajasthan Royals,Kolkata Knight Riders,0.5237,1
+Logistic regression,2022,1304077,Royal Challengers Bengaluru,Lucknow Super Giants,0.5171,1
+Gradient boosting,2022,1304077,Royal Challengers Bengaluru,Lucknow Super Giants,0.5076,1
+Model B,2022,1304077,Royal Challengers Bengaluru,Lucknow Super Giants,0.5123,1
+Logistic regression,2022,1304078,Punjab Kings,Delhi Capitals,0.4595,0
+Gradient boosting,2022,1304078,Punjab Kings,Delhi Capitals,0.5337,0
+Model B,2022,1304078,Punjab Kings,Delhi Capitals,0.4966,0
+Logistic regression,2022,1304079,Mumbai Indians,Chennai Super Kings,0.4267,0
+Gradient boosting,2022,1304079,Mumbai Indians,Chennai Super Kings,0.476,0
+Model B,2022,1304079,Mumbai Indians,Chennai Super Kings,0.4513,0
+Logistic regression,2022,1304080,Rajasthan Royals,Delhi Capitals,0.4849,1
+Gradient boosting,2022,1304080,Rajasthan Royals,Delhi Capitals,0.5239,1
+Model B,2022,1304080,Rajasthan Royals,Delhi Capitals,0.5044,1
+Logistic regression,2022,1304081,Gujarat Titans,Kolkata Knight Riders,0.4949,1
+Gradient boosting,2022,1304081,Gujarat Titans,Kolkata Knight Riders,0.5246,1
+Model B,2022,1304081,Gujarat Titans,Kolkata Knight Riders,0.5098,1
+Logistic regression,2022,1304082,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.6102,0
+Gradient boosting,2022,1304082,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.5814,0
+Model B,2022,1304082,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.5958,0
+Logistic regression,2022,1304083,Lucknow Super Giants,Mumbai Indians,0.4098,1
+Gradient boosting,2022,1304083,Lucknow Super Giants,Mumbai Indians,0.3723,1
+Model B,2022,1304083,Lucknow Super Giants,Mumbai Indians,0.391,1
+Logistic regression,2022,1304084,Punjab Kings,Chennai Super Kings,0.4578,1
+Gradient boosting,2022,1304084,Punjab Kings,Chennai Super Kings,0.5404,1
+Model B,2022,1304084,Punjab Kings,Chennai Super Kings,0.4991,1
+Logistic regression,2022,1304085,Rajasthan Royals,Royal Challengers Bengaluru,0.4923,1
+Gradient boosting,2022,1304085,Rajasthan Royals,Royal Challengers Bengaluru,0.527,1
+Model B,2022,1304085,Rajasthan Royals,Royal Challengers Bengaluru,0.5096,1
+Logistic regression,2022,1304086,Sunrisers Hyderabad,Gujarat Titans,0.4389,0
+Gradient boosting,2022,1304086,Sunrisers Hyderabad,Gujarat Titans,0.4807,0
+Model B,2022,1304086,Sunrisers Hyderabad,Gujarat Titans,0.4598,0
+Logistic regression,2022,1304087,Kolkata Knight Riders,Delhi Capitals,0.4668,0
+Gradient boosting,2022,1304087,Kolkata Knight Riders,Delhi Capitals,0.5246,0
+Model B,2022,1304087,Kolkata Knight Riders,Delhi Capitals,0.4957,0
+Logistic regression,2022,1304088,Lucknow Super Giants,Punjab Kings,0.5396,1
+Gradient boosting,2022,1304088,Lucknow Super Giants,Punjab Kings,0.4683,1
+Model B,2022,1304088,Lucknow Super Giants,Punjab Kings,0.504,1
+Logistic regression,2022,1304089,Royal Challengers Bengaluru,Gujarat Titans,0.5378,0
+Gradient boosting,2022,1304089,Royal Challengers Bengaluru,Gujarat Titans,0.513,0
+Model B,2022,1304089,Royal Challengers Bengaluru,Gujarat Titans,0.5254,0
+Logistic regression,2022,1304090,Rajasthan Royals,Mumbai Indians,0.4537,0
+Gradient boosting,2022,1304090,Rajasthan Royals,Mumbai Indians,0.4197,0
+Model B,2022,1304090,Rajasthan Royals,Mumbai Indians,0.4367,0
+Logistic regression,2022,1304091,Lucknow Super Giants,Delhi Capitals,0.4697,1
+Gradient boosting,2022,1304091,Lucknow Super Giants,Delhi Capitals,0.492,1
+Model B,2022,1304091,Lucknow Super Giants,Delhi Capitals,0.4808,1
+Logistic regression,2022,1304092,Chennai Super Kings,Sunrisers Hyderabad,0.584,1
+Gradient boosting,2022,1304092,Chennai Super Kings,Sunrisers Hyderabad,0.6049,1
+Model B,2022,1304092,Chennai Super Kings,Sunrisers Hyderabad,0.5944,1
+Logistic regression,2022,1304093,Rajasthan Royals,Kolkata Knight Riders,0.5012,0
+Gradient boosting,2022,1304093,Rajasthan Royals,Kolkata Knight Riders,0.546,0
+Model B,2022,1304093,Rajasthan Royals,Kolkata Knight Riders,0.5236,0
+Logistic regression,2022,1304094,Gujarat Titans,Punjab Kings,0.5189,0
+Gradient boosting,2022,1304094,Gujarat Titans,Punjab Kings,0.4491,0
+Model B,2022,1304094,Gujarat Titans,Punjab Kings,0.484,0
+Logistic regression,2022,1304095,Royal Challengers Bengaluru,Chennai Super Kings,0.5145,1
+Gradient boosting,2022,1304095,Royal Challengers Bengaluru,Chennai Super Kings,0.5375,1
+Model B,2022,1304095,Royal Challengers Bengaluru,Chennai Super Kings,0.526,1
+Logistic regression,2022,1304096,Delhi Capitals,Sunrisers Hyderabad,0.5896,1
+Gradient boosting,2022,1304096,Delhi Capitals,Sunrisers Hyderabad,0.5511,1
+Model B,2022,1304096,Delhi Capitals,Sunrisers Hyderabad,0.5703,1
+Logistic regression,2022,1304097,Mumbai Indians,Gujarat Titans,0.5233,1
+Gradient boosting,2022,1304097,Mumbai Indians,Gujarat Titans,0.4954,1
+Model B,2022,1304097,Mumbai Indians,Gujarat Titans,0.5094,1
+Logistic regression,2022,1304098,Punjab Kings,Rajasthan Royals,0.5041,0
+Gradient boosting,2022,1304098,Punjab Kings,Rajasthan Royals,0.4616,0
+Model B,2022,1304098,Punjab Kings,Rajasthan Royals,0.4829,0
+Logistic regression,2022,1304099,Lucknow Super Giants,Kolkata Knight Riders,0.5157,1
+Gradient boosting,2022,1304099,Lucknow Super Giants,Kolkata Knight Riders,0.5397,1
+Model B,2022,1304099,Lucknow Super Giants,Kolkata Knight Riders,0.5277,1
+Logistic regression,2022,1304100,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.6101,1
+Gradient boosting,2022,1304100,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.5784,1
+Model B,2022,1304100,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.5943,1
+Logistic regression,2022,1304101,Chennai Super Kings,Delhi Capitals,0.5018,1
+Gradient boosting,2022,1304101,Chennai Super Kings,Delhi Capitals,0.4408,1
+Model B,2022,1304101,Chennai Super Kings,Delhi Capitals,0.4713,1
+Logistic regression,2022,1304102,Kolkata Knight Riders,Mumbai Indians,0.5113,1
+Gradient boosting,2022,1304102,Kolkata Knight Riders,Mumbai Indians,0.5936,1
+Model B,2022,1304102,Kolkata Knight Riders,Mumbai Indians,0.5525,1
+Logistic regression,2022,1304103,Gujarat Titans,Lucknow Super Giants,0.4792,1
+Gradient boosting,2022,1304103,Gujarat Titans,Lucknow Super Giants,0.484,1
+Model B,2022,1304103,Gujarat Titans,Lucknow Super Giants,0.4816,1
+Logistic regression,2022,1304104,Rajasthan Royals,Delhi Capitals,0.4849,0
+Gradient boosting,2022,1304104,Rajasthan Royals,Delhi Capitals,0.5239,0
+Model B,2022,1304104,Rajasthan Royals,Delhi Capitals,0.5044,0
+Logistic regression,2022,1304105,Chennai Super Kings,Mumbai Indians,0.4853,0
+Gradient boosting,2022,1304105,Chennai Super Kings,Mumbai Indians,0.4637,0
+Model B,2022,1304105,Chennai Super Kings,Mumbai Indians,0.4745,0
+Logistic regression,2022,1304106,Punjab Kings,Royal Challengers Bengaluru,0.4435,1
+Gradient boosting,2022,1304106,Punjab Kings,Royal Challengers Bengaluru,0.474,1
+Model B,2022,1304106,Punjab Kings,Royal Challengers Bengaluru,0.4587,1
+Logistic regression,2022,1304107,Kolkata Knight Riders,Sunrisers Hyderabad,0.5075,1
+Gradient boosting,2022,1304107,Kolkata Knight Riders,Sunrisers Hyderabad,0.5685,1
+Model B,2022,1304107,Kolkata Knight Riders,Sunrisers Hyderabad,0.538,1
+Logistic regression,2022,1304108,Chennai Super Kings,Gujarat Titans,0.5527,0
+Gradient boosting,2022,1304108,Chennai Super Kings,Gujarat Titans,0.5081,0
+Model B,2022,1304108,Chennai Super Kings,Gujarat Titans,0.5304,0
+Logistic regression,2022,1304109,Rajasthan Royals,Lucknow Super Giants,0.4563,1
+Gradient boosting,2022,1304109,Rajasthan Royals,Lucknow Super Giants,0.4888,1
+Model B,2022,1304109,Rajasthan Royals,Lucknow Super Giants,0.4725,1
+Logistic regression,2022,1304110,Delhi Capitals,Punjab Kings,0.5404,1
+Gradient boosting,2022,1304110,Delhi Capitals,Punjab Kings,0.473,1
+Model B,2022,1304110,Delhi Capitals,Punjab Kings,0.5067,1
+Logistic regression,2022,1304111,Sunrisers Hyderabad,Mumbai Indians,0.3877,1
+Gradient boosting,2022,1304111,Sunrisers Hyderabad,Mumbai Indians,0.2234,1
+Model B,2022,1304111,Sunrisers Hyderabad,Mumbai Indians,0.3055,1
+Logistic regression,2022,1304112,Lucknow Super Giants,Kolkata Knight Riders,0.5157,1
+Gradient boosting,2022,1304112,Lucknow Super Giants,Kolkata Knight Riders,0.5397,1
+Model B,2022,1304112,Lucknow Super Giants,Kolkata Knight Riders,0.5277,1
+Logistic regression,2022,1304113,Gujarat Titans,Royal Challengers Bengaluru,0.4621,0
+Gradient boosting,2022,1304113,Gujarat Titans,Royal Challengers Bengaluru,0.4809,0
+Model B,2022,1304113,Gujarat Titans,Royal Challengers Bengaluru,0.4715,0
+Logistic regression,2022,1304114,Chennai Super Kings,Rajasthan Royals,0.5754,0
+Gradient boosting,2022,1304114,Chennai Super Kings,Rajasthan Royals,0.6506,0
+Model B,2022,1304114,Chennai Super Kings,Rajasthan Royals,0.613,0
+Logistic regression,2022,1304115,Delhi Capitals,Mumbai Indians,0.4614,0
+Gradient boosting,2022,1304115,Delhi Capitals,Mumbai Indians,0.5209,0
+Model B,2022,1304115,Delhi Capitals,Mumbai Indians,0.4912,0
+Logistic regression,2022,1304116,Sunrisers Hyderabad,Punjab Kings,0.4577,0
+Gradient boosting,2022,1304116,Sunrisers Hyderabad,Punjab Kings,0.4807,0
+Model B,2022,1304116,Sunrisers Hyderabad,Punjab Kings,0.4692,0
+Logistic regression,2022,1312197,Rajasthan Royals,Gujarat Titans,0.477,0
+Gradient boosting,2022,1312197,Rajasthan Royals,Gujarat Titans,0.5046,0
+Model B,2022,1312197,Rajasthan Royals,Gujarat Titans,0.4908,0
+Logistic regression,2022,1312198,Royal Challengers Bengaluru,Lucknow Super Giants,0.5171,1
+Gradient boosting,2022,1312198,Royal Challengers Bengaluru,Lucknow Super Giants,0.5106,1
+Model B,2022,1312198,Royal Challengers Bengaluru,Lucknow Super Giants,0.5139,1
+Logistic regression,2022,1312199,Royal Challengers Bengaluru,Rajasthan Royals,0.5078,0
+Gradient boosting,2022,1312199,Royal Challengers Bengaluru,Rajasthan Royals,0.4761,0
+Model B,2022,1312199,Royal Challengers Bengaluru,Rajasthan Royals,0.4919,0
+Logistic regression,2022,1312200,Rajasthan Royals,Gujarat Titans,0.3902,0
+Gradient boosting,2022,1312200,Rajasthan Royals,Gujarat Titans,0.433,0
+Model B,2022,1312200,Rajasthan Royals,Gujarat Titans,0.4116,0
+Logistic regression,2023,1359475,Chennai Super Kings,Gujarat Titans,0.4134,0
+Gradient boosting,2023,1359475,Chennai Super Kings,Gujarat Titans,0.3572,0
+Model B,2023,1359475,Chennai Super Kings,Gujarat Titans,0.3853,0
+Logistic regression,2023,1359476,Punjab Kings,Kolkata Knight Riders,0.5784,1
+Gradient boosting,2023,1359476,Punjab Kings,Kolkata Knight Riders,0.5636,1
+Model B,2023,1359476,Punjab Kings,Kolkata Knight Riders,0.571,1
+Logistic regression,2023,1359477,Lucknow Super Giants,Delhi Capitals,0.5387,1
+Gradient boosting,2023,1359477,Lucknow Super Giants,Delhi Capitals,0.536,1
+Model B,2023,1359477,Lucknow Super Giants,Delhi Capitals,0.5374,1
+Logistic regression,2023,1359478,Rajasthan Royals,Sunrisers Hyderabad,0.4906,1
+Gradient boosting,2023,1359478,Rajasthan Royals,Sunrisers Hyderabad,0.5297,1
+Model B,2023,1359478,Rajasthan Royals,Sunrisers Hyderabad,0.5102,1
+Logistic regression,2023,1359479,Mumbai Indians,Royal Challengers Bengaluru,0.3426,0
+Gradient boosting,2023,1359479,Mumbai Indians,Royal Challengers Bengaluru,0.402,0
+Model B,2023,1359479,Mumbai Indians,Royal Challengers Bengaluru,0.3723,0
+Logistic regression,2023,1359480,Chennai Super Kings,Lucknow Super Giants,0.5913,1
+Gradient boosting,2023,1359480,Chennai Super Kings,Lucknow Super Giants,0.5014,1
+Model B,2023,1359480,Chennai Super Kings,Lucknow Super Giants,0.5463,1
+Logistic regression,2023,1359481,Delhi Capitals,Gujarat Titans,0.6313,0
+Gradient boosting,2023,1359481,Delhi Capitals,Gujarat Titans,0.5222,0
+Model B,2023,1359481,Delhi Capitals,Gujarat Titans,0.5768,0
+Logistic regression,2023,1359482,Punjab Kings,Rajasthan Royals,0.4773,1
+Gradient boosting,2023,1359482,Punjab Kings,Rajasthan Royals,0.4713,1
+Model B,2023,1359482,Punjab Kings,Rajasthan Royals,0.4743,1
+Logistic regression,2023,1359483,Kolkata Knight Riders,Royal Challengers Bengaluru,0.5862,1
+Gradient boosting,2023,1359483,Kolkata Knight Riders,Royal Challengers Bengaluru,0.5918,1
+Model B,2023,1359483,Kolkata Knight Riders,Royal Challengers Bengaluru,0.589,1
+Logistic regression,2023,1359484,Sunrisers Hyderabad,Lucknow Super Giants,0.4229,0
+Gradient boosting,2023,1359484,Sunrisers Hyderabad,Lucknow Super Giants,0.416,0
+Model B,2023,1359484,Sunrisers Hyderabad,Lucknow Super Giants,0.4194,0
+Logistic regression,2023,1359485,Rajasthan Royals,Delhi Capitals,0.5775,1
+Gradient boosting,2023,1359485,Rajasthan Royals,Delhi Capitals,0.5731,1
+Model B,2023,1359485,Rajasthan Royals,Delhi Capitals,0.5753,1
+Logistic regression,2023,1359486,Mumbai Indians,Chennai Super Kings,0.5524,0
+Gradient boosting,2023,1359486,Mumbai Indians,Chennai Super Kings,0.5591,0
+Model B,2023,1359486,Mumbai Indians,Chennai Super Kings,0.5557,0
+Logistic regression,2023,1359487,Gujarat Titans,Kolkata Knight Riders,0.5349,0
+Gradient boosting,2023,1359487,Gujarat Titans,Kolkata Knight Riders,0.5545,0
+Model B,2023,1359487,Gujarat Titans,Kolkata Knight Riders,0.5447,0
+Logistic regression,2023,1359488,Punjab Kings,Sunrisers Hyderabad,0.435,0
+Gradient boosting,2023,1359488,Punjab Kings,Sunrisers Hyderabad,0.3903,0
+Model B,2023,1359488,Punjab Kings,Sunrisers Hyderabad,0.4127,0
+Logistic regression,2023,1359489,Royal Challengers Bengaluru,Lucknow Super Giants,0.5165,0
+Gradient boosting,2023,1359489,Royal Challengers Bengaluru,Lucknow Super Giants,0.5359,0
+Model B,2023,1359489,Royal Challengers Bengaluru,Lucknow Super Giants,0.5262,0
+Logistic regression,2023,1359490,Delhi Capitals,Mumbai Indians,0.6829,0
+Gradient boosting,2023,1359490,Delhi Capitals,Mumbai Indians,0.6571,0
+Model B,2023,1359490,Delhi Capitals,Mumbai Indians,0.67,0
+Logistic regression,2023,1359491,Rajasthan Royals,Chennai Super Kings,0.469,1
+Gradient boosting,2023,1359491,Rajasthan Royals,Chennai Super Kings,0.5651,1
+Model B,2023,1359491,Rajasthan Royals,Chennai Super Kings,0.5171,1
+Logistic regression,2023,1359492,Punjab Kings,Gujarat Titans,0.5306,0
+Gradient boosting,2023,1359492,Punjab Kings,Gujarat Titans,0.4608,0
+Model B,2023,1359492,Punjab Kings,Gujarat Titans,0.4957,0
+Logistic regression,2023,1359493,Sunrisers Hyderabad,Kolkata Knight Riders,0.4241,1
+Gradient boosting,2023,1359493,Sunrisers Hyderabad,Kolkata Knight Riders,0.407,1
+Model B,2023,1359493,Sunrisers Hyderabad,Kolkata Knight Riders,0.4155,1
+Logistic regression,2023,1359494,Royal Challengers Bengaluru,Delhi Capitals,0.6074,1
+Gradient boosting,2023,1359494,Royal Challengers Bengaluru,Delhi Capitals,0.5745,1
+Model B,2023,1359494,Royal Challengers Bengaluru,Delhi Capitals,0.5909,1
+Logistic regression,2023,1359495,Lucknow Super Giants,Punjab Kings,0.5588,0
+Gradient boosting,2023,1359495,Lucknow Super Giants,Punjab Kings,0.584,0
+Model B,2023,1359495,Lucknow Super Giants,Punjab Kings,0.5714,0
+Logistic regression,2023,1359496,Kolkata Knight Riders,Mumbai Indians,0.5058,0
+Gradient boosting,2023,1359496,Kolkata Knight Riders,Mumbai Indians,0.5143,0
+Model B,2023,1359496,Kolkata Knight Riders,Mumbai Indians,0.51,0
+Logistic regression,2023,1359497,Gujarat Titans,Rajasthan Royals,0.4973,0
+Gradient boosting,2023,1359497,Gujarat Titans,Rajasthan Royals,0.5234,0
+Model B,2023,1359497,Gujarat Titans,Rajasthan Royals,0.5103,0
+Logistic regression,2023,1359498,Chennai Super Kings,Royal Challengers Bengaluru,0.3102,1
+Gradient boosting,2023,1359498,Chennai Super Kings,Royal Challengers Bengaluru,0.3429,1
+Model B,2023,1359498,Chennai Super Kings,Royal Challengers Bengaluru,0.3265,1
+Logistic regression,2023,1359499,Mumbai Indians,Sunrisers Hyderabad,0.358,1
+Gradient boosting,2023,1359499,Mumbai Indians,Sunrisers Hyderabad,0.3447,1
+Model B,2023,1359499,Mumbai Indians,Sunrisers Hyderabad,0.3513,1
+Logistic regression,2023,1359500,Lucknow Super Giants,Rajasthan Royals,0.4727,1
+Gradient boosting,2023,1359500,Lucknow Super Giants,Rajasthan Royals,0.4099,1
+Model B,2023,1359500,Lucknow Super Giants,Rajasthan Royals,0.4413,1
+Logistic regression,2023,1359501,Royal Challengers Bengaluru,Punjab Kings,0.5183,1
+Gradient boosting,2023,1359501,Royal Challengers Bengaluru,Punjab Kings,0.4953,1
+Model B,2023,1359501,Royal Challengers Bengaluru,Punjab Kings,0.5068,1
+Logistic regression,2023,1359502,Kolkata Knight Riders,Delhi Capitals,0.4278,0
+Gradient boosting,2023,1359502,Kolkata Knight Riders,Delhi Capitals,0.4831,0
+Model B,2023,1359502,Kolkata Knight Riders,Delhi Capitals,0.4554,0
+Logistic regression,2023,1359503,Sunrisers Hyderabad,Chennai Super Kings,0.4555,0
+Gradient boosting,2023,1359503,Sunrisers Hyderabad,Chennai Super Kings,0.5489,0
+Model B,2023,1359503,Sunrisers Hyderabad,Chennai Super Kings,0.5022,0
+Logistic regression,2023,1359504,Gujarat Titans,Lucknow Super Giants,0.3436,1
+Gradient boosting,2023,1359504,Gujarat Titans,Lucknow Super Giants,0.3579,1
+Model B,2023,1359504,Gujarat Titans,Lucknow Super Giants,0.3508,1
+Logistic regression,2023,1359505,Punjab Kings,Mumbai Indians,0.457,1
+Gradient boosting,2023,1359505,Punjab Kings,Mumbai Indians,0.4453,1
+Model B,2023,1359505,Punjab Kings,Mumbai Indians,0.4511,1
+Logistic regression,2023,1359506,Royal Challengers Bengaluru,Rajasthan Royals,0.5432,1
+Gradient boosting,2023,1359506,Royal Challengers Bengaluru,Rajasthan Royals,0.4945,1
+Model B,2023,1359506,Royal Challengers Bengaluru,Rajasthan Royals,0.5188,1
+Logistic regression,2023,1359507,Chennai Super Kings,Kolkata Knight Riders,0.3383,1
+Gradient boosting,2023,1359507,Chennai Super Kings,Kolkata Knight Riders,0.4015,1
+Model B,2023,1359507,Chennai Super Kings,Kolkata Knight Riders,0.3699,1
+Logistic regression,2023,1359508,Delhi Capitals,Sunrisers Hyderabad,0.424,1
+Gradient boosting,2023,1359508,Delhi Capitals,Sunrisers Hyderabad,0.4201,1
+Model B,2023,1359508,Delhi Capitals,Sunrisers Hyderabad,0.422,1
+Logistic regression,2023,1359509,Gujarat Titans,Mumbai Indians,0.7605,1
+Gradient boosting,2023,1359509,Gujarat Titans,Mumbai Indians,0.7701,1
+Model B,2023,1359509,Gujarat Titans,Mumbai Indians,0.7653,1
+Logistic regression,2023,1359510,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4075,1
+Gradient boosting,2023,1359510,Kolkata Knight Riders,Royal Challengers Bengaluru,0.411,1
+Model B,2023,1359510,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4093,1
+Logistic regression,2023,1359511,Rajasthan Royals,Chennai Super Kings,0.6306,1
+Gradient boosting,2023,1359511,Rajasthan Royals,Chennai Super Kings,0.663,1
+Model B,2023,1359511,Rajasthan Royals,Chennai Super Kings,0.6468,1
+Logistic regression,2023,1359512,Lucknow Super Giants,Punjab Kings,0.3801,1
+Gradient boosting,2023,1359512,Lucknow Super Giants,Punjab Kings,0.4278,1
+Model B,2023,1359512,Lucknow Super Giants,Punjab Kings,0.4039,1
+Logistic regression,2023,1359513,Kolkata Knight Riders,Gujarat Titans,0.6372,0
+Gradient boosting,2023,1359513,Kolkata Knight Riders,Gujarat Titans,0.5834,0
+Model B,2023,1359513,Kolkata Knight Riders,Gujarat Titans,0.6103,0
+Logistic regression,2023,1359514,Sunrisers Hyderabad,Delhi Capitals,0.3949,1
+Gradient boosting,2023,1359514,Sunrisers Hyderabad,Delhi Capitals,0.4497,1
+Model B,2023,1359514,Sunrisers Hyderabad,Delhi Capitals,0.4223,1
+Logistic regression,2023,1359515,Chennai Super Kings,Punjab Kings,0.5575,0
+Gradient boosting,2023,1359515,Chennai Super Kings,Punjab Kings,0.5896,0
+Model B,2023,1359515,Chennai Super Kings,Punjab Kings,0.5735,0
+Logistic regression,2023,1359516,Rajasthan Royals,Mumbai Indians,0.5697,0
+Gradient boosting,2023,1359516,Rajasthan Royals,Mumbai Indians,0.1902,0
+Model B,2023,1359516,Rajasthan Royals,Mumbai Indians,0.38,0
+Logistic regression,2023,1359517,Royal Challengers Bengaluru,Lucknow Super Giants,0.3401,1
+Gradient boosting,2023,1359517,Royal Challengers Bengaluru,Lucknow Super Giants,0.3635,1
+Model B,2023,1359517,Royal Challengers Bengaluru,Lucknow Super Giants,0.3518,1
+Logistic regression,2023,1359518,Delhi Capitals,Gujarat Titans,0.4518,1
+Gradient boosting,2023,1359518,Delhi Capitals,Gujarat Titans,0.4213,1
+Model B,2023,1359518,Delhi Capitals,Gujarat Titans,0.4366,1
+Logistic regression,2023,1359520,Punjab Kings,Mumbai Indians,0.6303,0
+Gradient boosting,2023,1359520,Punjab Kings,Mumbai Indians,0.5731,0
+Model B,2023,1359520,Punjab Kings,Mumbai Indians,0.6017,0
+Logistic regression,2023,1359521,Kolkata Knight Riders,Sunrisers Hyderabad,0.4058,1
+Gradient boosting,2023,1359521,Kolkata Knight Riders,Sunrisers Hyderabad,0.4143,1
+Model B,2023,1359521,Kolkata Knight Riders,Sunrisers Hyderabad,0.4101,1
+Logistic regression,2023,1359522,Rajasthan Royals,Gujarat Titans,0.6718,0
+Gradient boosting,2023,1359522,Rajasthan Royals,Gujarat Titans,0.5717,0
+Model B,2023,1359522,Rajasthan Royals,Gujarat Titans,0.6218,0
+Logistic regression,2023,1359523,Mumbai Indians,Chennai Super Kings,0.3818,0
+Gradient boosting,2023,1359523,Mumbai Indians,Chennai Super Kings,0.4979,0
+Model B,2023,1359523,Mumbai Indians,Chennai Super Kings,0.4399,0
+Logistic regression,2023,1359524,Royal Challengers Bengaluru,Delhi Capitals,0.4238,0
+Gradient boosting,2023,1359524,Royal Challengers Bengaluru,Delhi Capitals,0.4309,0
+Model B,2023,1359524,Royal Challengers Bengaluru,Delhi Capitals,0.4273,0
+Logistic regression,2023,1359525,Gujarat Titans,Lucknow Super Giants,0.518,1
+Gradient boosting,2023,1359525,Gujarat Titans,Lucknow Super Giants,0.5349,1
+Model B,2023,1359525,Gujarat Titans,Lucknow Super Giants,0.5264,1
+Logistic regression,2023,1359526,Rajasthan Royals,Sunrisers Hyderabad,0.653,0
+Gradient boosting,2023,1359526,Rajasthan Royals,Sunrisers Hyderabad,0.611,0
+Model B,2023,1359526,Rajasthan Royals,Sunrisers Hyderabad,0.632,0
+Logistic regression,2023,1359527,Punjab Kings,Kolkata Knight Riders,0.4056,0
+Gradient boosting,2023,1359527,Punjab Kings,Kolkata Knight Riders,0.4169,0
+Model B,2023,1359527,Punjab Kings,Kolkata Knight Riders,0.4112,0
+Logistic regression,2023,1359528,Royal Challengers Bengaluru,Mumbai Indians,0.4787,0
+Gradient boosting,2023,1359528,Royal Challengers Bengaluru,Mumbai Indians,0.46,0
+Model B,2023,1359528,Royal Challengers Bengaluru,Mumbai Indians,0.4694,0
+Logistic regression,2023,1359529,Chennai Super Kings,Delhi Capitals,0.5645,1
+Gradient boosting,2023,1359529,Chennai Super Kings,Delhi Capitals,0.5841,1
+Model B,2023,1359529,Chennai Super Kings,Delhi Capitals,0.5743,1
+Logistic regression,2023,1359530,Kolkata Knight Riders,Rajasthan Royals,0.512,0
+Gradient boosting,2023,1359530,Kolkata Knight Riders,Rajasthan Royals,0.533,0
+Model B,2023,1359530,Kolkata Knight Riders,Rajasthan Royals,0.5225,0
+Logistic regression,2023,1359531,Mumbai Indians,Gujarat Titans,0.3926,1
+Gradient boosting,2023,1359531,Mumbai Indians,Gujarat Titans,0.3254,1
+Model B,2023,1359531,Mumbai Indians,Gujarat Titans,0.359,1
+Logistic regression,2023,1359532,Sunrisers Hyderabad,Lucknow Super Giants,0.5983,0
+Gradient boosting,2023,1359532,Sunrisers Hyderabad,Lucknow Super Giants,0.5109,0
+Model B,2023,1359532,Sunrisers Hyderabad,Lucknow Super Giants,0.5546,0
+Logistic regression,2023,1359533,Punjab Kings,Delhi Capitals,0.4424,1
+Gradient boosting,2023,1359533,Punjab Kings,Delhi Capitals,0.519,1
+Model B,2023,1359533,Punjab Kings,Delhi Capitals,0.4807,1
+Logistic regression,2023,1359534,Royal Challengers Bengaluru,Rajasthan Royals,0.3679,1
+Gradient boosting,2023,1359534,Royal Challengers Bengaluru,Rajasthan Royals,0.3387,1
+Model B,2023,1359534,Royal Challengers Bengaluru,Rajasthan Royals,0.3533,1
+Logistic regression,2023,1359535,Chennai Super Kings,Kolkata Knight Riders,0.499,0
+Gradient boosting,2023,1359535,Chennai Super Kings,Kolkata Knight Riders,0.5378,0
+Model B,2023,1359535,Chennai Super Kings,Kolkata Knight Riders,0.5184,0
+Logistic regression,2023,1359536,Gujarat Titans,Sunrisers Hyderabad,0.6633,1
+Gradient boosting,2023,1359536,Gujarat Titans,Sunrisers Hyderabad,0.732,1
+Model B,2023,1359536,Gujarat Titans,Sunrisers Hyderabad,0.6976,1
+Logistic regression,2023,1359537,Lucknow Super Giants,Mumbai Indians,0.6163,1
+Gradient boosting,2023,1359537,Lucknow Super Giants,Mumbai Indians,0.5312,1
+Model B,2023,1359537,Lucknow Super Giants,Mumbai Indians,0.5738,1
+Logistic regression,2023,1359538,Delhi Capitals,Punjab Kings,0.4692,1
+Gradient boosting,2023,1359538,Delhi Capitals,Punjab Kings,0.3977,1
+Model B,2023,1359538,Delhi Capitals,Punjab Kings,0.4335,1
+Logistic regression,2023,1359539,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4939,0
+Gradient boosting,2023,1359539,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4602,0
+Model B,2023,1359539,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4771,0
+Logistic regression,2023,1359540,Punjab Kings,Rajasthan Royals,0.4762,0
+Gradient boosting,2023,1359540,Punjab Kings,Rajasthan Royals,0.4713,0
+Model B,2023,1359540,Punjab Kings,Rajasthan Royals,0.4738,0
+Logistic regression,2023,1359541,Chennai Super Kings,Delhi Capitals,0.3871,1
+Gradient boosting,2023,1359541,Chennai Super Kings,Delhi Capitals,0.4489,1
+Model B,2023,1359541,Chennai Super Kings,Delhi Capitals,0.418,1
+Logistic regression,2023,1359542,Lucknow Super Giants,Kolkata Knight Riders,0.3578,1
+Gradient boosting,2023,1359542,Lucknow Super Giants,Kolkata Knight Riders,0.3716,1
+Model B,2023,1359542,Lucknow Super Giants,Kolkata Knight Riders,0.3647,1
+Logistic regression,2023,1359543,Sunrisers Hyderabad,Mumbai Indians,0.4761,0
+Gradient boosting,2023,1359543,Sunrisers Hyderabad,Mumbai Indians,0.5328,0
+Model B,2023,1359543,Sunrisers Hyderabad,Mumbai Indians,0.5044,0
+Logistic regression,2023,1359544,Royal Challengers Bengaluru,Gujarat Titans,0.5862,0
+Gradient boosting,2023,1359544,Royal Challengers Bengaluru,Gujarat Titans,0.6076,0
+Model B,2023,1359544,Royal Challengers Bengaluru,Gujarat Titans,0.5969,0
+Logistic regression,2023,1370350,Chennai Super Kings,Gujarat Titans,0.581,1
+Gradient boosting,2023,1370350,Chennai Super Kings,Gujarat Titans,0.5014,1
+Model B,2023,1370350,Chennai Super Kings,Gujarat Titans,0.5412,1
+Logistic regression,2023,1370351,Mumbai Indians,Lucknow Super Giants,0.4718,1
+Gradient boosting,2023,1370351,Mumbai Indians,Lucknow Super Giants,0.5597,1
+Model B,2023,1370351,Mumbai Indians,Lucknow Super Giants,0.5158,1
+Logistic regression,2023,1370352,Gujarat Titans,Mumbai Indians,0.7605,1
+Gradient boosting,2023,1370352,Gujarat Titans,Mumbai Indians,0.7701,1
+Model B,2023,1370352,Gujarat Titans,Mumbai Indians,0.7653,1
+Logistic regression,2023,1370353,Gujarat Titans,Chennai Super Kings,0.5866,0
+Gradient boosting,2023,1370353,Gujarat Titans,Chennai Super Kings,0.6428,0
+Model B,2023,1370353,Gujarat Titans,Chennai Super Kings,0.6147,0
+Logistic regression,2024,1422119,Royal Challengers Bengaluru,Chennai Super Kings,0.459,0
+Gradient boosting,2024,1422119,Royal Challengers Bengaluru,Chennai Super Kings,0.5252,0
+Model B,2024,1422119,Royal Challengers Bengaluru,Chennai Super Kings,0.4921,0
+Logistic regression,2024,1422120,Delhi Capitals,Punjab Kings,0.3704,0
+Gradient boosting,2024,1422120,Delhi Capitals,Punjab Kings,0.4616,0
+Model B,2024,1422120,Delhi Capitals,Punjab Kings,0.416,0
+Logistic regression,2024,1422121,Kolkata Knight Riders,Sunrisers Hyderabad,0.5809,1
+Gradient boosting,2024,1422121,Kolkata Knight Riders,Sunrisers Hyderabad,0.556,1
+Model B,2024,1422121,Kolkata Knight Riders,Sunrisers Hyderabad,0.5685,1
+Logistic regression,2024,1422122,Rajasthan Royals,Lucknow Super Giants,0.5362,1
+Gradient boosting,2024,1422122,Rajasthan Royals,Lucknow Super Giants,0.4499,1
+Model B,2024,1422122,Rajasthan Royals,Lucknow Super Giants,0.4931,1
+Logistic regression,2024,1422123,Gujarat Titans,Mumbai Indians,0.6198,1
+Gradient boosting,2024,1422123,Gujarat Titans,Mumbai Indians,0.5798,1
+Model B,2024,1422123,Gujarat Titans,Mumbai Indians,0.5998,1
+Logistic regression,2024,1422124,Punjab Kings,Royal Challengers Bengaluru,0.3923,0
+Gradient boosting,2024,1422124,Punjab Kings,Royal Challengers Bengaluru,0.5058,0
+Model B,2024,1422124,Punjab Kings,Royal Challengers Bengaluru,0.449,0
+Logistic regression,2024,1422125,Chennai Super Kings,Gujarat Titans,0.5423,1
+Gradient boosting,2024,1422125,Chennai Super Kings,Gujarat Titans,0.5074,1
+Model B,2024,1422125,Chennai Super Kings,Gujarat Titans,0.5248,1
+Logistic regression,2024,1422126,Sunrisers Hyderabad,Mumbai Indians,0.5535,1
+Gradient boosting,2024,1422126,Sunrisers Hyderabad,Mumbai Indians,0.4752,1
+Model B,2024,1422126,Sunrisers Hyderabad,Mumbai Indians,0.5144,1
+Logistic regression,2024,1422127,Rajasthan Royals,Delhi Capitals,0.583,1
+Gradient boosting,2024,1422127,Rajasthan Royals,Delhi Capitals,0.4965,1
+Model B,2024,1422127,Rajasthan Royals,Delhi Capitals,0.5397,1
+Logistic regression,2024,1422128,Royal Challengers Bengaluru,Kolkata Knight Riders,0.6181,0
+Gradient boosting,2024,1422128,Royal Challengers Bengaluru,Kolkata Knight Riders,0.542,0
+Model B,2024,1422128,Royal Challengers Bengaluru,Kolkata Knight Riders,0.5801,0
+Logistic regression,2024,1422129,Lucknow Super Giants,Punjab Kings,0.5785,1
+Gradient boosting,2024,1422129,Lucknow Super Giants,Punjab Kings,0.4953,1
+Model B,2024,1422129,Lucknow Super Giants,Punjab Kings,0.5369,1
+Logistic regression,2024,1422130,Sunrisers Hyderabad,Gujarat Titans,0.3437,0
+Gradient boosting,2024,1422130,Sunrisers Hyderabad,Gujarat Titans,0.381,0
+Model B,2024,1422130,Sunrisers Hyderabad,Gujarat Titans,0.3624,0
+Logistic regression,2024,1422131,Delhi Capitals,Chennai Super Kings,0.4577,1
+Gradient boosting,2024,1422131,Delhi Capitals,Chennai Super Kings,0.4771,1
+Model B,2024,1422131,Delhi Capitals,Chennai Super Kings,0.4674,1
+Logistic regression,2024,1422132,Mumbai Indians,Rajasthan Royals,0.5213,0
+Gradient boosting,2024,1422132,Mumbai Indians,Rajasthan Royals,0.4431,0
+Model B,2024,1422132,Mumbai Indians,Rajasthan Royals,0.4822,0
+Logistic regression,2024,1422133,Lucknow Super Giants,Royal Challengers Bengaluru,0.4574,1
+Gradient boosting,2024,1422133,Lucknow Super Giants,Royal Challengers Bengaluru,0.5111,1
+Model B,2024,1422133,Lucknow Super Giants,Royal Challengers Bengaluru,0.4842,1
+Logistic regression,2024,1422134,Kolkata Knight Riders,Delhi Capitals,0.5495,1
+Gradient boosting,2024,1422134,Kolkata Knight Riders,Delhi Capitals,0.5441,1
+Model B,2024,1422134,Kolkata Knight Riders,Delhi Capitals,0.5468,1
+Logistic regression,2024,1422135,Gujarat Titans,Punjab Kings,0.6216,0
+Gradient boosting,2024,1422135,Gujarat Titans,Punjab Kings,0.5277,0
+Model B,2024,1422135,Gujarat Titans,Punjab Kings,0.5746,0
+Logistic regression,2024,1422136,Chennai Super Kings,Sunrisers Hyderabad,0.4886,0
+Gradient boosting,2024,1422136,Chennai Super Kings,Sunrisers Hyderabad,0.6051,0
+Model B,2024,1422136,Chennai Super Kings,Sunrisers Hyderabad,0.5469,0
+Logistic regression,2024,1422137,Royal Challengers Bengaluru,Rajasthan Royals,0.4209,0
+Gradient boosting,2024,1422137,Royal Challengers Bengaluru,Rajasthan Royals,0.4871,0
+Model B,2024,1422137,Royal Challengers Bengaluru,Rajasthan Royals,0.454,0
+Logistic regression,2024,1422138,Mumbai Indians,Delhi Capitals,0.6065,1
+Gradient boosting,2024,1422138,Mumbai Indians,Delhi Capitals,0.5042,1
+Model B,2024,1422138,Mumbai Indians,Delhi Capitals,0.5554,1
+Logistic regression,2024,1422139,Lucknow Super Giants,Gujarat Titans,0.5857,1
+Gradient boosting,2024,1422139,Lucknow Super Giants,Gujarat Titans,0.4779,1
+Model B,2024,1422139,Lucknow Super Giants,Gujarat Titans,0.5318,1
+Logistic regression,2024,1426260,Kolkata Knight Riders,Chennai Super Kings,0.4221,0
+Gradient boosting,2024,1426260,Kolkata Knight Riders,Chennai Super Kings,0.4788,0
+Model B,2024,1426260,Kolkata Knight Riders,Chennai Super Kings,0.4504,0
+Logistic regression,2024,1426261,Sunrisers Hyderabad,Punjab Kings,0.3824,1
+Gradient boosting,2024,1426261,Sunrisers Hyderabad,Punjab Kings,0.4949,1
+Model B,2024,1426261,Sunrisers Hyderabad,Punjab Kings,0.4387,1
+Logistic regression,2024,1426262,Rajasthan Royals,Gujarat Titans,0.5451,0
+Gradient boosting,2024,1426262,Rajasthan Royals,Gujarat Titans,0.4473,0
+Model B,2024,1426262,Rajasthan Royals,Gujarat Titans,0.4962,0
+Logistic regression,2024,1426263,Royal Challengers Bengaluru,Mumbai Indians,0.4119,0
+Gradient boosting,2024,1426263,Royal Challengers Bengaluru,Mumbai Indians,0.4861,0
+Model B,2024,1426263,Royal Challengers Bengaluru,Mumbai Indians,0.449,0
+Logistic regression,2024,1426264,Lucknow Super Giants,Delhi Capitals,0.5464,0
+Gradient boosting,2024,1426264,Lucknow Super Giants,Delhi Capitals,0.4706,0
+Model B,2024,1426264,Lucknow Super Giants,Delhi Capitals,0.5085,0
+Logistic regression,2024,1426265,Punjab Kings,Rajasthan Royals,0.5627,0
+Gradient boosting,2024,1426265,Punjab Kings,Rajasthan Royals,0.5082,0
+Model B,2024,1426265,Punjab Kings,Rajasthan Royals,0.5355,0
+Logistic regression,2024,1426266,Lucknow Super Giants,Kolkata Knight Riders,0.3923,0
+Gradient boosting,2024,1426266,Lucknow Super Giants,Kolkata Knight Riders,0.5003,0
+Model B,2024,1426266,Lucknow Super Giants,Kolkata Knight Riders,0.4463,0
+Logistic regression,2024,1426267,Chennai Super Kings,Mumbai Indians,0.4517,1
+Gradient boosting,2024,1426267,Chennai Super Kings,Mumbai Indians,0.525,1
+Model B,2024,1426267,Chennai Super Kings,Mumbai Indians,0.4883,1
+Logistic regression,2024,1426268,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.3861,1
+Gradient boosting,2024,1426268,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4214,1
+Model B,2024,1426268,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4037,1
+Logistic regression,2024,1426269,Kolkata Knight Riders,Rajasthan Royals,0.5573,0
+Gradient boosting,2024,1426269,Kolkata Knight Riders,Rajasthan Royals,0.5074,0
+Model B,2024,1426269,Kolkata Knight Riders,Rajasthan Royals,0.5323,0
+Logistic regression,2024,1426270,Gujarat Titans,Delhi Capitals,0.6442,0
+Gradient boosting,2024,1426270,Gujarat Titans,Delhi Capitals,0.5383,0
+Model B,2024,1426270,Gujarat Titans,Delhi Capitals,0.5912,0
+Logistic regression,2024,1426271,Mumbai Indians,Punjab Kings,0.4624,1
+Gradient boosting,2024,1426271,Mumbai Indians,Punjab Kings,0.4995,1
+Model B,2024,1426271,Mumbai Indians,Punjab Kings,0.481,1
+Logistic regression,2024,1426272,Chennai Super Kings,Lucknow Super Giants,0.4577,0
+Gradient boosting,2024,1426272,Chennai Super Kings,Lucknow Super Giants,0.5563,0
+Model B,2024,1426272,Chennai Super Kings,Lucknow Super Giants,0.507,0
+Logistic regression,2024,1426273,Sunrisers Hyderabad,Delhi Capitals,0.4449,1
+Gradient boosting,2024,1426273,Sunrisers Hyderabad,Delhi Capitals,0.5231,1
+Model B,2024,1426273,Sunrisers Hyderabad,Delhi Capitals,0.484,1
+Logistic regression,2024,1426274,Kolkata Knight Riders,Royal Challengers Bengaluru,0.5162,1
+Gradient boosting,2024,1426274,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4497,1
+Model B,2024,1426274,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4829,1
+Logistic regression,2024,1426275,Punjab Kings,Gujarat Titans,0.5106,0
+Gradient boosting,2024,1426275,Punjab Kings,Gujarat Titans,0.4369,0
+Model B,2024,1426275,Punjab Kings,Gujarat Titans,0.4737,0
+Logistic regression,2024,1426276,Mumbai Indians,Rajasthan Royals,0.4043,0
+Gradient boosting,2024,1426276,Mumbai Indians,Rajasthan Royals,0.4592,0
+Model B,2024,1426276,Mumbai Indians,Rajasthan Royals,0.4318,0
+Logistic regression,2024,1426277,Chennai Super Kings,Lucknow Super Giants,0.5781,0
+Gradient boosting,2024,1426277,Chennai Super Kings,Lucknow Super Giants,0.5232,0
+Model B,2024,1426277,Chennai Super Kings,Lucknow Super Giants,0.5506,0
+Logistic regression,2024,1426278,Delhi Capitals,Gujarat Titans,0.4982,1
+Gradient boosting,2024,1426278,Delhi Capitals,Gujarat Titans,0.4539,1
+Model B,2024,1426278,Delhi Capitals,Gujarat Titans,0.476,1
+Logistic regression,2024,1426279,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.4987,1
+Gradient boosting,2024,1426279,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.615,1
+Model B,2024,1426279,Royal Challengers Bengaluru,Sunrisers Hyderabad,0.5568,1
+Logistic regression,2024,1426280,Kolkata Knight Riders,Punjab Kings,0.5491,0
+Gradient boosting,2024,1426280,Kolkata Knight Riders,Punjab Kings,0.4922,0
+Model B,2024,1426280,Kolkata Knight Riders,Punjab Kings,0.5207,0
+Logistic regression,2024,1426281,Delhi Capitals,Mumbai Indians,0.5211,1
+Gradient boosting,2024,1426281,Delhi Capitals,Mumbai Indians,0.4974,1
+Model B,2024,1426281,Delhi Capitals,Mumbai Indians,0.5092,1
+Logistic regression,2024,1426282,Lucknow Super Giants,Rajasthan Royals,0.5984,0
+Gradient boosting,2024,1426282,Lucknow Super Giants,Rajasthan Royals,0.5331,0
+Model B,2024,1426282,Lucknow Super Giants,Rajasthan Royals,0.5658,0
+Logistic regression,2024,1426283,Gujarat Titans,Royal Challengers Bengaluru,0.5927,0
+Gradient boosting,2024,1426283,Gujarat Titans,Royal Challengers Bengaluru,0.4739,0
+Model B,2024,1426283,Gujarat Titans,Royal Challengers Bengaluru,0.5333,0
+Logistic regression,2024,1426284,Chennai Super Kings,Sunrisers Hyderabad,0.598,1
+Gradient boosting,2024,1426284,Chennai Super Kings,Sunrisers Hyderabad,0.5219,1
+Model B,2024,1426284,Chennai Super Kings,Sunrisers Hyderabad,0.56,1
+Logistic regression,2024,1426285,Delhi Capitals,Kolkata Knight Riders,0.3974,0
+Gradient boosting,2024,1426285,Delhi Capitals,Kolkata Knight Riders,0.4621,0
+Model B,2024,1426285,Delhi Capitals,Kolkata Knight Riders,0.4298,0
+Logistic regression,2024,1426286,Mumbai Indians,Lucknow Super Giants,0.4585,0
+Gradient boosting,2024,1426286,Mumbai Indians,Lucknow Super Giants,0.5508,0
+Model B,2024,1426286,Mumbai Indians,Lucknow Super Giants,0.5046,0
+Logistic regression,2024,1426287,Chennai Super Kings,Punjab Kings,0.6471,0
+Gradient boosting,2024,1426287,Chennai Super Kings,Punjab Kings,0.5764,0
+Model B,2024,1426287,Chennai Super Kings,Punjab Kings,0.6117,0
+Logistic regression,2024,1426288,Sunrisers Hyderabad,Rajasthan Royals,0.5183,1
+Gradient boosting,2024,1426288,Sunrisers Hyderabad,Rajasthan Royals,0.4205,1
+Model B,2024,1426288,Sunrisers Hyderabad,Rajasthan Royals,0.4694,1
+Logistic regression,2024,1426289,Kolkata Knight Riders,Mumbai Indians,0.4224,1
+Gradient boosting,2024,1426289,Kolkata Knight Riders,Mumbai Indians,0.5136,1
+Model B,2024,1426289,Kolkata Knight Riders,Mumbai Indians,0.468,1
+Logistic regression,2024,1426290,Gujarat Titans,Royal Challengers Bengaluru,0.455,0
+Gradient boosting,2024,1426290,Gujarat Titans,Royal Challengers Bengaluru,0.4985,0
+Model B,2024,1426290,Gujarat Titans,Royal Challengers Bengaluru,0.4768,0
+Logistic regression,2024,1426291,Chennai Super Kings,Punjab Kings,0.5913,1
+Gradient boosting,2024,1426291,Chennai Super Kings,Punjab Kings,0.5729,1
+Model B,2024,1426291,Chennai Super Kings,Punjab Kings,0.5821,1
+Logistic regression,2024,1426292,Kolkata Knight Riders,Lucknow Super Giants,0.4753,1
+Gradient boosting,2024,1426292,Kolkata Knight Riders,Lucknow Super Giants,0.519,1
+Model B,2024,1426292,Kolkata Knight Riders,Lucknow Super Giants,0.4971,1
+Logistic regression,2024,1426293,Sunrisers Hyderabad,Mumbai Indians,0.4333,0
+Gradient boosting,2024,1426293,Sunrisers Hyderabad,Mumbai Indians,0.4595,0
+Model B,2024,1426293,Sunrisers Hyderabad,Mumbai Indians,0.4464,0
+Logistic regression,2024,1426294,Delhi Capitals,Rajasthan Royals,0.5447,1
+Gradient boosting,2024,1426294,Delhi Capitals,Rajasthan Royals,0.4952,1
+Model B,2024,1426294,Delhi Capitals,Rajasthan Royals,0.52,1
+Logistic regression,2024,1426295,Lucknow Super Giants,Sunrisers Hyderabad,0.4318,0
+Gradient boosting,2024,1426295,Lucknow Super Giants,Sunrisers Hyderabad,0.5046,0
+Model B,2024,1426295,Lucknow Super Giants,Sunrisers Hyderabad,0.4682,0
+Logistic regression,2024,1426296,Royal Challengers Bengaluru,Punjab Kings,0.546,1
+Gradient boosting,2024,1426296,Royal Challengers Bengaluru,Punjab Kings,0.5142,1
+Model B,2024,1426296,Royal Challengers Bengaluru,Punjab Kings,0.5301,1
+Logistic regression,2024,1426297,Gujarat Titans,Chennai Super Kings,0.5722,1
+Gradient boosting,2024,1426297,Gujarat Titans,Chennai Super Kings,0.5356,1
+Model B,2024,1426297,Gujarat Titans,Chennai Super Kings,0.5539,1
+Logistic regression,2024,1426298,Kolkata Knight Riders,Mumbai Indians,0.5498,1
+Gradient boosting,2024,1426298,Kolkata Knight Riders,Mumbai Indians,0.5152,1
+Model B,2024,1426298,Kolkata Knight Riders,Mumbai Indians,0.5325,1
+Logistic regression,2024,1426299,Rajasthan Royals,Chennai Super Kings,0.3762,0
+Gradient boosting,2024,1426299,Rajasthan Royals,Chennai Super Kings,0.4469,0
+Model B,2024,1426299,Rajasthan Royals,Chennai Super Kings,0.4116,0
+Logistic regression,2024,1426300,Royal Challengers Bengaluru,Delhi Capitals,0.5756,1
+Gradient boosting,2024,1426300,Royal Challengers Bengaluru,Delhi Capitals,0.4925,1
+Model B,2024,1426300,Royal Challengers Bengaluru,Delhi Capitals,0.534,1
+Logistic regression,2024,1426302,Delhi Capitals,Lucknow Super Giants,0.5894,1
+Gradient boosting,2024,1426302,Delhi Capitals,Lucknow Super Giants,0.5049,1
+Model B,2024,1426302,Delhi Capitals,Lucknow Super Giants,0.5471,1
+Logistic regression,2024,1426303,Rajasthan Royals,Punjab Kings,0.5102,0
+Gradient boosting,2024,1426303,Rajasthan Royals,Punjab Kings,0.4999,0
+Model B,2024,1426303,Rajasthan Royals,Punjab Kings,0.505,0
+Logistic regression,2024,1426305,Lucknow Super Giants,Mumbai Indians,0.4148,1
+Gradient boosting,2024,1426305,Lucknow Super Giants,Mumbai Indians,0.4792,1
+Model B,2024,1426305,Lucknow Super Giants,Mumbai Indians,0.447,1
+Logistic regression,2024,1426306,Royal Challengers Bengaluru,Chennai Super Kings,0.5868,1
+Gradient boosting,2024,1426306,Royal Challengers Bengaluru,Chennai Super Kings,0.5421,1
+Model B,2024,1426306,Royal Challengers Bengaluru,Chennai Super Kings,0.5645,1
+Logistic regression,2024,1426307,Punjab Kings,Sunrisers Hyderabad,0.4916,0
+Gradient boosting,2024,1426307,Punjab Kings,Sunrisers Hyderabad,0.5332,0
+Model B,2024,1426307,Punjab Kings,Sunrisers Hyderabad,0.5124,0
+Logistic regression,2024,1426309,Sunrisers Hyderabad,Kolkata Knight Riders,0.4755,0
+Gradient boosting,2024,1426309,Sunrisers Hyderabad,Kolkata Knight Riders,0.5099,0
+Model B,2024,1426309,Sunrisers Hyderabad,Kolkata Knight Riders,0.4927,0
+Logistic regression,2024,1426310,Royal Challengers Bengaluru,Rajasthan Royals,0.4868,0
+Gradient boosting,2024,1426310,Royal Challengers Bengaluru,Rajasthan Royals,0.4854,0
+Model B,2024,1426310,Royal Challengers Bengaluru,Rajasthan Royals,0.4861,0
+Logistic regression,2024,1426311,Sunrisers Hyderabad,Rajasthan Royals,0.4614,1
+Gradient boosting,2024,1426311,Sunrisers Hyderabad,Rajasthan Royals,0.4696,1
+Model B,2024,1426311,Sunrisers Hyderabad,Rajasthan Royals,0.4655,1
+Logistic regression,2024,1426312,Sunrisers Hyderabad,Kolkata Knight Riders,0.4837,0
+Gradient boosting,2024,1426312,Sunrisers Hyderabad,Kolkata Knight Riders,0.5244,0
+Model B,2024,1426312,Sunrisers Hyderabad,Kolkata Knight Riders,0.5041,0
+Logistic regression,2025,1473438,Kolkata Knight Riders,Royal Challengers Bengaluru,0.5716,0
+Gradient boosting,2025,1473438,Kolkata Knight Riders,Royal Challengers Bengaluru,0.515,0
+Model B,2025,1473438,Kolkata Knight Riders,Royal Challengers Bengaluru,0.5433,0
+Logistic regression,2025,1473439,Sunrisers Hyderabad,Rajasthan Royals,0.5716,1
+Gradient boosting,2025,1473439,Sunrisers Hyderabad,Rajasthan Royals,0.5597,1
+Model B,2025,1473439,Sunrisers Hyderabad,Rajasthan Royals,0.5656,1
+Logistic regression,2025,1473440,Mumbai Indians,Chennai Super Kings,0.443,0
+Gradient boosting,2025,1473440,Mumbai Indians,Chennai Super Kings,0.515,0
+Model B,2025,1473440,Mumbai Indians,Chennai Super Kings,0.479,0
+Logistic regression,2025,1473441,Lucknow Super Giants,Delhi Capitals,0.4565,0
+Gradient boosting,2025,1473441,Lucknow Super Giants,Delhi Capitals,0.4086,0
+Model B,2025,1473441,Lucknow Super Giants,Delhi Capitals,0.4325,0
+Logistic regression,2025,1473442,Punjab Kings,Gujarat Titans,0.4195,1
+Gradient boosting,2025,1473442,Punjab Kings,Gujarat Titans,0.4633,1
+Model B,2025,1473442,Punjab Kings,Gujarat Titans,0.4414,1
+Logistic regression,2025,1473443,Rajasthan Royals,Kolkata Knight Riders,0.4021,0
+Gradient boosting,2025,1473443,Rajasthan Royals,Kolkata Knight Riders,0.369,0
+Model B,2025,1473443,Rajasthan Royals,Kolkata Knight Riders,0.3856,0
+Logistic regression,2025,1473444,Sunrisers Hyderabad,Lucknow Super Giants,0.6117,0
+Gradient boosting,2025,1473444,Sunrisers Hyderabad,Lucknow Super Giants,0.5985,0
+Model B,2025,1473444,Sunrisers Hyderabad,Lucknow Super Giants,0.6051,0
+Logistic regression,2025,1473445,Royal Challengers Bengaluru,Chennai Super Kings,0.4252,1
+Gradient boosting,2025,1473445,Royal Challengers Bengaluru,Chennai Super Kings,0.4346,1
+Model B,2025,1473445,Royal Challengers Bengaluru,Chennai Super Kings,0.4299,1
+Logistic regression,2025,1473446,Gujarat Titans,Mumbai Indians,0.5754,1
+Gradient boosting,2025,1473446,Gujarat Titans,Mumbai Indians,0.538,1
+Model B,2025,1473446,Gujarat Titans,Mumbai Indians,0.5567,1
+Logistic regression,2025,1473447,Sunrisers Hyderabad,Delhi Capitals,0.4774,0
+Gradient boosting,2025,1473447,Sunrisers Hyderabad,Delhi Capitals,0.4762,0
+Model B,2025,1473447,Sunrisers Hyderabad,Delhi Capitals,0.4768,0
+Logistic regression,2025,1473448,Rajasthan Royals,Chennai Super Kings,0.4264,1
+Gradient boosting,2025,1473448,Rajasthan Royals,Chennai Super Kings,0.4339,1
+Model B,2025,1473448,Rajasthan Royals,Chennai Super Kings,0.4302,1
+Logistic regression,2025,1473449,Kolkata Knight Riders,Mumbai Indians,0.4499,0
+Gradient boosting,2025,1473449,Kolkata Knight Riders,Mumbai Indians,0.452,0
+Model B,2025,1473449,Kolkata Knight Riders,Mumbai Indians,0.451,0
+Logistic regression,2025,1473450,Lucknow Super Giants,Punjab Kings,0.5473,0
+Gradient boosting,2025,1473450,Lucknow Super Giants,Punjab Kings,0.4949,0
+Model B,2025,1473450,Lucknow Super Giants,Punjab Kings,0.5211,0
+Logistic regression,2025,1473451,Royal Challengers Bengaluru,Gujarat Titans,0.5418,0
+Gradient boosting,2025,1473451,Royal Challengers Bengaluru,Gujarat Titans,0.529,0
+Model B,2025,1473451,Royal Challengers Bengaluru,Gujarat Titans,0.5354,0
+Logistic regression,2025,1473452,Kolkata Knight Riders,Sunrisers Hyderabad,0.5728,1
+Gradient boosting,2025,1473452,Kolkata Knight Riders,Sunrisers Hyderabad,0.5411,1
+Model B,2025,1473452,Kolkata Knight Riders,Sunrisers Hyderabad,0.5569,1
+Logistic regression,2025,1473453,Lucknow Super Giants,Mumbai Indians,0.5308,1
+Gradient boosting,2025,1473453,Lucknow Super Giants,Mumbai Indians,0.4462,1
+Model B,2025,1473453,Lucknow Super Giants,Mumbai Indians,0.4885,1
+Logistic regression,2025,1473454,Delhi Capitals,Chennai Super Kings,0.4807,1
+Gradient boosting,2025,1473454,Delhi Capitals,Chennai Super Kings,0.5447,1
+Model B,2025,1473454,Delhi Capitals,Chennai Super Kings,0.5127,1
+Logistic regression,2025,1473455,Rajasthan Royals,Punjab Kings,0.4054,1
+Gradient boosting,2025,1473455,Rajasthan Royals,Punjab Kings,0.4134,1
+Model B,2025,1473455,Rajasthan Royals,Punjab Kings,0.4094,1
+Logistic regression,2025,1473457,Sunrisers Hyderabad,Gujarat Titans,0.6028,0
+Gradient boosting,2025,1473457,Sunrisers Hyderabad,Gujarat Titans,0.605,0
+Model B,2025,1473457,Sunrisers Hyderabad,Gujarat Titans,0.6039,0
+Logistic regression,2025,1473458,Royal Challengers Bengaluru,Mumbai Indians,0.4421,1
+Gradient boosting,2025,1473458,Royal Challengers Bengaluru,Mumbai Indians,0.4702,1
+Model B,2025,1473458,Royal Challengers Bengaluru,Mumbai Indians,0.4562,1
+Logistic regression,2025,1473456,Lucknow Super Giants,Kolkata Knight Riders,0.3728,1
+Gradient boosting,2025,1473456,Lucknow Super Giants,Kolkata Knight Riders,0.452,1
+Model B,2025,1473456,Lucknow Super Giants,Kolkata Knight Riders,0.4124,1
+Logistic regression,2025,1473459,Punjab Kings,Chennai Super Kings,0.4939,1
+Gradient boosting,2025,1473459,Punjab Kings,Chennai Super Kings,0.5098,1
+Model B,2025,1473459,Punjab Kings,Chennai Super Kings,0.5018,1
+Logistic regression,2025,1473460,Gujarat Titans,Rajasthan Royals,0.5465,1
+Gradient boosting,2025,1473460,Gujarat Titans,Rajasthan Royals,0.5179,1
+Model B,2025,1473460,Gujarat Titans,Rajasthan Royals,0.5322,1
+Logistic regression,2025,1473461,Royal Challengers Bengaluru,Delhi Capitals,0.4982,0
+Gradient boosting,2025,1473461,Royal Challengers Bengaluru,Delhi Capitals,0.4467,0
+Model B,2025,1473461,Royal Challengers Bengaluru,Delhi Capitals,0.4725,0
+Logistic regression,2025,1473462,Chennai Super Kings,Kolkata Knight Riders,0.5382,0
+Gradient boosting,2025,1473462,Chennai Super Kings,Kolkata Knight Riders,0.559,0
+Model B,2025,1473462,Chennai Super Kings,Kolkata Knight Riders,0.5486,0
+Logistic regression,2025,1473463,Gujarat Titans,Lucknow Super Giants,0.3922,0
+Gradient boosting,2025,1473463,Gujarat Titans,Lucknow Super Giants,0.3981,0
+Model B,2025,1473463,Gujarat Titans,Lucknow Super Giants,0.3952,0
+Logistic regression,2025,1473464,Punjab Kings,Sunrisers Hyderabad,0.4613,0
+Gradient boosting,2025,1473464,Punjab Kings,Sunrisers Hyderabad,0.4708,0
+Model B,2025,1473464,Punjab Kings,Sunrisers Hyderabad,0.4661,0
+Logistic regression,2025,1473465,Rajasthan Royals,Royal Challengers Bengaluru,0.546,0
+Gradient boosting,2025,1473465,Rajasthan Royals,Royal Challengers Bengaluru,0.5905,0
+Model B,2025,1473465,Rajasthan Royals,Royal Challengers Bengaluru,0.5682,0
+Logistic regression,2025,1473466,Mumbai Indians,Delhi Capitals,0.3719,1
+Gradient boosting,2025,1473466,Mumbai Indians,Delhi Capitals,0.4302,1
+Model B,2025,1473466,Mumbai Indians,Delhi Capitals,0.401,1
+Logistic regression,2025,1473467,Lucknow Super Giants,Chennai Super Kings,0.509,0
+Gradient boosting,2025,1473467,Lucknow Super Giants,Chennai Super Kings,0.438,0
+Model B,2025,1473467,Lucknow Super Giants,Chennai Super Kings,0.4735,0
+Logistic regression,2025,1473468,Punjab Kings,Kolkata Knight Riders,0.5159,1
+Gradient boosting,2025,1473468,Punjab Kings,Kolkata Knight Riders,0.4791,1
+Model B,2025,1473468,Punjab Kings,Kolkata Knight Riders,0.4975,1
+Logistic regression,2025,1473469,Delhi Capitals,Rajasthan Royals,0.6273,1
+Gradient boosting,2025,1473469,Delhi Capitals,Rajasthan Royals,0.555,1
+Model B,2025,1473469,Delhi Capitals,Rajasthan Royals,0.5912,1
+Logistic regression,2025,1473470,Sunrisers Hyderabad,Mumbai Indians,0.4745,0
+Gradient boosting,2025,1473470,Sunrisers Hyderabad,Mumbai Indians,0.4437,0
+Model B,2025,1473470,Sunrisers Hyderabad,Mumbai Indians,0.4591,0
+Logistic regression,2025,1473471,Royal Challengers Bengaluru,Punjab Kings,0.5634,0
+Gradient boosting,2025,1473471,Royal Challengers Bengaluru,Punjab Kings,0.529,0
+Model B,2025,1473471,Royal Challengers Bengaluru,Punjab Kings,0.5462,0
+Logistic regression,2025,1473472,Delhi Capitals,Gujarat Titans,0.4274,0
+Gradient boosting,2025,1473472,Delhi Capitals,Gujarat Titans,0.4852,0
+Model B,2025,1473472,Delhi Capitals,Gujarat Titans,0.4563,0
+Logistic regression,2025,1473473,Lucknow Super Giants,Rajasthan Royals,0.4942,1
+Gradient boosting,2025,1473473,Lucknow Super Giants,Rajasthan Royals,0.5316,1
+Model B,2025,1473473,Lucknow Super Giants,Rajasthan Royals,0.5129,1
+Logistic regression,2025,1473474,Punjab Kings,Royal Challengers Bengaluru,0.5824,0
+Gradient boosting,2025,1473474,Punjab Kings,Royal Challengers Bengaluru,0.5869,0
+Model B,2025,1473474,Punjab Kings,Royal Challengers Bengaluru,0.5847,0
+Logistic regression,2025,1473475,Chennai Super Kings,Mumbai Indians,0.4202,0
+Gradient boosting,2025,1473475,Chennai Super Kings,Mumbai Indians,0.4229,0
+Model B,2025,1473475,Chennai Super Kings,Mumbai Indians,0.4216,0
+Logistic regression,2025,1473476,Gujarat Titans,Kolkata Knight Riders,0.3662,1
+Gradient boosting,2025,1473476,Gujarat Titans,Kolkata Knight Riders,0.3956,1
+Model B,2025,1473476,Gujarat Titans,Kolkata Knight Riders,0.3809,1
+Logistic regression,2025,1473477,Lucknow Super Giants,Delhi Capitals,0.5293,0
+Gradient boosting,2025,1473477,Lucknow Super Giants,Delhi Capitals,0.4355,0
+Model B,2025,1473477,Lucknow Super Giants,Delhi Capitals,0.4824,0
+Logistic regression,2025,1473478,Sunrisers Hyderabad,Mumbai Indians,0.6064,0
+Gradient boosting,2025,1473478,Sunrisers Hyderabad,Mumbai Indians,0.5363,0
+Model B,2025,1473478,Sunrisers Hyderabad,Mumbai Indians,0.5714,0
+Logistic regression,2025,1473479,Royal Challengers Bengaluru,Rajasthan Royals,0.5939,1
+Gradient boosting,2025,1473479,Royal Challengers Bengaluru,Rajasthan Royals,0.5698,1
+Model B,2025,1473479,Royal Challengers Bengaluru,Rajasthan Royals,0.5818,1
+Logistic regression,2025,1473480,Chennai Super Kings,Sunrisers Hyderabad,0.5598,0
+Gradient boosting,2025,1473480,Chennai Super Kings,Sunrisers Hyderabad,0.5494,0
+Model B,2025,1473480,Chennai Super Kings,Sunrisers Hyderabad,0.5546,0
+Logistic regression,2025,1473482,Mumbai Indians,Lucknow Super Giants,0.606,1
+Gradient boosting,2025,1473482,Mumbai Indians,Lucknow Super Giants,0.5831,1
+Model B,2025,1473482,Mumbai Indians,Lucknow Super Giants,0.5946,1
+Logistic regression,2025,1473483,Delhi Capitals,Royal Challengers Bengaluru,0.6431,0
+Gradient boosting,2025,1473483,Delhi Capitals,Royal Challengers Bengaluru,0.6254,0
+Model B,2025,1473483,Delhi Capitals,Royal Challengers Bengaluru,0.6343,0
+Logistic regression,2025,1473484,Gujarat Titans,Rajasthan Royals,0.4013,0
+Gradient boosting,2025,1473484,Gujarat Titans,Rajasthan Royals,0.4434,0
+Model B,2025,1473484,Gujarat Titans,Rajasthan Royals,0.4224,0
+Logistic regression,2025,1473485,Kolkata Knight Riders,Delhi Capitals,0.4623,1
+Gradient boosting,2025,1473485,Kolkata Knight Riders,Delhi Capitals,0.4463,1
+Model B,2025,1473485,Kolkata Knight Riders,Delhi Capitals,0.4543,1
+Logistic regression,2025,1473486,Chennai Super Kings,Punjab Kings,0.6457,0
+Gradient boosting,2025,1473486,Chennai Super Kings,Punjab Kings,0.6038,0
+Model B,2025,1473486,Chennai Super Kings,Punjab Kings,0.6247,0
+Logistic regression,2025,1473487,Mumbai Indians,Rajasthan Royals,0.4519,1
+Gradient boosting,2025,1473487,Mumbai Indians,Rajasthan Royals,0.5234,1
+Model B,2025,1473487,Mumbai Indians,Rajasthan Royals,0.4877,1
+Logistic regression,2025,1473488,Gujarat Titans,Sunrisers Hyderabad,0.5326,1
+Gradient boosting,2025,1473488,Gujarat Titans,Sunrisers Hyderabad,0.4462,1
+Model B,2025,1473488,Gujarat Titans,Sunrisers Hyderabad,0.4894,1
+Logistic regression,2025,1473489,Royal Challengers Bengaluru,Chennai Super Kings,0.5621,1
+Gradient boosting,2025,1473489,Royal Challengers Bengaluru,Chennai Super Kings,0.5348,1
+Model B,2025,1473489,Royal Challengers Bengaluru,Chennai Super Kings,0.5485,1
+Logistic regression,2025,1473490,Kolkata Knight Riders,Rajasthan Royals,0.6616,1
+Gradient boosting,2025,1473490,Kolkata Knight Riders,Rajasthan Royals,0.721,1
+Model B,2025,1473490,Kolkata Knight Riders,Rajasthan Royals,0.6913,1
+Logistic regression,2025,1473491,Punjab Kings,Lucknow Super Giants,0.5267,1
+Gradient boosting,2025,1473491,Punjab Kings,Lucknow Super Giants,0.5626,1
+Model B,2025,1473491,Punjab Kings,Lucknow Super Giants,0.5447,1
+Logistic regression,2025,1473493,Mumbai Indians,Gujarat Titans,0.5614,0
+Gradient boosting,2025,1473493,Mumbai Indians,Gujarat Titans,0.5442,0
+Model B,2025,1473493,Mumbai Indians,Gujarat Titans,0.5528,0
+Logistic regression,2025,1473494,Kolkata Knight Riders,Chennai Super Kings,0.594,0
+Gradient boosting,2025,1473494,Kolkata Knight Riders,Chennai Super Kings,0.5363,0
+Model B,2025,1473494,Kolkata Knight Riders,Chennai Super Kings,0.5652,0
+Logistic regression,2025,1473497,Punjab Kings,Rajasthan Royals,0.4533,1
+Gradient boosting,2025,1473497,Punjab Kings,Rajasthan Royals,0.5234,1
+Model B,2025,1473497,Punjab Kings,Rajasthan Royals,0.4884,1
+Logistic regression,2025,1473498,Delhi Capitals,Gujarat Titans,0.5749,0
+Gradient boosting,2025,1473498,Delhi Capitals,Gujarat Titans,0.5672,0
+Model B,2025,1473498,Delhi Capitals,Gujarat Titans,0.571,0
+Logistic regression,2025,1473499,Lucknow Super Giants,Sunrisers Hyderabad,0.5247,0
+Gradient boosting,2025,1473499,Lucknow Super Giants,Sunrisers Hyderabad,0.4606,0
+Model B,2025,1473499,Lucknow Super Giants,Sunrisers Hyderabad,0.4926,0
+Logistic regression,2025,1473500,Chennai Super Kings,Rajasthan Royals,0.5692,0
+Gradient boosting,2025,1473500,Chennai Super Kings,Rajasthan Royals,0.5749,0
+Model B,2025,1473500,Chennai Super Kings,Rajasthan Royals,0.572,0
+Logistic regression,2025,1473501,Mumbai Indians,Delhi Capitals,0.5077,1
+Gradient boosting,2025,1473501,Mumbai Indians,Delhi Capitals,0.4869,1
+Model B,2025,1473501,Mumbai Indians,Delhi Capitals,0.4973,1
+Logistic regression,2025,1473502,Lucknow Super Giants,Gujarat Titans,0.4691,1
+Gradient boosting,2025,1473502,Lucknow Super Giants,Gujarat Titans,0.5155,1
+Model B,2025,1473502,Lucknow Super Giants,Gujarat Titans,0.4923,1
+Logistic regression,2025,1473503,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5314,1
+Gradient boosting,2025,1473503,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5596,1
+Model B,2025,1473503,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5455,1
+Logistic regression,2025,1485779,Punjab Kings,Delhi Capitals,0.4757,0
+Gradient boosting,2025,1485779,Punjab Kings,Delhi Capitals,0.49,0
+Model B,2025,1485779,Punjab Kings,Delhi Capitals,0.4828,0
+Logistic regression,2025,1473504,Chennai Super Kings,Gujarat Titans,0.4562,1
+Gradient boosting,2025,1473504,Chennai Super Kings,Gujarat Titans,0.441,1
+Model B,2025,1473504,Chennai Super Kings,Gujarat Titans,0.4486,1
+Logistic regression,2025,1473505,Sunrisers Hyderabad,Kolkata Knight Riders,0.4885,1
+Gradient boosting,2025,1473505,Sunrisers Hyderabad,Kolkata Knight Riders,0.5104,1
+Model B,2025,1473505,Sunrisers Hyderabad,Kolkata Knight Riders,0.4995,1
+Logistic regression,2025,1473506,Mumbai Indians,Punjab Kings,0.4986,0
+Gradient boosting,2025,1473506,Mumbai Indians,Punjab Kings,0.4962,0
+Model B,2025,1473506,Mumbai Indians,Punjab Kings,0.4974,0
+Logistic regression,2025,1473507,Lucknow Super Giants,Royal Challengers Bengaluru,0.5943,0
+Gradient boosting,2025,1473507,Lucknow Super Giants,Royal Challengers Bengaluru,0.5682,0
+Model B,2025,1473507,Lucknow Super Giants,Royal Challengers Bengaluru,0.5813,0
+Logistic regression,2025,1473508,Punjab Kings,Royal Challengers Bengaluru,0.5824,0
+Gradient boosting,2025,1473508,Punjab Kings,Royal Challengers Bengaluru,0.5869,0
+Model B,2025,1473508,Punjab Kings,Royal Challengers Bengaluru,0.5847,0
+Logistic regression,2025,1473509,Mumbai Indians,Gujarat Titans,0.4908,1
+Gradient boosting,2025,1473509,Mumbai Indians,Gujarat Titans,0.5143,1
+Model B,2025,1473509,Mumbai Indians,Gujarat Titans,0.5025,1
+Logistic regression,2025,1473510,Mumbai Indians,Punjab Kings,0.5052,0
+Gradient boosting,2025,1473510,Mumbai Indians,Punjab Kings,0.5055,0
+Model B,2025,1473510,Mumbai Indians,Punjab Kings,0.5054,0
+Logistic regression,2025,1473511,Royal Challengers Bengaluru,Punjab Kings,0.4952,1
+Gradient boosting,2025,1473511,Royal Challengers Bengaluru,Punjab Kings,0.4895,1
+Model B,2025,1473511,Royal Challengers Bengaluru,Punjab Kings,0.4924,1
+Logistic regression,2026,1527674,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4143,0
+Gradient boosting,2026,1527674,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5244,0
+Model B,2026,1527674,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.4693,0
+Logistic regression,2026,1527675,Kolkata Knight Riders,Mumbai Indians,0.3979,0
+Gradient boosting,2026,1527675,Kolkata Knight Riders,Mumbai Indians,0.4354,0
+Model B,2026,1527675,Kolkata Knight Riders,Mumbai Indians,0.4167,0
+Logistic regression,2026,1527676,Chennai Super Kings,Rajasthan Royals,0.507,0
+Gradient boosting,2026,1527676,Chennai Super Kings,Rajasthan Royals,0.5514,0
+Model B,2026,1527676,Chennai Super Kings,Rajasthan Royals,0.5292,0
+Logistic regression,2026,1527677,Gujarat Titans,Punjab Kings,0.4492,0
+Gradient boosting,2026,1527677,Gujarat Titans,Punjab Kings,0.4797,0
+Model B,2026,1527677,Gujarat Titans,Punjab Kings,0.4645,0
+Logistic regression,2026,1527678,Lucknow Super Giants,Delhi Capitals,0.5913,0
+Gradient boosting,2026,1527678,Lucknow Super Giants,Delhi Capitals,0.5977,0
+Model B,2026,1527678,Lucknow Super Giants,Delhi Capitals,0.5945,0
+Logistic regression,2026,1527679,Sunrisers Hyderabad,Kolkata Knight Riders,0.5026,1
+Gradient boosting,2026,1527679,Sunrisers Hyderabad,Kolkata Knight Riders,0.5315,1
+Model B,2026,1527679,Sunrisers Hyderabad,Kolkata Knight Riders,0.5171,1
+Logistic regression,2026,1527680,Chennai Super Kings,Punjab Kings,0.5157,0
+Gradient boosting,2026,1527680,Chennai Super Kings,Punjab Kings,0.4298,0
+Model B,2026,1527680,Chennai Super Kings,Punjab Kings,0.4728,0
+Logistic regression,2026,1527681,Mumbai Indians,Delhi Capitals,0.4249,0
+Gradient boosting,2026,1527681,Mumbai Indians,Delhi Capitals,0.4472,0
+Model B,2026,1527681,Mumbai Indians,Delhi Capitals,0.436,0
+Logistic regression,2026,1527682,Rajasthan Royals,Gujarat Titans,0.4122,1
+Gradient boosting,2026,1527682,Rajasthan Royals,Gujarat Titans,0.4715,1
+Model B,2026,1527682,Rajasthan Royals,Gujarat Titans,0.4418,1
+Logistic regression,2026,1527683,Sunrisers Hyderabad,Lucknow Super Giants,0.5664,0
+Gradient boosting,2026,1527683,Sunrisers Hyderabad,Lucknow Super Giants,0.4825,0
+Model B,2026,1527683,Sunrisers Hyderabad,Lucknow Super Giants,0.5245,0
+Logistic regression,2026,1527684,Royal Challengers Bengaluru,Chennai Super Kings,0.6174,1
+Gradient boosting,2026,1527684,Royal Challengers Bengaluru,Chennai Super Kings,0.7201,1
+Model B,2026,1527684,Royal Challengers Bengaluru,Chennai Super Kings,0.6687,1
+Logistic regression,2026,1527686,Rajasthan Royals,Mumbai Indians,0.4586,1
+Gradient boosting,2026,1527686,Rajasthan Royals,Mumbai Indians,0.4128,1
+Model B,2026,1527686,Rajasthan Royals,Mumbai Indians,0.4357,1
+Logistic regression,2026,1527687,Gujarat Titans,Delhi Capitals,0.4738,1
+Gradient boosting,2026,1527687,Gujarat Titans,Delhi Capitals,0.5108,1
+Model B,2026,1527687,Gujarat Titans,Delhi Capitals,0.4923,1
+Logistic regression,2026,1527688,Kolkata Knight Riders,Lucknow Super Giants,0.5312,0
+Gradient boosting,2026,1527688,Kolkata Knight Riders,Lucknow Super Giants,0.4442,0
+Model B,2026,1527688,Kolkata Knight Riders,Lucknow Super Giants,0.4877,0
+Logistic regression,2026,1527689,Royal Challengers Bengaluru,Rajasthan Royals,0.5156,0
+Gradient boosting,2026,1527689,Royal Challengers Bengaluru,Rajasthan Royals,0.398,0
+Model B,2026,1527689,Royal Challengers Bengaluru,Rajasthan Royals,0.4568,0
+Logistic regression,2026,1527690,Sunrisers Hyderabad,Punjab Kings,0.3371,0
+Gradient boosting,2026,1527690,Sunrisers Hyderabad,Punjab Kings,0.4391,0
+Model B,2026,1527690,Sunrisers Hyderabad,Punjab Kings,0.3881,0
+Logistic regression,2026,1527691,Chennai Super Kings,Delhi Capitals,0.4933,1
+Gradient boosting,2026,1527691,Chennai Super Kings,Delhi Capitals,0.4705,1
+Model B,2026,1527691,Chennai Super Kings,Delhi Capitals,0.4819,1
+Logistic regression,2026,1527692,Lucknow Super Giants,Gujarat Titans,0.499,0
+Gradient boosting,2026,1527692,Lucknow Super Giants,Gujarat Titans,0.4965,0
+Model B,2026,1527692,Lucknow Super Giants,Gujarat Titans,0.4978,0
+Logistic regression,2026,1527693,Royal Challengers Bengaluru,Mumbai Indians,0.4477,1
+Gradient boosting,2026,1527693,Royal Challengers Bengaluru,Mumbai Indians,0.4635,1
+Model B,2026,1527693,Royal Challengers Bengaluru,Mumbai Indians,0.4556,1
+Logistic regression,2026,1529264,Sunrisers Hyderabad,Rajasthan Royals,0.5121,1
+Gradient boosting,2026,1529264,Sunrisers Hyderabad,Rajasthan Royals,0.4982,1
+Model B,2026,1529264,Sunrisers Hyderabad,Rajasthan Royals,0.5051,1
+Logistic regression,2026,1529265,Chennai Super Kings,Kolkata Knight Riders,0.5084,1
+Gradient boosting,2026,1529265,Chennai Super Kings,Kolkata Knight Riders,0.5435,1
+Model B,2026,1529265,Chennai Super Kings,Kolkata Knight Riders,0.526,1
+Logistic regression,2026,1529266,Lucknow Super Giants,Royal Challengers Bengaluru,0.4104,0
+Gradient boosting,2026,1529266,Lucknow Super Giants,Royal Challengers Bengaluru,0.4872,0
+Model B,2026,1529266,Lucknow Super Giants,Royal Challengers Bengaluru,0.4488,0
+Logistic regression,2026,1529267,Mumbai Indians,Punjab Kings,0.5663,0
+Gradient boosting,2026,1529267,Mumbai Indians,Punjab Kings,0.4871,0
+Model B,2026,1529267,Mumbai Indians,Punjab Kings,0.5267,0
+Logistic regression,2026,1529268,Kolkata Knight Riders,Gujarat Titans,0.4108,0
+Gradient boosting,2026,1529268,Kolkata Knight Riders,Gujarat Titans,0.3973,0
+Model B,2026,1529268,Kolkata Knight Riders,Gujarat Titans,0.404,0
+Logistic regression,2026,1529269,Royal Challengers Bengaluru,Delhi Capitals,0.5616,0
+Gradient boosting,2026,1529269,Royal Challengers Bengaluru,Delhi Capitals,0.5176,0
+Model B,2026,1529269,Royal Challengers Bengaluru,Delhi Capitals,0.5396,0
+Logistic regression,2026,1529270,Sunrisers Hyderabad,Chennai Super Kings,0.5955,1
+Gradient boosting,2026,1529270,Sunrisers Hyderabad,Chennai Super Kings,0.517,1
+Model B,2026,1529270,Sunrisers Hyderabad,Chennai Super Kings,0.5563,1
+Logistic regression,2026,1529271,Rajasthan Royals,Kolkata Knight Riders,0.4633,0
+Gradient boosting,2026,1529271,Rajasthan Royals,Kolkata Knight Riders,0.5061,0
+Model B,2026,1529271,Rajasthan Royals,Kolkata Knight Riders,0.4847,0
+Logistic regression,2026,1529272,Punjab Kings,Lucknow Super Giants,0.5755,1
+Gradient boosting,2026,1529272,Punjab Kings,Lucknow Super Giants,0.5481,1
+Model B,2026,1529272,Punjab Kings,Lucknow Super Giants,0.5618,1
+Logistic regression,2026,1529273,Mumbai Indians,Gujarat Titans,0.4772,1
+Gradient boosting,2026,1529273,Mumbai Indians,Gujarat Titans,0.4958,1
+Model B,2026,1529273,Mumbai Indians,Gujarat Titans,0.4865,1
+Logistic regression,2026,1529274,Sunrisers Hyderabad,Delhi Capitals,0.5436,1
+Gradient boosting,2026,1529274,Sunrisers Hyderabad,Delhi Capitals,0.5085,1
+Model B,2026,1529274,Sunrisers Hyderabad,Delhi Capitals,0.5261,1
+Logistic regression,2026,1529275,Rajasthan Royals,Lucknow Super Giants,0.4344,1
+Gradient boosting,2026,1529275,Rajasthan Royals,Lucknow Super Giants,0.4927,1
+Model B,2026,1529275,Rajasthan Royals,Lucknow Super Giants,0.4636,1
+Logistic regression,2026,1529276,Chennai Super Kings,Mumbai Indians,0.3294,1
+Gradient boosting,2026,1529276,Chennai Super Kings,Mumbai Indians,0.7537,1
+Model B,2026,1529276,Chennai Super Kings,Mumbai Indians,0.5415,1
+Logistic regression,2026,1529277,Gujarat Titans,Royal Challengers Bengaluru,0.4515,0
+Gradient boosting,2026,1529277,Gujarat Titans,Royal Challengers Bengaluru,0.4908,0
+Model B,2026,1529277,Gujarat Titans,Royal Challengers Bengaluru,0.4711,0
+Logistic regression,2026,1529278,Delhi Capitals,Punjab Kings,0.5313,0
+Gradient boosting,2026,1529278,Delhi Capitals,Punjab Kings,0.484,0
+Model B,2026,1529278,Delhi Capitals,Punjab Kings,0.5077,0
+Logistic regression,2026,1529279,Rajasthan Royals,Sunrisers Hyderabad,0.5888,0
+Gradient boosting,2026,1529279,Rajasthan Royals,Sunrisers Hyderabad,0.5443,0
+Model B,2026,1529279,Rajasthan Royals,Sunrisers Hyderabad,0.5665,0
+Logistic regression,2026,1529280,Chennai Super Kings,Gujarat Titans,0.436,0
+Gradient boosting,2026,1529280,Chennai Super Kings,Gujarat Titans,0.3706,0
+Model B,2026,1529280,Chennai Super Kings,Gujarat Titans,0.4033,0
+Logistic regression,2026,1529281,Kolkata Knight Riders,Lucknow Super Giants,0.4217,1
+Gradient boosting,2026,1529281,Kolkata Knight Riders,Lucknow Super Giants,0.44,1
+Model B,2026,1529281,Kolkata Knight Riders,Lucknow Super Giants,0.4308,1
+Logistic regression,2026,1529282,Delhi Capitals,Royal Challengers Bengaluru,0.5489,0
+Gradient boosting,2026,1529282,Delhi Capitals,Royal Challengers Bengaluru,0.5024,0
+Model B,2026,1529282,Delhi Capitals,Royal Challengers Bengaluru,0.5256,0
+Logistic regression,2026,1529283,Punjab Kings,Rajasthan Royals,0.6015,0
+Gradient boosting,2026,1529283,Punjab Kings,Rajasthan Royals,0.5414,0
+Model B,2026,1529283,Punjab Kings,Rajasthan Royals,0.5715,0
+Logistic regression,2026,1529284,Mumbai Indians,Sunrisers Hyderabad,0.5318,0
+Gradient boosting,2026,1529284,Mumbai Indians,Sunrisers Hyderabad,0.5011,0
+Model B,2026,1529284,Mumbai Indians,Sunrisers Hyderabad,0.5165,0
+Logistic regression,2026,1529285,Royal Challengers Bengaluru,Gujarat Titans,0.4389,0
+Gradient boosting,2026,1529285,Royal Challengers Bengaluru,Gujarat Titans,0.4742,0
+Model B,2026,1529285,Royal Challengers Bengaluru,Gujarat Titans,0.4566,0
+Logistic regression,2026,1529286,Rajasthan Royals,Delhi Capitals,0.5324,0
+Gradient boosting,2026,1529286,Rajasthan Royals,Delhi Capitals,0.669,0
+Model B,2026,1529286,Rajasthan Royals,Delhi Capitals,0.6007,0
+Logistic regression,2026,1529287,Mumbai Indians,Chennai Super Kings,0.5743,0
+Gradient boosting,2026,1529287,Mumbai Indians,Chennai Super Kings,0.2058,0
+Model B,2026,1529287,Mumbai Indians,Chennai Super Kings,0.39,0
+Logistic regression,2026,1529288,Sunrisers Hyderabad,Kolkata Knight Riders,0.6049,0
+Gradient boosting,2026,1529288,Sunrisers Hyderabad,Kolkata Knight Riders,0.5593,0
+Model B,2026,1529288,Sunrisers Hyderabad,Kolkata Knight Riders,0.5821,0
+Logistic regression,2026,1529289,Punjab Kings,Gujarat Titans,0.4388,0
+Gradient boosting,2026,1529289,Punjab Kings,Gujarat Titans,0.4853,0
+Model B,2026,1529289,Punjab Kings,Gujarat Titans,0.462,0
+Logistic regression,2026,1529290,Lucknow Super Giants,Mumbai Indians,0.3911,0
+Gradient boosting,2026,1529290,Lucknow Super Giants,Mumbai Indians,0.473,0
+Model B,2026,1529290,Lucknow Super Giants,Mumbai Indians,0.4321,0
+Logistic regression,2026,1529291,Delhi Capitals,Chennai Super Kings,0.6128,0
+Gradient boosting,2026,1529291,Delhi Capitals,Chennai Super Kings,0.4944,0
+Model B,2026,1529291,Delhi Capitals,Chennai Super Kings,0.5536,0
+Logistic regression,2026,1529292,Sunrisers Hyderabad,Punjab Kings,0.4396,1
+Gradient boosting,2026,1529292,Sunrisers Hyderabad,Punjab Kings,0.4434,1
+Model B,2026,1529292,Sunrisers Hyderabad,Punjab Kings,0.4415,1
+Logistic regression,2026,1529293,Lucknow Super Giants,Royal Challengers Bengaluru,0.5239,1
+Gradient boosting,2026,1529293,Lucknow Super Giants,Royal Challengers Bengaluru,0.5341,1
+Model B,2026,1529293,Lucknow Super Giants,Royal Challengers Bengaluru,0.529,1
+Logistic regression,2026,1529294,Delhi Capitals,Kolkata Knight Riders,0.6208,0
+Gradient boosting,2026,1529294,Delhi Capitals,Kolkata Knight Riders,0.616,0
+Model B,2026,1529294,Delhi Capitals,Kolkata Knight Riders,0.6184,0
+Logistic regression,2026,1529295,Gujarat Titans,Rajasthan Royals,0.4804,1
+Gradient boosting,2026,1529295,Gujarat Titans,Rajasthan Royals,0.542,1
+Model B,2026,1529295,Gujarat Titans,Rajasthan Royals,0.5112,1
+Logistic regression,2026,1529296,Lucknow Super Giants,Chennai Super Kings,0.4976,0
+Gradient boosting,2026,1529296,Lucknow Super Giants,Chennai Super Kings,0.5276,0
+Model B,2026,1529296,Lucknow Super Giants,Chennai Super Kings,0.5126,0
+Logistic regression,2026,1529297,Mumbai Indians,Royal Challengers Bengaluru,0.5029,0
+Gradient boosting,2026,1529297,Mumbai Indians,Royal Challengers Bengaluru,0.5623,0
+Model B,2026,1529297,Mumbai Indians,Royal Challengers Bengaluru,0.5326,0
+Logistic regression,2026,1529298,Punjab Kings,Delhi Capitals,0.5255,0
+Gradient boosting,2026,1529298,Punjab Kings,Delhi Capitals,0.5359,0
+Model B,2026,1529298,Punjab Kings,Delhi Capitals,0.5307,0
+Logistic regression,2026,1529299,Gujarat Titans,Sunrisers Hyderabad,0.5171,1
+Gradient boosting,2026,1529299,Gujarat Titans,Sunrisers Hyderabad,0.5292,1
+Model B,2026,1529299,Gujarat Titans,Sunrisers Hyderabad,0.5231,1
+Logistic regression,2026,1529300,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4056,0
+Gradient boosting,2026,1529300,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4752,0
+Model B,2026,1529300,Kolkata Knight Riders,Royal Challengers Bengaluru,0.4404,0
+Logistic regression,2026,1529301,Punjab Kings,Mumbai Indians,0.484,0
+Gradient boosting,2026,1529301,Punjab Kings,Mumbai Indians,0.4751,0
+Model B,2026,1529301,Punjab Kings,Mumbai Indians,0.4795,0
+Logistic regression,2026,1529302,Chennai Super Kings,Lucknow Super Giants,0.3988,0
+Gradient boosting,2026,1529302,Chennai Super Kings,Lucknow Super Giants,0.4562,0
+Model B,2026,1529302,Chennai Super Kings,Lucknow Super Giants,0.4275,0
+Logistic regression,2026,1529303,Kolkata Knight Riders,Gujarat Titans,0.5202,1
+Gradient boosting,2026,1529303,Kolkata Knight Riders,Gujarat Titans,0.43,1
+Model B,2026,1529303,Kolkata Knight Riders,Gujarat Titans,0.4751,1
+Logistic regression,2026,1529304,Royal Challengers Bengaluru,Punjab Kings,0.4452,1
+Gradient boosting,2026,1529304,Royal Challengers Bengaluru,Punjab Kings,0.4363,1
+Model B,2026,1529304,Royal Challengers Bengaluru,Punjab Kings,0.4407,1
+Logistic regression,2026,1529305,Rajasthan Royals,Delhi Capitals,0.4281,0
+Gradient boosting,2026,1529305,Rajasthan Royals,Delhi Capitals,0.5098,0
+Model B,2026,1529305,Rajasthan Royals,Delhi Capitals,0.469,0
+Logistic regression,2026,1529306,Chennai Super Kings,Sunrisers Hyderabad,0.5011,0
+Gradient boosting,2026,1529306,Chennai Super Kings,Sunrisers Hyderabad,0.4369,0
+Model B,2026,1529306,Chennai Super Kings,Sunrisers Hyderabad,0.469,0
+Logistic regression,2026,1529307,Lucknow Super Giants,Rajasthan Royals,0.4553,0
+Gradient boosting,2026,1529307,Lucknow Super Giants,Rajasthan Royals,0.4861,0
+Model B,2026,1529307,Lucknow Super Giants,Rajasthan Royals,0.4707,0
+Logistic regression,2026,1529308,Mumbai Indians,Kolkata Knight Riders,0.4992,0
+Gradient boosting,2026,1529308,Mumbai Indians,Kolkata Knight Riders,0.4337,0
+Model B,2026,1529308,Mumbai Indians,Kolkata Knight Riders,0.4664,0
+Logistic regression,2026,1529309,Gujarat Titans,Chennai Super Kings,0.6577,1
+Gradient boosting,2026,1529309,Gujarat Titans,Chennai Super Kings,0.6363,1
+Model B,2026,1529309,Gujarat Titans,Chennai Super Kings,0.647,1
+Logistic regression,2026,1529310,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5149,1
+Gradient boosting,2026,1529310,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5413,1
+Model B,2026,1529310,Sunrisers Hyderabad,Royal Challengers Bengaluru,0.5281,1
+Logistic regression,2026,1529311,Lucknow Super Giants,Punjab Kings,0.5381,0
+Gradient boosting,2026,1529311,Lucknow Super Giants,Punjab Kings,0.49,0
+Model B,2026,1529311,Lucknow Super Giants,Punjab Kings,0.5141,0
+Logistic regression,2026,1529312,Rajasthan Royals,Mumbai Indians,0.4066,1
+Gradient boosting,2026,1529312,Rajasthan Royals,Mumbai Indians,0.3792,1
+Model B,2026,1529312,Rajasthan Royals,Mumbai Indians,0.3929,1
+Logistic regression,2026,1529313,Delhi Capitals,Kolkata Knight Riders,0.5198,1
+Gradient boosting,2026,1529313,Delhi Capitals,Kolkata Knight Riders,0.5677,1
+Model B,2026,1529313,Delhi Capitals,Kolkata Knight Riders,0.5437,1
+Logistic regression,2026,1535462,Royal Challengers Bengaluru,Gujarat Titans,0.4928,1
+Gradient boosting,2026,1535462,Royal Challengers Bengaluru,Gujarat Titans,0.4822,1
+Model B,2026,1535462,Royal Challengers Bengaluru,Gujarat Titans,0.4875,1
+Logistic regression,2026,1535463,Rajasthan Royals,Sunrisers Hyderabad,0.5362,1
+Gradient boosting,2026,1535463,Rajasthan Royals,Sunrisers Hyderabad,0.5324,1
+Model B,2026,1535463,Rajasthan Royals,Sunrisers Hyderabad,0.5343,1
+Logistic regression,2026,1535464,Rajasthan Royals,Gujarat Titans,0.4629,0
+Gradient boosting,2026,1535464,Rajasthan Royals,Gujarat Titans,0.4605,0
+Model B,2026,1535464,Rajasthan Royals,Gujarat Titans,0.4617,0
+Logistic regression,2026,1535465,Gujarat Titans,Royal Challengers Bengaluru,0.5611,0
+Gradient boosting,2026,1535465,Gujarat Titans,Royal Challengers Bengaluru,0.5258,0
+Model B,2026,1535465,Gujarat Titans,Royal Challengers Bengaluru,0.5434,0

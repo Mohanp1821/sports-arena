@@ -31,10 +31,13 @@ python src/analysis.py
 echo; echo "===== Step 4: fact-check against official IPL records ====="
 python tests/test_facts.py
 
-echo; echo "===== Step 5: predict the next season's champion and awards ====="
+echo; echo "===== Step 5: Model A (explainable) predicts the next season ====="
 python src/predict.py
 
-echo; echo "===== Step 6: build the dashboard -> outputs/index.html ====="
+echo; echo "===== Step 6: Model B (machine learning) and the A vs B backtest ====="
+python src/predict_ml.py
+
+echo; echo "===== Step 7: build the dashboard -> outputs/index.html and match_centre.html ====="
 python src/build_report.py
 
 echo; echo "Finished. Open outputs/index.html in your browser to see the dashboard."

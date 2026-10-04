@@ -215,13 +215,31 @@ def test_prediction_model(matches):
     form = predict.weighted_form(table, "batter", "runs", 2019)
     assert form.iloc[0]["form"] == 483.3, "weighted form should be 483.3"
 
-    # Simulation: title chances of all teams must add up to 100%.
-    teams = sorted(set(matches[matches["season"] == 2026]["team1_franchise"]))
+    # Season format: 10 teams -> 70 league games, 14 per team; 8 teams -> 56, 14 per team.
+    teams = predict.season_teams(matches, 2026)
+    fixtures = predict.league_fixtures(matches, 2025, teams)
+    assert len(fixtures) == 70, "10-team format should have 70 league matches"
+    for team in teams:
+        games = [f for f in fixtures if team in f]
+        assert len(games) == 14, team + " should play 14 league matches"
+    group_a, group_b = predict.make_groups(matches, 2025, teams)
+    assert len(set(group_a) | set(group_b)) == 10
+    eight = predict.season_teams(matches, 2021)
+    assert len(predict.league_fixtures(matches, 2020, eight)) == 56
+
+    # Simulation: title chances of all teams must add up to 100%, playoff chances to 400%.
     strengths = predict.team_strengths(matches, 2026, teams)
-    chances = predict.title_chances(strengths, simulations=500)
-    total = chances["title_pct"].sum()
-    assert abs(total - 100) < 0.5, "title chances add up to " + str(total)
-    print("PASS  prediction maths: weighted form and title chances")
+    chances = predict.title_chances(teams, fixtures, predict.model_a_chances(strengths), simulations=500)
+    assert abs(chances["title_pct"].sum() - 100) < 0.5, "title chances should add up to 100%"
+    assert abs(chances["playoff_pct"].sum() - 400) < 0.5, "4 playoff places -> 400%"
+
+    # Scoring on a worked example: chances 0.8 and 0.4 for team 1; team 1 won the first, lost the second.
+    scores = predict.match_scores([0.8, 0.4], [1, 0])
+    assert scores["accuracy_pct"] == 100.0
+    assert scores["brier"] == round(((0.8 - 1) ** 2 + (0.4 - 0) ** 2) / 2, 4)     # (0.04 + 0.16) / 2 = 0.1
+    import math
+    assert scores["log_loss"] == round((-math.log(0.8) - math.log(0.6)) / 2, 4)
+    print("PASS  prediction maths: weighted form, season format (70 games, 14 each), title chances, scoring")
 
 
 def test_dashboard_data(matches, deliveries):
@@ -325,6 +343,30 @@ def test_dashboard_analyst_data(matches, deliveries, impact):
     print("PASS  dashboard analyst data matches metrics.py (Kohli v Bumrah, CSK v MI, 19 points tables)")
 
 
+def test_model_b(matches, deliveries, impact):
+    """Model B: fair chances, and the backtest only learns from EARLIER seasons."""
+    import predict_ml
+    elo = predict_ml.elo_at_season_starts(matches)
+    assert abs(sum(elo[2027].values()) / len(elo[2027]) - 1500) < 60, "Elo ratings should stay around 1500"
+    squads = predict.load_squads(deliveries, impact, 2026)
+    assert squads["team"].nunique() == 10, "the 2027 squads file should list 10 teams"
+    strengths = predict_ml.squad_strengths(deliveries, impact, matches, squads)
+    results = metrics.team_results(matches)
+    infos = {season: predict_ml.season_start_info(matches, results, elo, strengths, season) for season in range(2009, 2022)}
+    training = predict_ml.build_match_rows(matches, infos, range(2009, 2021))
+    assert training["season"].max() == 2020, "training for 2021 must stop at 2020"
+    # The pre-season form for 2021 must not use any 2021 match.
+    before = results[results["season"] < 2021]
+    mi_form = before[before["team"] == "Mumbai Indians"].tail(10)["won"].mean() * 100
+    assert abs(infos[2021]["form"]["Mumbai Indians"] - mi_form) < 1e-9
+    models = predict_ml.train_models(training)
+    for name in models:
+        p_ab = predict_ml.fair_chance(models[name], infos[2021], "Mumbai Indians", "Chennai Super Kings", "Wankhede Stadium")
+        p_ba = predict_ml.fair_chance(models[name], infos[2021], "Chennai Super Kings", "Mumbai Indians", "Wankhede Stadium")
+        assert abs(p_ab + p_ba - 1) < 1e-9, name + ": P(A beats B) + P(B beats A) must be 1"
+    print("PASS  Model B: fair chances, 10 squads, training and features use only earlier seasons")
+
+
 def main():
     matches, deliveries = metrics.load_processed_data()
     impact = metrics.load_impact_players()
@@ -341,6 +383,7 @@ def main():
     test_dashboard_data(matches, deliveries)
     test_analyst_views(matches, deliveries, impact)
     test_dashboard_analyst_data(matches, deliveries, impact)
+    test_model_b(matches, deliveries, impact)
     print("\nAll fact checks passed.")
 
 

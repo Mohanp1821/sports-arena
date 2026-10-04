@@ -1,21 +1,21 @@
-award,rank,player,form,measure
-Orange Cap (most runs),1,B Sai Sudharsan,701.8,runs
-Orange Cap (most runs),2,V Kohli,680.0,runs
-Orange Cap (most runs),3,Shubman Gill,653.7,runs
-Orange Cap (most runs),4,V Suryavanshi,566.4,runs
-Orange Cap (most runs),5,KL Rahul,562.8,runs
-Purple Cap (most wickets),1,B Kumar,21.5,wickets
-Purple Cap (most wickets),2,M Prasidh Krishna,19.6,wickets
-Purple Cap (most wickets),3,JC Archer,19.4,wickets
-Purple Cap (most wickets),4,JR Hazlewood,17.8,wickets
-Purple Cap (most wickets),5,Mohammed Siraj,17.3,wickets
-Most sixes,1,V Suryavanshi,52.8,sixes
-Most sixes,2,Abhishek Sharma,37.8,sixes
-Most sixes,3,C Connolly,32.0,sixes
-Most sixes,4,Priyansh Arya,31.6,sixes
-Most sixes,5,RM Patidar,31.2,sixes
-Most Player of the Match awards,1,SV Samson,2.8,awards
-Most Player of the Match awards,2,Ishan Kishan,2.6,awards
-Most Player of the Match awards,3,SS Iyer,2.4,awards
-Most Player of the Match awards,4,V Kohli,2.2,awards
-Most Player of the Match awards,5,V Suryavanshi,2.2,awards
+award,rank,player,team,form,measure
+Orange Cap (most runs),1,B Sai Sudharsan,Gujarat Titans,701.8,runs
+Orange Cap (most runs),2,V Kohli,Royal Challengers Bengaluru,680.0,runs
+Orange Cap (most runs),3,Shubman Gill,Gujarat Titans,653.7,runs
+Orange Cap (most runs),4,V Suryavanshi,Rajasthan Royals,566.4,runs
+Orange Cap (most runs),5,KL Rahul,Delhi Capitals,562.8,runs
+Purple Cap (most wickets),1,B Kumar,Royal Challengers Bengaluru,21.5,wickets
+Purple Cap (most wickets),2,M Prasidh Krishna,Gujarat Titans,19.6,wickets
+Purple Cap (most wickets),3,JC Archer,Rajasthan Royals,19.4,wickets
+Purple Cap (most wickets),4,JR Hazlewood,Royal Challengers Bengaluru,17.8,wickets
+Purple Cap (most wickets),5,Mohammed Siraj,Gujarat Titans,17.3,wickets
+Most sixes,1,V Suryavanshi,Rajasthan Royals,52.8,sixes
+Most sixes,2,Abhishek Sharma,Sunrisers Hyderabad,37.8,sixes
+Most sixes,3,C Connolly,Punjab Kings,32.0,sixes
+Most sixes,4,Priyansh Arya,Punjab Kings,31.6,sixes
+Most sixes,5,RM Patidar,Royal Challengers Bengaluru,31.2,sixes
+Most Player of the Match awards,1,SV Samson,Chennai Super Kings,2.8,awards
+Most Player of the Match awards,2,Ishan Kishan,Sunrisers Hyderabad,2.6,awards
+Most Player of the Match awards,3,SS Iyer,Punjab Kings,2.4,awards
+Most Player of the Match awards,4,V Kohli,Royal Challengers Bengaluru,2.2,awards
+Most Player of the Match awards,5,V Suryavanshi,Rajasthan Royals,2.2,awards
