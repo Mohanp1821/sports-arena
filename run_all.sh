@@ -13,8 +13,10 @@ cd "$(dirname "$0")"        # go to the project folder
 if [ ! -d ".venv" ]; then
     echo "Creating Python environment (first run only) ..."
     python3 -m venv .venv
-    .venv/bin/pip install -q -r requirements.txt
 fi
+# Install (or update) the exact library versions. When they are already
+# installed this takes a second and needs no internet.
+.venv/bin/pip install -q -r requirements.txt
 source .venv/bin/activate
 
 echo; echo "===== Step 1: check the raw data (SHA-256 checksums) ====="

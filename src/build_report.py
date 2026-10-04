@@ -22,11 +22,14 @@ Run it with:
 import os
 import json
 import pandas as pd
-import metrics   # our own file: src/metrics.py
-import predict   # our own file: src/predict.py (for the list of champions)
+import metrics          # our own file: src/metrics.py
+import dashboard_data   # our own file: src/dashboard_data.py (tables for the analyst views)
+import match_centre     # our own file: src/match_centre.py (the ball-by-ball match centre page)
 
 OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
 EXPLORER_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_explorer.js")
+ANALYTICS_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_analytics.js")
+CHASE_MODEL_FILE = os.path.join(OUTPUT_FOLDER, "chase_win_probability_model.csv")   # saved by analysis.py
 DEFAULT_PLAYER = "V Kohli"   # player shown first in the player search
 
 # Each chart file, with the title shown above it on the dashboard.
@@ -46,6 +49,9 @@ CHART_SECTIONS = {
         ("first_innings_trend.png", "Average first-innings score by season"),
         ("home_vs_away.png", "Home vs away win %"),
         ("head_to_head.png", "Head to head: Mumbai Indians vs Chennai Super Kings"),
+        ("rivalry_chennai_super_kings_vs_mumbai_indians.png", "Rivalry centre: CSK vs MI by season and ground"),
+        ("home_fortress.png", "Home fortress index"),
+        ("ground_ma_chidambaram_stadium.png", "Chepauk: average first-innings score by season"),
         ("heatmap_team_season.png", "Win % by team and season"),
     ],
     "Top performers": [
@@ -56,6 +62,16 @@ CHART_SECTIONS = {
         ("batting_quadrant.png", "Batting average vs strike rate"),
         ("death_over_specialists.png", "Death-over specialists (overs 16-20)"),
         ("player_of_match.png", "Most Player of the Match awards"),
+        ("matchups_v_kohli.png", "Kohli against the bowlers he faced most"),
+        ("finishers.png", "Finishers: death-over strike rate and not-out % in chases"),
+        ("top_partnerships.png", "Biggest partnerships"),
+    ],
+    "Trends and the Impact Player era": [
+        ("scoring_inflation.png", "Scoring inflation: first-innings average and sixes per match"),
+        ("impact_player_era.png", "Before and after the Impact Player rule"),
+        ("impact_player_choices.png", "Impact Player choices and win %"),
+        ("chase_win_probability.png", "Chase win probability (logistic regression)"),
+        ("impact_scores_2026.png", "Season impact scores, IPL 2026"),
     ],
 }
 
@@ -143,6 +159,10 @@ def key_insights(matches, deliveries):
     caps = metrics.cap_winners(deliveries)
     best_season = caps.sort_values("runs", ascending=False).iloc[0]
 
+    eras = metrics.impact_era_summary(deliveries, matches)
+    before = eras.iloc[0]
+    after = eras.iloc[1]
+
     return [
         "Chasing wins more: teams batting second won " + str(chase_pct) + "% of matches.",
         "The toss hardly matters: the toss winner won " + str(toss_pct) + "% of matches.",
@@ -150,6 +170,10 @@ def key_insights(matches, deliveries):
         best_team["team"] + " have the best all-time win rate: " + str(best_team["win_pct"]) + "%.",
         "Best single season: " + best_season["orange_cap"] + " scored " + str(best_season["runs"])
         + " runs in " + str(best_season["season"]) + ".",
+        "Since the Impact Player rule, the average first-innings score rose from " + str(before["avg_first_innings"])
+        + " (" + before["era"].split(" ")[0] + ") to " + str(after["avg_first_innings"]) + " ("
+        + after["era"].split(" ")[0] + "), and 200+ totals from " + str(before["totals_200_plus_per_match"])
+        + " to " + str(after["totals_200_plus_per_match"]) + " per match.",
     ]
 
 
@@ -391,6 +415,82 @@ def explorer_section(matches, deliveries):
     return "\n".join(parts)
 
 
+def control(label, html):
+    """A labelled drop-down or text box for the filter bars."""
+    return "<label>" + label + html + "</label>"
+
+
+def analyst_sections(matches, deliveries, impact):
+    """
+    HTML for the six analyst views. Each view has its own drop-downs and an
+    empty box; src/dashboard_analytics.js fills the boxes.
+    """
+    player_box = "<input list='analyst-players' id='{id}' placeholder='e.g. V Kohli'>"
+    parts = []
+    parts.append("<h2 id='rivalry'>Rivalry centre</h2><p>Pick any two teams: overall and season-by-season "
+                 "record, league vs playoffs, every ground, the last 5 meetings, highest and lowest totals, and the "
+                 "top players in the fixture. Teams are franchises (Delhi Daredevils = Delhi Capitals).</p>"
+                 "<div class='filters'>" + control("Team A", "<select id='riv-a'></select>")
+                 + control("Team B", "<select id='riv-b'></select>") + "</div><div id='riv-out'></div>")
+    parts.append("<h2 id='matchups'>Matchups</h2><p>Batter against bowler, a player against every team, and "
+                 "how a batter usually gets out.</p>"
+                 "<div class='panel'><h3>Batter vs bowler</h3><div class='filters'>"
+                 + control("Batter", player_box.format(id="mu-batter"))
+                 + control("Bowler", player_box.format(id="mu-bowler")) + "</div><div id='mu-out'></div></div>"
+                 "<div class='panel'><h3>A player against each team</h3><div class='filters'>"
+                 + control("Player", player_box.format(id="pt-player")) + "</div><div id='pt-out'></div></div>")
+    parts.append("<h2 id='grounds'>Ground profiles</h2><div class='filters'>"
+                 + control("Ground", "<select id='gr-venue'></select>") + "</div><div id='gr-out'></div>"
+                 "<div class='panel'><h3>A team at this ground, season by season</h3><div class='filters'>"
+                 + control("Team", "<select id='gr-team'></select>") + "</div><div id='gr-team-out'></div></div>"
+                 "<div class='panel'><h3>Home fortress index</h3><p class='note'>Home win % minus away win %, "
+                 "for the 10 current teams at their home ground(s).</p><div class='table-box' id='gr-fortress'></div></div>")
+    parts.append("<h2 id='specialists'>Phase and role specialists</h2><div class='filters'>"
+                 + control("Season", "<select id='sp-season'></select>")
+                 + control("Phase", "<select id='sp-phase'></select>") + "</div><div id='sp-out'></div>"
+                 "<div class='panel'><h3>Finishers</h3><p class='note'>Best strike rate in overs 16-20 (min 150 balls "
+                 "there), and how often they were not out when chasing.</p><div class='table-box' id='sp-finishers'></div></div>"
+                 "<div class='panel'><h3>Biggest partnerships</h3><div class='filters'>"
+                 + control("Team", "<select id='sp-team'></select>") + "</div>"
+                 "<div class='table-box' id='sp-partners'></div></div>")
+    parts.append("<h2 id='impact-era'>Impact Player era</h2><p>From 2023 each team may bring in one substitute "
+                 "(the Impact Player). Here 2020-22 is compared with 2023-26 (rain-shortened and no-result matches "
+                 "left out), using " + str(len(impact)) + " substitutions from the Cricsheet files.</p>"
+                 "<div class='table-box' id='ip-summary'></div><h3>Run rate by phase</h3><div class='table-box' id='ip-phases'></div>"
+                 "<div class='two-columns'><div class='panel'><h3>What the Impact Player did (all teams)</h3>"
+                 "<div id='ip-all'></div></div><div class='panel'><h3>One team's choices</h3><div class='filters'>"
+                 + control("Team", "<select id='ip-team'></select>") + "</div><div id='ip-team-out'></div></div></div>")
+    parts.append("<h2 id='trends'>Trends</h2><div class='two-columns'>"
+                 "<div class='panel'><h3>Scoring inflation</h3><div class='table-box scroll' id='tr-inflation'></div></div>"
+                 "<div class='panel'><h3>Points table (rebuilt from the results)</h3><div class='filters'>"
+                 + control("Season", "<select id='tr-season'></select>") + "</div><div class='table-box' id='tr-points'></div>"
+                 "<p class='note'>2 points for a win, 1 for a no-result; NRR from the ball data (a team bowled out "
+                 "counts 20 overs). Rain-shortened matches use the overs actually bowled.</p></div></div>"
+                 "<div class='panel'><h3>Chase win-probability calculator</h3><p class='note'>A logistic regression "
+                 "trained on every ball of every normal chase in the data (see the chase chart below).</p>"
+                 "<div class='filters'>" + control("Runs needed", "<input id='tr-runs' type='number' value='60' min='1'>")
+                 + control("Balls left", "<input id='tr-balls' type='number' value='60' min='1' max='120'>")
+                 + control("Wickets left", "<input id='tr-wickets' type='number' value='7' min='1' max='10'>")
+                 + "</div><div id='tr-chance'></div></div>"
+                 "<div class='two-columns'><div class='panel'><h3>Season impact scores</h3><p class='note'>Runs "
+                 "weighted by how hard scoring was in that phase, plus wickets worth the average runs per wicket "
+                 "in that phase (see docs/Code_Explanation.md).</p><div class='filters'>"
+                 + control("Season", "<select id='tr-impact-season'></select>") + "</div><div class='table-box' id='tr-impact'></div></div>"
+                 "<div class='panel'><h3>One player's impact score by season</h3><div class='filters'>"
+                 + control("Player", player_box.format(id="tr-impact-player")) + "</div>"
+                 "<div class='table-box' id='tr-impact-player-out'></div></div></div>")
+    parts.append("<h2 id='match-centre'>Match centre</h2><p>Every match ball by ball: scorecard with dismissals "
+                 "and bowling card, an over-by-over strip, and the raw ball rows. "
+                 "<a href='match_centre.html'><b>Open the match centre &rarr;</b></a></p>")
+
+    data = dashboard_data.analyst_data(matches, deliveries, impact, CHASE_MODEL_FILE)
+    text = json.dumps(data, separators=(",", ":"), default=lambda value: value.item())
+    parts.append("<script type='application/json' id='analyst-data'>" + text.replace("</", "<\\/") + "</script>")
+    with open(ANALYTICS_SCRIPT, encoding="utf-8") as file:
+        parts.append("<script>\n" + file.read() + "\n</script>")
+    return "\n".join(parts)
+
+
 def section_id(name):
     """Turn a section name like 'Player form' into a link target like 'player-form'."""
     return name.lower().replace(" ", "-")
@@ -399,7 +499,9 @@ def section_id(name):
 def navigation_bar(next_season):
     """A menu fixed at the top of the page with a link to every section."""
     links = [("predictions", "Predictions " + str(next_season)), ("explore", "Explore (interactive)"),
-             ("insights", "Key insights"), ("caps", "Cap winners")]
+             ("rivalry", "Rivalries"), ("matchups", "Matchups"), ("grounds", "Grounds"),
+             ("specialists", "Specialists"), ("impact-era", "Impact Player era"), ("trends", "Trends"),
+             ("match-centre", "Match centre"), ("insights", "Key insights"), ("caps", "Cap winners")]
     for section_name in CHART_SECTIONS:
         links.append((section_id(section_name), section_name))
 
@@ -438,6 +540,9 @@ def make_page(matches, deliveries):
     # Interactive section: filters, clickable chart and player search
     parts.append(explorer_section(matches, deliveries))
 
+    # Analyst views: rivalries, matchups, grounds, specialists, Impact Player era, trends
+    parts.append(analyst_sections(matches, deliveries, metrics.load_impact_players()))
+
     # Insights
     parts.append("<h2 id='insights'>Key insights</h2><ul class='insights'>")
     for sentence in key_insights(matches, deliveries):
@@ -472,6 +577,7 @@ def main():
     with open(path, "w", encoding="utf-8") as file:
         file.write(page)
     print("Dashboard saved:", path)
+    match_centre.build_page(matches, deliveries, os.path.join(OUTPUT_FOLDER, "match_centre.html"))
 
 
 if __name__ == "__main__":

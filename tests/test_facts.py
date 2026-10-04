@@ -241,6 +241,90 @@ def test_dashboard_data(matches, deliveries):
     print("PASS  interactive dashboard data (1,243 matches, 19 champions, Kohli 2016 = 973)")
 
 
+def test_analyst_views(matches, deliveries, impact):
+    """Checks on the Phase 2 analyst views: totals that must agree, and small worked examples."""
+    import pandas as pd
+
+    # Rivalry: season rows and stage rows must add up to the overall record.
+    overall, by_season, by_stage, by_ground = metrics.rivalry_record(matches, "Chennai Super Kings", "Mumbai Indians")
+    assert overall["Chennai Super Kings"] + overall["Mumbai Indians"] + overall["no_result"] == overall["played"]
+    assert by_season["played"].sum() == overall["played"] and by_stage["played"].sum() == overall["played"]
+    assert by_ground["played"].sum() == overall["played"]
+
+    # Matchup on a hand-made example: 4 balls, then a wide, then bowled.
+    tiny = pd.DataFrame({
+        "match_id": [1] * 6, "inning": [1] * 6, "over": [1] * 6, "ball": [1, 2, 3, 4, 5, 6],
+        "batter": ["A"] * 6, "non_striker": ["C"] * 6, "bowler": ["B"] * 6,
+        "batsman_runs": [4, 0, 6, 1, 0, 0], "wide_runs": [0, 0, 0, 0, 1, 0], "noball_runs": [0] * 6,
+        "bye_runs": [0] * 6, "legbye_runs": [0] * 6, "total_runs": [4, 0, 6, 1, 1, 0],
+        "player_dismissed": [None] * 5 + ["A"], "dismissal_kind": [None] * 5 + ["bowled"],
+        "is_super_over": [0] * 6, "season": [2026] * 6,
+    })
+    row = metrics.batter_vs_bowler(tiny, "A", "B").iloc[0]
+    assert row["balls"] == 5, "the wide is not a ball faced"
+    assert row["runs"] == 11 and row["dismissals"] == 1
+    assert row["dot_pct"] == 40.0, "2 dots in 5 balls"
+    assert row["boundary_pct"] == 40.0, "a four and a six in 5 balls"
+    assert row["runs_per_dismissal"] == 11.0
+
+    # Partnerships: in every innings, the partnership runs add up to the team total.
+    stands = metrics.partnerships(deliveries, matches)
+    by_innings = stands.groupby(["match_id", "inning"])["runs"].sum()
+    totals = metrics.innings_totals(deliveries, matches).set_index(["match_id", "inning"])["runs"]
+    assert (by_innings.sort_index() == totals.sort_index()).all(), "partnership runs must add up to the innings total"
+
+    # Points tables: the top 4 must be the 4 playoff teams. 2008 is the one known
+    # exception: Delhi v Kolkata was abandoned without a ball, so it is not in the
+    # ball-by-ball data and Delhi has 1 point fewer than in the official table.
+    for season in range(2008, 2027):
+        table = metrics.points_table(deliveries, matches, season)
+        playoffs = matches[(matches["season"] == season) & (matches["stage"] == "Playoff")]
+        playoff_teams = set(playoffs["team1_franchise"]) | set(playoffs["team2_franchise"])
+        if season == 2008:
+            assert table[table["team"] == "Delhi Capitals"]["played"].iloc[0] == 13
+            continue
+        assert set(table["team"].head(4)) == playoff_teams, str(season) + " top 4 does not match the playoff teams"
+
+    # Home fortress index = home win % minus away win %.
+    fortress = metrics.home_fortress_index(matches)
+    difference = (fortress["home_win_pct"] - fortress["away_win_pct"]).round(1)
+    assert (difference == fortress["fortress_index"]).all()
+
+    # Impact Player choices: every one of the 557 substitutions gets a role.
+    choices = metrics.impact_player_choices(impact, deliveries, matches)
+    assert len(choices) == 557 and choices["role"].notna().all()
+
+    # Chase model: needing more runs (same balls and wickets) can only lower the chance.
+    model = metrics.win_probability_model(metrics.chase_states(deliveries, matches))
+    chances = [metrics.win_probability(model, runs, 60, 7) for runs in [20, 60, 100, 140]]
+    assert chances == sorted(chances, reverse=True), "win chance should fall as runs needed rise"
+    assert 0 < chances[-1] < chances[0] < 100
+
+    # Impact scores: batting points of a player with no balls in a phase are 0, and
+    # every score is batting points + bowling points.
+    scores = metrics.season_impact_scores(deliveries)
+    assert ((scores["batting_points"] + scores["bowling_points"]).round(1) - scores["impact"]).abs().max() < 0.11
+    print("PASS  analyst views: rivalry totals, matchup example, partnerships = innings totals, "
+          "points tables (top 4 = playoff teams 2009-2026), fortress index, Impact Player roles, chase model")
+
+
+def test_dashboard_analyst_data(matches, deliveries, impact):
+    """The analyst views on the page must give the same numbers as metrics.py."""
+    import dashboard_data
+    data = dashboard_data.analyst_data(matches, deliveries, impact, "missing-file.csv")
+    kohli = data["players"].index("V Kohli")
+    bumrah = data["players"].index("JJ Bumrah")
+    row = [r for r in data["matchups"] if r[0] == kohli and r[1] == bumrah][0]
+    expected = metrics.batter_vs_bowler(deliveries, "V Kohli", "JJ Bumrah").iloc[0]
+    assert row[2] == expected["balls"] and row[3] == expected["runs"] and row[4] == expected["dismissals"]
+    csk = data["teams"].index("Chennai Super Kings")
+    mi = data["teams"].index("Mumbai Indians")
+    key = str(min(csk, mi)) + "|" + str(max(csk, mi))
+    assert data["rivalry"][key]["overall"][0] == len(metrics.rivalry_matches(matches, "Chennai Super Kings", "Mumbai Indians"))
+    assert len(data["points"]) == 19
+    print("PASS  dashboard analyst data matches metrics.py (Kohli v Bumrah, CSK v MI, 19 points tables)")
+
+
 def main():
     matches, deliveries = metrics.load_processed_data()
     impact = metrics.load_impact_players()
@@ -255,6 +339,8 @@ def main():
     test_champions(matches)
     test_prediction_model(matches)
     test_dashboard_data(matches, deliveries)
+    test_analyst_views(matches, deliveries, impact)
+    test_dashboard_analyst_data(matches, deliveries, impact)
     print("\nAll fact checks passed.")
 
 
