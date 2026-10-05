@@ -25,8 +25,9 @@ such a prediction be trusted? Answering these needs **every ball**, cleaned so t
 
 1. **One clean dataset, 2008-2026:** the Kaggle (2008-2019) and Cricsheet (2020-2026) ball-by-ball data, with one name
    per player, one name per ground and franchise names that run across team renames.
-2. **Analyst views:** rivalry centre, batter vs bowler matchups, ground profiles, phase and role specialists,
-   the Impact Player era, scoring trends, rebuilt points tables, chase win probability and season impact scores.
+2. **Analyst views:** rivalry centre, batter vs bowler matchups, ground profiles, **pitch and player fit** (how each
+   ground plays and how it suits a batter, bowler or fielder), phase and role specialists, the Impact Player era,
+   scoring trends, rebuilt points tables, chase win probability and season impact scores.
 3. **2027 predictions:** Model A (explainable form model) and Model B (machine learning), each simulating the
    season 10,000 times in the real format, compared in a walk-forward backtest for 2021-2026.
 4. **Ask Sports Arena:** a chatbot that answers questions using only the computed facts and names its source.
@@ -50,6 +51,8 @@ Every number below is calculated by the pipeline (see `outputs/` and the dashboa
 | Impact Player era | First-innings average **167.0 (2020-22) → 189.7 (2023-26)**; 200+ totals **0.21 → 0.67 per match** |
 | Best all-time win rate | Gujarat Titans **61.0%** (77 matches); Chennai Super Kings 55.8% (265) |
 | Strongest home fortress | Sunrisers Hyderabad: home win % **19.7 points** above away |
+| How grounds play | Chinnaswamy: **4.7% more runs** than the league in the same seasons; Chepauk **4% fewer** (10.6% fewer fours and sixes) |
+| Player fit | V Kohli strikes **+11.4** faster at Chinnaswamy and **−25.7** slower at Chepauk than at other grounds in the same seasons |
 | Biggest partnership | AB de Villiers & V Kohli, **229** (2016) |
 | **2027 favourite** | **Royal Challengers Bengaluru** in both models: Model A **22.5%**, Model B **20.7%** title chance |
 | 2027 award picks | Orange Cap **B Sai Sudharsan** · Purple Cap **B Kumar** · Most sixes **V Suryavanshi** (both models agree) |
@@ -78,6 +81,7 @@ Open it in any browser: everything is inside the page, so it works **offline** a
 | **Rivalries** | Any two teams: record by season, league vs playoffs, every ground, last 5 meetings, highest/lowest totals, top players |
 | **Matchups** | Any batter vs any bowler; a player against each team; how a batter gets out |
 | **Grounds** | Any ground: scores by season, chase win %, toss decisions, run rate by phase; a team at that ground; fortress index |
+| **Pitch & player fit** | Any ground and period: runs, wickets, boundary and dot-ball indexes vs the league (100 = average), runs by phase, how batters got out; any player's batting, bowling and fielding there vs other grounds in the same seasons; his best and worst grounds (click to switch) |
 | **Specialists** | Powerplay / Middle / Death leaders (any season), finishers, partnerships |
 | **Impact Player era** | 2020-22 vs 2023-26 and each team's Impact Player choices |
 | **Trends** | Scoring inflation, points table of any season (with NRR), chase win-probability calculator, impact scores |
@@ -112,7 +116,8 @@ against a random baseline (50% per match; 1 in 8, then 1 in 10, for the title).
 ## 6. How the chatbot works
 
 * **Offline (default):** `src/chatbot.js` runs inside the page. It finds teams, players, grounds, seasons and dates in
-  the question (with aliases such as "SKY", "CSK", "Chepauk", "Kings XI Punjab"), works out the question type and builds
+  the question (with aliases such as "SKY", "CSK", "Chepauk", "Kings XI Punjab"; e.g. "How does the pitch at Chepauk
+  play?" or "Kohli at Chinnaswamy"), works out the question type and builds
   the answer **only** from `outputs/chat_facts.json` (made by `src/chat_facts.py`). Every answer says where its numbers
   come from. Out-of-scope questions get a polite "I can only answer…" with suggestions; ambiguous names ("Sharma")
   get a "which one?".
@@ -120,7 +125,7 @@ against a random baseline (50% per match; 1 in 8, then 1 in 10, for the title).
   **Ollama** to answer only from them. Start it with `docker compose --profile llm up`; the page uses it when it
   is running and falls back to offline mode otherwise. (The retrieval and server were tested; the Ollama call
   itself needs Ollama and a pulled model.)
-* **Tests:** `tests/test_chatbot.js` checks 21 questions (e.g. "Who won the Orange Cap in 2016?" must say V Kohli and 973).
+* **Tests:** `tests/test_chatbot.js` checks 24 questions (e.g. "Who won the Orange Cap in 2016?" must say V Kohli and 973).
 
 ## 7. How to run
 
@@ -150,7 +155,7 @@ Click the **Open in Colab** badge above, then **Runtime → Run all**.
 
 ```
 data/merged/ ─► verify_data ─► prepare_data ─► analysis ─► test_facts ─► predict ─► predict_ml ─► build_report ─► test_chatbot
- never edited   SHA-256        franchises,     35 charts    official      Model A     Model B +      dashboard,       21 chatbot
+ never edited   SHA-256        franchises,     37 charts    official      Model A     Model B +      dashboard,       24 chatbot
                 checksums      venues, names                records       2027        backtest       match centre,    questions
                                → processed/                                                          chat facts
 ```
@@ -164,7 +169,7 @@ data/merged/ ─► verify_data ─► prepare_data ─► analysis ─► test_
 | 5 | `src/predict.py` | Model A for 2027, the season simulator, and Model A's backtest |
 | 6 | `src/predict_ml.py` | Model B for 2027 and the Model A vs Model B comparison |
 | 7 | `src/build_report.py` | Builds `outputs/index.html`, `outputs/match_centre.html` and `outputs/chat_facts.json` |
-| 8 | `tests/test_chatbot.js` | Runs 21 questions through the chatbot |
+| 8 | `tests/test_chatbot.js` | Runs 24 questions through the chatbot |
 
 One-off data scripts (already run; their outputs are committed): `src/recover_merged_data.py`,
 `src/build_name_map.py` and `src/build_impact_players.py` (see `data/README.md`).
@@ -210,6 +215,8 @@ sports-arena/
 * **Code:** MIT ([`LICENSE`](LICENSE)). The data keeps its own licences. Details, checksums and every cleaning rule
   are in [`data/README.md`](data/README.md).
 
-**Limitations:** pre-season predictions are close to a coin flip; a 2008 match abandoned without a ball is not in the
+**Limitations:** there are no pitch reports or ball-tracking in the data, so "how a pitch plays" is measured from the
+results at each ground (it mixes pitch, boundary size, outfield and weather); fielding only counts catches, run outs and
+stumpings (no drops or runs saved); pre-season predictions are close to a coin flip; a 2008 match abandoned without a ball is not in the
 data (so Delhi's rebuilt 2008 points are one below official); rain-shortened matches use the overs actually bowled
 for net run rate; pace vs spin splits are not included because the data has no bowling styles.

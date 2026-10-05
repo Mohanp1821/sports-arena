@@ -284,6 +284,99 @@ def trend_data(matches, deliveries, players, chase_model_file):
     }
 
 
+# ---------------------------------------------------------------------------
+# 7. Pitch and player fit
+# ---------------------------------------------------------------------------
+FIT_MIN_BALLS = 12        # batting/bowling rows with fewer balls at a ground are left out of the page
+FIT_MIN_MATCHES = 2       # fielding rows with fewer matches at a ground are left out
+
+
+def pitch_periods(matches):
+    """The time periods you can pick: all seasons, the Impact Player era, and each season (newest first)."""
+    seasons = sorted(matches["season"].unique())
+    periods = [["all", "All seasons " + metrics.season_range_text(matches), seasons],
+               ["2023-" + str(seasons[-1]), "Impact Player era (2023-" + str(seasons[-1]) + ")", [s for s in seasons if s >= 2023]]]
+    for season in reversed(seasons):
+        periods.append([str(season), str(season), [season]])
+    return periods
+
+
+def pitch_data(matches, deliveries, players, venues):
+    """
+    Ground profiles for every period (looked up by the page), how batters got out there,
+    and every player's record at every ground vs other grounds in the same seasons.
+    """
+    venue_position = index_of(venues)
+    player_position = index_of(players)
+    parts = metrics.pitch_components(deliveries, matches)
+    phase_parts = metrics.pitch_phase_components(deliveries, matches)
+    df = metrics.add_venue(deliveries, matches)
+    outs = df[df["is_wicket"]].groupby(["venue", "season", "dismissal_kind"]).size().reset_index(name="count")
+    kinds = sorted(outs["dismissal_kind"].unique())
+
+    profiles = {}
+    phases = {}
+    dismissals = {}
+    periods = pitch_periods(matches)
+    for key, label, seasons in periods:
+        profile = metrics.profile_from_components(parts, seasons)
+        profile["v"] = profile["venue"].map(venue_position)
+        profiles[key] = table_rows(profile, ["v", "matches", "run_rate", "runs_index", "wickets_index", "boundary_index",
+                                             "dot_index", "avg_first_innings", "chase_win_pct", "label"])
+        phase = metrics.phase_index_from_components(phase_parts, seasons)
+        phase["v"] = phase["venue"].map(venue_position)
+        phases[key] = table_rows(phase, ["v", "phase", "run_rate", "runs_index"])
+        # Dismissal mix: % of dismissals of each kind here, and in the whole league in the same seasons.
+        part = outs[outs["season"].isin(seasons)]
+        league = part.groupby("dismissal_kind")["count"].sum()
+        league_pct = league / league.sum() * 100
+        here = part.groupby(["venue", "dismissal_kind"])["count"].sum().reset_index()
+        here["pct"] = here["count"] / here.groupby("venue")["count"].transform("sum") * 100
+        rows = []
+        for i in range(len(here)):
+            row = here.iloc[i]
+            rows.append([venue_position[row["venue"]], kinds.index(row["dismissal_kind"]), int(row["count"]),
+                         round(float(row["pct"]), 1), round(float(league_pct[row["dismissal_kind"]]), 1)])
+        dismissals[key] = rows
+
+    batting = metrics.player_ground_batting(deliveries, matches)
+    bowling = metrics.player_ground_bowling(deliveries, matches)
+    fielding = metrics.player_ground_fielding(deliveries, matches)
+    batting = batting[(batting["balls"] >= FIT_MIN_BALLS) & batting["batter"].isin(player_position)].copy()
+    bowling = bowling[(bowling["legal_balls"] >= FIT_MIN_BALLS) & bowling["bowler"].isin(player_position)].copy()
+    fielding = fielding[(fielding["matches"] >= FIT_MIN_MATCHES) & fielding["player"].isin(player_position)].copy()
+    batting["p"] = batting["batter"].map(player_position)
+    bowling["p"] = bowling["bowler"].map(player_position)
+    fielding["p"] = fielding["player"].map(player_position)
+    for table in [batting, bowling, fielding]:
+        table["v"] = table["venue"].map(venue_position)
+
+    best = {}
+    full_batting = metrics.player_ground_batting(deliveries, matches)
+    full_bowling = metrics.player_ground_bowling(deliveries, matches)
+    for venue in venues:
+        bat, bowl = metrics.best_ground_fits(full_batting, full_bowling, venue)
+        best[str(venue_position[venue])] = {
+            "bat": table_rows(bat, ["batter", "balls", "strike_rate", "else_strike_rate", "strike_rate_diff"]),
+            "bowl": table_rows(bowl, ["bowler", "legal_balls", "economy", "else_economy", "economy_diff"])}
+
+    return {
+        "pitch_thresholds": [metrics.PITCH_HIGH, metrics.PITCH_LOW],
+        "pitch_periods": [[key, label] for key, label, seasons in periods],
+        "pitch": profiles, "pitch_phase": phases, "pitch_out_kinds": kinds, "pitch_outs": dismissals,
+        # [player, ground, innings, balls, runs, outs, fours, sixes, dots, then the same 6 counts elsewhere]
+        "fit_bat": table_rows(batting, ["p", "v", "innings", "balls", "runs", "outs", "fours", "sixes", "dots",
+                                        "else_balls", "else_runs", "else_outs", "else_fours", "else_sixes", "else_dots"]),
+        # [player, ground, matches, legal balls, runs, wickets, dots, then the same 4 counts elsewhere]
+        "fit_bowl": table_rows(bowling, ["p", "v", "matches", "legal_balls", "runs", "wickets", "dots",
+                                         "else_legal_balls", "else_runs", "else_wickets", "else_dots"]),
+        # [player, ground, matches, catches, run outs, stumpings, then the same 4 counts elsewhere]
+        "fit_field": table_rows(fielding, ["p", "v", "matches", "catches", "run_outs", "stumpings",
+                                           "else_matches", "else_catches", "else_run_outs", "else_stumpings"]),
+        "fit_best": best,
+    }
+
+
 def analyst_data(matches, deliveries, impact, chase_model_file):
     """Everything the analyst views need, as one dictionary (saved into the page as JSON)."""
     teams = sorted(set(matches["team1_franchise"]) | set(matches["team2_franchise"]))
@@ -298,4 +391,5 @@ def analyst_data(matches, deliveries, impact, chase_model_file):
     data.update(specialist_data(matches, deliveries, teams))
     data.update(impact_data(matches, deliveries, impact))
     data.update(trend_data(matches, deliveries, players, chase_model_file))
+    data.update(pitch_data(matches, deliveries, players, venues))
     return data

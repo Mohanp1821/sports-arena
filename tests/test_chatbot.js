@@ -28,6 +28,8 @@ const cskChepauk = facts.ground["Chennai Super Kings|MA Chidambaram Stadium, Che
 const favourite = facts.predictions.teams.slice().sort(function (a, b) { return b[1] - a[1]; })[0];
 const orange2027 = facts.predictions.awards_a.find(function (r) { return r[0] === "Orange Cap (most runs)" && r[1] === 1; });
 const eras = facts.impact.eras;
+const chepauk = facts.pitch.all["MA Chidambaram Stadium, Chepauk"];
+const kohliChinnaswamy = facts.fit.bat["V Kohli|M Chinnaswamy Stadium"];
 const topRuns = Object.keys(facts.players).sort(function (a, b) {
     return facts.players[b].career[2] - facts.players[a].career[2];
 })[0];
@@ -52,8 +54,11 @@ const CHECKS = [
     ["Who will win the Orange Cap in 2027?", [orange2027[2], "Model A", "Model B"]],
     ["Who has the most IPL runs?", [topRuns]],
     ["Who won the Orange Cap in 2007?", ["2008-2026", "nothing for 2007"]],
-    ["What is the weather in Mumbai tomorrow?", ["can only answer"]],
+    ["What is the weather in Mumbai tomorrow?", ["no weather"]],
+    ["Who scored the most runs in a test match?", ["men's IPL", "only"]],
     ["Sharma stats", ["Which", "RG Sharma"]],
+    ["How does the pitch at Chepauk play?", ["MA Chidambaram Stadium, Chepauk", "Runs index " + chepauk[2]]],
+    ["Kohli at Chinnaswamy", ["V Kohli", "M Chinnaswamy Stadium", kohliChinnaswamy[1] + " runs off " + kohliChinnaswamy[0] + " balls"]],
 ];
 
 let failed = 0;
@@ -70,14 +75,23 @@ CHECKS.forEach(function (check) {
     }
 });
 
-// Every answer that gives numbers must say where they come from.
-CHECKS.slice(0, 18).forEach(function (check) {
+// Every answer that gives numbers must say where they come from
+// (the out-of-scope and "which one?" answers give no numbers, so they need no source).
+const NO_NUMBERS = ["Who won the Orange Cap in 2007?", "What is the weather in Mumbai tomorrow?",
+                    "Who scored the most runs in a test match?", "Sharma stats"];
+CHECKS.filter(function (check) { return NO_NUMBERS.indexOf(check[0]) < 0; }).forEach(function (check) {
     const answer = chatbot.answerQuestion(check[0], facts);
     if (!answer.source) {
         failed += 1;
         console.log("FAIL  no source given for: " + check[0]);
     }
 });
+
+// The pitch answer must say the data has no pitch reports (in its source line).
+if (chatbot.answerQuestion("How does the pitch at Chepauk play?", facts).source.indexOf("no pitch reports") < 0) {
+    failed += 1;
+    console.log("FAIL  the pitch answer must say there are no pitch reports in the data");
+}
 
 if (failed > 0) {
     console.log("\n" + failed + " chatbot check(s) failed.");

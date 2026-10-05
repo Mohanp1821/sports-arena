@@ -299,6 +299,58 @@ function answerTeamAtGround(facts, team, venue) {
                  "Source: match results (no-results not counted). The dashboard's Ground view has it season by season.");
 }
 
+const PITCH_NOTE = "Source: ball-by-ball data; indexes compare the ground with the whole league in the same seasons "
+                 + "(100 = average). There are no pitch reports in the data, so this is how the ground has played "
+                 + "(pitch, boundary size, outfield and weather together).";
+
+function answerPitch(facts, venue) {
+    const p = facts.pitch.all[venue];
+    if (!p) { return reply("There are no matches at " + venue + " in the data.", DATA_SOURCE); }
+    const describe = function (index, what) {
+        const difference = roundTo(index - 100, 1);
+        return what + " index " + index + " (" + (difference === 0 ? "the same as" : Math.abs(difference) + "% "
+               + (difference > 0 ? "more than" : "fewer than")) + " the league)";
+    };
+    let text = venue + ", " + facts.meta.season_range + " (" + p[0] + " matches): " + p[8] + ". "
+             + describe(p[2], "Runs") + ", " + describe(p[3], "wickets") + ", " + describe(p[4], "fours-and-sixes")
+             + "; run rate " + p[1] + ", average first innings " + p[6] + ", chasing side won " + p[7] + "%.";
+    const recent = facts.pitch.recent[venue];
+    if (recent && recent[0] >= 5) {
+        text += " Since 2023 (" + recent[0] + " matches): runs index " + recent[2] + ", wickets index " + recent[3] + ".";
+    }
+    return reply(text, PITCH_NOTE);
+}
+
+function answerPlayerAtGround(facts, name, venue) {
+    const bat = facts.fit.bat[name + "|" + venue];
+    const bowl = facts.fit.bowl[name + "|" + venue];
+    if (!bat && !bowl) {
+        return reply(name + " has fewer than 30 balls batting or bowling at " + venue + " in the data, so there is "
+                     + "nothing reliable to compare.", DATA_SOURCE);
+    }
+    const parts = [];
+    // A side with fewer than 60 balls (e.g. a batter's few overs) is left out, unless it is all there is.
+    const showBat = bat && (bat[0] >= 60 || !bowl || bowl[0] < 60);
+    const showBowl = bowl && (bowl[0] >= 60 || !bat || bat[0] < 60);
+    if (showBat) {
+        const here = roundTo(bat[1] / bat[0] * 100, 1);
+        const elsewhere = bat[3] > 0 ? roundTo(bat[4] / bat[3] * 100, 1) : null;
+        parts.push("batting: " + bat[1] + " runs off " + bat[0] + " balls, strike rate " + here
+                   + (bat[2] > 0 ? ", average " + roundTo(bat[1] / bat[2], 1) : "")
+                   + (elsewhere !== null ? " (vs strike rate " + elsewhere + " at other grounds in the same seasons, "
+                      + (here >= elsewhere ? "+" : "") + roundTo(here - elsewhere, 1) + ")" : ""));
+    }
+    if (showBowl) {
+        const here = roundTo(bowl[1] / (bowl[0] / 6), 2);
+        const elsewhere = bowl[3] > 0 ? roundTo(bowl[4] / (bowl[3] / 6), 2) : null;
+        parts.push("bowling: " + bowl[2] + (bowl[2] === 1 ? " wicket in " : " wickets in ") + oversOf(bowl[0]) + " overs, economy " + here
+                   + (elsewhere !== null ? " (vs " + elsewhere + " elsewhere in the same seasons, "
+                      + (here <= elsewhere ? "cheaper here" : "more expensive here") + ")" : ""));
+    }
+    return reply(name + " at " + venue + ": " + parts.join("; ") + ".",
+                 DATA_SOURCE + " \"Elsewhere\" = the same player at other grounds in the seasons he played here.");
+}
+
 function answerImpact(facts) {
     const eras = facts.impact.eras;
     const choices = facts.impact.choices.map(function (c) { return c[0] + " " + c[1] + " times (won " + c[3] + "%)"; });
@@ -394,7 +446,8 @@ function answerDate(facts, q) {
     return reply("On " + q.date + ": " + lines.join(" "), DATA_SOURCE);
 }
 
-const SUGGESTIONS = ["Who will win IPL 2027?", "Who won the Orange Cap in 2016?", "Kohli vs Bumrah",
+const SUGGESTIONS = ["Who will win IPL 2027?", "How does the pitch at Chepauk play?", "Kohli at Chinnaswamy",
+                     "Who won the Orange Cap in 2016?", "Kohli vs Bumrah",
                      "CSK vs MI head to head", "How do CSK do at Chepauk?", "What changed with the Impact Player rule?",
                      "Which model is better, Model A or Model B?", "What happened on 31 May 2026?"];
 
@@ -427,6 +480,15 @@ function answerQuestion(question, facts) {
     const future = facts.predictions && (q.seasons.indexOf(facts.predictions.season) >= 0
                    || has(t, [" predict", " will win", "favourite", "favorite", " next season", " chance"]));
 
+    if (has(t, ["test match", " tests ", " odi", "one day", "world cup", " t20i", "ranji", "international",
+                " bbl ", " psl ", " cpl ", "county", "women", " wpl "])) {
+        return reply("The data covers the men's IPL " + facts.meta.season_range + " only, so I cannot answer about other "
+                     + "competitions. Try: " + SUGGESTIONS.slice(0, 3).join(" / "), "");
+    }
+    if (has(t, ["weather", " rain ", "forecast", "temperature", "humidity", " dew "])) {
+        return reply("The data has no weather, dew or forecast information, so I cannot answer that. I can tell you how a "
+                     + "ground has played, e.g. \"How does the pitch at Chepauk play?\"", "");
+    }
     if (q.date) {
         result = answerDate(facts, q);
     } else if (has(t, ["impact player", "impact sub", "impact rule", "impact-player"])) {
@@ -452,11 +514,14 @@ function answerQuestion(question, facts) {
         result = answerRivalry(facts, q.teams[0], q.teams[1]);
     } else if (q.teams.length === 1 && q.venues.length >= 1) {
         result = answerTeamAtGround(facts, q.teams[0], q.venues[0]);
+    } else if (q.players.length === 1 && q.venues.length >= 1) {
+        result = answerPlayerAtGround(facts, q.players[0], q.venues[0]);
+    } else if (q.venues.length >= 1 && q.teams.length === 0
+               && has(t, ["pitch", "conditions", "track", "surface", "wicket like", " play", "ground like", "venue",
+                          "scoring", "batting", "bowling", "spin", "pace", "profile"])) {
+        result = answerPitch(facts, q.venues[0]);
     } else if (q.players.length === 1) {
         result = answerPlayer(facts, q.players[0], q.seasons[0]);
-        if (q.venues.length > 0) {
-            result.text = "I don't have player numbers split by ground, so here is the full record. " + result.text;
-        }
     } else if (q.teams.length === 1) {
         result = answerTitles(facts, q.teams[0]);
     } else if (q.seasons.length > 0 && seasonOutside(facts, q.seasons[0])

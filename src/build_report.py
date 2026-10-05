@@ -54,6 +54,8 @@ CHART_SECTIONS = {
         ("rivalry_chennai_super_kings_vs_mumbai_indians.png", "Rivalry centre: CSK vs MI by season and ground"),
         ("home_fortress.png", "Home fortress index"),
         ("ground_ma_chidambaram_stadium.png", "Chepauk: average first-innings score by season"),
+        ("ground_map.png", "How each ground plays: runs index vs wickets index"),
+        ("player_ground_fit_v_kohli.png", "Kohli: strike rate at each ground vs elsewhere in the same seasons"),
         ("heatmap_team_season.png", "Win % by team and season"),
     ],
     "Top performers": [
@@ -130,6 +132,8 @@ button { cursor: pointer; background: #eef3fb; }
 .bar-row.highlight .bar-fill { background: #eb6834; }
 .bar-row.highlight { font-weight: bold; }
 .bar-value { white-space: nowrap; color: #333; }
+.bar-row.index-row { grid-template-columns: minmax(90px, 170px) minmax(80px, 1fr) minmax(150px, 230px); }
+.index-row .bar-value { white-space: normal; font-size: 13px; }
 .chat { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 12px 16px; }
 #chat-log { height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px; }
 .chat-msg { max-width: 88%; padding: 8px 12px; border-radius: 10px; font-size: 15px; white-space: pre-wrap; }
@@ -519,6 +523,18 @@ def analyst_sections(matches, deliveries, impact):
                  + control("Team", "<select id='gr-team'></select>") + "</div><div id='gr-team-out'></div></div>"
                  "<div class='panel'><h3>Home fortress index</h3><p class='note'>Home win % minus away win %, "
                  "for the 10 current teams at their home ground(s).</p><div class='table-box' id='gr-fortress'></div></div>")
+    parts.append("<h2 id='pitch'>Pitch and player fit</h2>"
+                 "<p>How each ground plays, and how it suits a particular batter, bowler or fielder. "
+                 "<b>Note:</b> the data has no pitch reports (grass, cracks, soil) or ball-tracking, so \"how the pitch "
+                 "plays\" is measured from what happened there: runs, wickets, fours and sixes, and dot balls, compared "
+                 "with the whole league in the <b>same seasons</b> (100 = average), so the 2026 scoring boom does not make "
+                 "newer grounds look flatter. This mixes the pitch with boundary size, outfield and weather.</p>"
+                 "<div class='filters'>" + control("Ground", "<select id='pf-venue'></select>")
+                 + control("Period", "<select id='pf-period'></select>") + "</div><div id='pf-profile'></div>"
+                 "<div class='panel'><h3>How this ground suits a player</h3><p class='note'>The player at this ground "
+                 "against the same player at other grounds in the same seasons (all seasons he played here).</p>"
+                 "<div class='filters'>" + control("Player", player_box.format(id="pf-player")) + "</div>"
+                 "<div id='pf-fit'></div><div id='pf-grounds'></div></div>")
     parts.append("<h2 id='specialists'>Phase and role specialists</h2><div class='filters'>"
                  + control("Season", "<select id='sp-season'></select>")
                  + control("Phase", "<select id='sp-phase'></select>") + "</div><div id='sp-out'></div>"
@@ -594,7 +610,7 @@ def section_id(name):
 def navigation_bar(next_season):
     """A menu fixed at the top of the page with a link to every section."""
     links = [("predictions", "Predictions " + str(next_season) + ": A vs B"), ("ask", "Ask Sports Arena"), ("explore", "Explore (interactive)"),
-             ("rivalry", "Rivalries"), ("matchups", "Matchups"), ("grounds", "Grounds"),
+             ("rivalry", "Rivalries"), ("matchups", "Matchups"), ("grounds", "Grounds"), ("pitch", "Pitch & player fit"),
              ("specialists", "Specialists"), ("impact-era", "Impact Player era"), ("trends", "Trends"),
              ("match-centre", "Match centre"), ("insights", "Key insights"), ("caps", "Cap winners")]
     for section_name in CHART_SECTIONS:

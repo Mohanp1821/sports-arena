@@ -1210,3 +1210,305 @@ def season_impact_scores(deliveries):
     main_team = counts.groupby(["player", "season"]).head(1)[["player", "season", "team"]]
     table = table.merge(main_team, on=["player", "season"], how="left")
     return table.sort_values(["season", "impact", "player"], ascending=[True, False, True]).reset_index(drop=True)
+
+
+# ===========================================================================
+# PITCH AND PLAYER FIT: how each ground plays, and how it suits each player.
+#
+# IMPORTANT: the data has NO pitch reports (grass, cracks, soil) and no
+# ball-tracking. So "how the pitch plays" here means how the GROUND has played
+# in the scores: runs, wickets, boundaries and dot balls, compared with the
+# league average IN THE SAME SEASONS. That mixes the pitch with the size of the
+# boundaries, the outfield and the weather, and we say so on the page.
+# ===========================================================================
+
+# A ground is labelled "high-scoring" if it gives at least 5% more runs than the
+# league average in the same seasons (index 105+), "low-scoring" at 95 or less.
+PITCH_HIGH = 105
+PITCH_LOW = 95
+
+
+def add_venue(deliveries, matches):
+    """Ball-level columns (metrics.add_ball_columns) plus the ground of each ball and wicket/dot flags."""
+    df = add_ball_columns(deliveries)
+    df = df.merge(matches[["match_id", "venue"]], on="match_id", how="left")
+    df["is_wicket"] = df["player_dismissed"].notna() & (df["dismissal_kind"] != "retired hurt")
+    df["is_boundary"] = df["is_four"] | df["is_six"]
+    return df
+
+
+def league_rates(df):
+    """
+    The league average of each season, per ball:
+      runs per legal ball, wickets per legal ball, dot balls per legal ball,
+      boundaries per ball faced.
+    """
+    season = df.groupby("season").agg(runs=("total_runs", "sum"), legal_balls=("is_legal_ball", "sum"),
+                                      wickets=("is_wicket", "sum"), dots=("is_dot_ball", "sum"),
+                                      balls_faced=("is_ball_faced", "sum"), boundaries=("is_boundary", "sum")).reset_index()
+    season["runs_per_ball"] = season["runs"] / season["legal_balls"]
+    season["wickets_per_ball"] = season["wickets"] / season["legal_balls"]
+    season["dots_per_ball"] = season["dots"] / season["legal_balls"]
+    season["boundaries_per_ball"] = season["boundaries"] / season["balls_faced"]
+    return season[["season", "runs_per_ball", "wickets_per_ball", "dots_per_ball", "boundaries_per_ball"]]
+
+
+def pitch_components(deliveries, matches):
+    """
+    One row per ground per season with what HAPPENED there and what the league
+    average would EXPECT from the same number of balls in that season:
+        exp_runs = legal balls at this ground x league runs per ball that season
+    (the same for wickets, dot balls and boundaries).
+    Index = happened / expected x 100, so 100 = an average ground, 110 = 10% more.
+    Keeping the parts (not only the index) lets us add seasons together correctly.
+    """
+    df = add_venue(deliveries, matches)
+    parts = df.groupby(["venue", "season"]).agg(
+        matches=("match_id", "nunique"), legal_balls=("is_legal_ball", "sum"), runs=("total_runs", "sum"),
+        wickets=("is_wicket", "sum"), dots=("is_dot_ball", "sum"), balls_faced=("is_ball_faced", "sum"),
+        boundaries=("is_boundary", "sum")).reset_index()
+    parts = parts.merge(league_rates(df), on="season")
+    parts["exp_runs"] = parts["legal_balls"] * parts["runs_per_ball"]
+    parts["exp_wickets"] = parts["legal_balls"] * parts["wickets_per_ball"]
+    parts["exp_dots"] = parts["legal_balls"] * parts["dots_per_ball"]
+    parts["exp_boundaries"] = parts["balls_faced"] * parts["boundaries_per_ball"]
+
+    # First-innings scores and chases (no rain or no-result matches) at each ground and season.
+    totals = innings_totals(deliveries, matches)
+    good = totals[(totals["no_result"] == False) & (totals["rain_affected"] == False)]
+    first = good[good["inning"] == 1].groupby(["venue", "season"]).agg(
+        first_innings_runs=("runs", "sum"), first_innings_count=("runs", "count")).reset_index()
+    second = good[good["inning"] == 2].copy()
+    second["chase_won"] = second["winner_franchise"] == second["batting_team"]
+    chases = second.groupby(["venue", "season"]).agg(chases=("match_id", "count"), chase_wins=("chase_won", "sum")).reset_index()
+    parts = parts.merge(first, on=["venue", "season"], how="left").merge(chases, on=["venue", "season"], how="left")
+    for column in ["first_innings_runs", "first_innings_count", "chases", "chase_wins"]:
+        parts[column] = parts[column].fillna(0).astype(int)
+    columns = ["venue", "season", "matches", "legal_balls", "runs", "exp_runs", "wickets", "exp_wickets",
+               "balls_faced", "boundaries", "exp_boundaries", "dots", "exp_dots",
+               "first_innings_runs", "first_innings_count", "chases", "chase_wins"]
+    return parts[columns].sort_values(["venue", "season"]).reset_index(drop=True)
+
+
+def pitch_label(runs_index, wickets_index):
+    """Words for a ground from its two indexes (the thresholds are PITCH_HIGH and PITCH_LOW)."""
+    if runs_index >= PITCH_HIGH:
+        scoring = "high-scoring"
+    elif runs_index <= PITCH_LOW:
+        scoring = "low-scoring"
+    else:
+        scoring = "average-scoring"
+    if wickets_index >= PITCH_HIGH:
+        wickets = "wickets fall more often than average"
+    elif wickets_index <= PITCH_LOW:
+        wickets = "wickets are harder to take than average"
+    else:
+        wickets = "wickets fall at about the average rate"
+    return scoring + ", " + wickets
+
+
+def pitch_profile(deliveries, matches, seasons=None, min_matches=1):
+    """
+    How every ground plays, from pitch_components added up over the chosen seasons
+    (None = all seasons):
+      runs_index      100 = league average runs in the same seasons
+      wickets_index   100 = league average wickets per ball
+      boundary_index  100 = league average fours and sixes per ball faced
+      dot_index       100 = league average dot balls
+    plus the average first-innings score, the chase win % and a plain-words label.
+    """
+    return profile_from_components(pitch_components(deliveries, matches), seasons, min_matches)
+
+
+def profile_from_components(parts, seasons=None, min_matches=1):
+    """pitch_profile's calculation, from pitch_components rows already made (the dashboard reuses them)."""
+    if seasons is not None:
+        parts = parts[parts["season"].isin(seasons)]
+    table = parts.groupby("venue").sum(numeric_only=True).reset_index()
+    table = table[table["matches"] >= min_matches].copy()
+    table["runs_index"] = (table["runs"] / table["exp_runs"] * 100).round(1)
+    table["wickets_index"] = (table["wickets"] / table["exp_wickets"] * 100).round(1)
+    table["boundary_index"] = (table["boundaries"] / table["exp_boundaries"] * 100).round(1)
+    table["dot_index"] = (table["dots"] / table["exp_dots"] * 100).round(1)
+    table["run_rate"] = (table["runs"] / (table["legal_balls"] / 6)).round(2)
+    table["avg_first_innings"] = (table["first_innings_runs"] / table["first_innings_count"].where(table["first_innings_count"] > 0)).round(1)
+    table["chase_win_pct"] = (table["chase_wins"] / table["chases"].where(table["chases"] > 0) * 100).round(1)
+    table["label"] = [pitch_label(r, w) for r, w in zip(table["runs_index"], table["wickets_index"])]
+    columns = ["venue", "matches", "run_rate", "runs_index", "wickets_index", "boundary_index", "dot_index",
+               "avg_first_innings", "chase_win_pct", "label"]
+    return table[columns].sort_values(["runs_index", "venue"], ascending=[False, True]).reset_index(drop=True)
+
+
+def phase_index_from_components(parts, seasons=None):
+    """Run rate and runs index (100 = league in the same seasons) per ground and phase."""
+    if seasons is not None:
+        parts = parts[parts["season"].isin(seasons)]
+    table = parts.groupby(["venue", "phase"]).sum(numeric_only=True).reset_index()
+    table["run_rate"] = (table["runs"] / (table["legal_balls"] / 6)).round(2)
+    table["runs_index"] = (table["runs"] / table["exp_runs"] * 100).round(1)
+    return table[["venue", "phase", "run_rate", "runs_index"]]
+
+
+def pitch_phase_components(deliveries, matches):
+    """Runs, legal balls and league-expected runs per ground, season and phase (for phase indexes)."""
+    df = add_venue(deliveries, matches)
+    league = df.groupby(["season", "phase"]).agg(runs=("total_runs", "sum"), legal_balls=("is_legal_ball", "sum")).reset_index()
+    league["runs_per_ball"] = league["runs"] / league["legal_balls"]
+    parts = df.groupby(["venue", "season", "phase"]).agg(runs=("total_runs", "sum"), legal_balls=("is_legal_ball", "sum")).reset_index()
+    parts = parts.merge(league[["season", "phase", "runs_per_ball"]], on=["season", "phase"])
+    parts["exp_runs"] = parts["legal_balls"] * parts["runs_per_ball"]
+    return parts[["venue", "season", "phase", "runs", "legal_balls", "exp_runs"]]
+
+
+def pitch_dismissal_mix(deliveries, matches, venue, seasons=None):
+    """
+    How batters got out at a ground (% of dismissals) next to the league in the same seasons.
+    For example, a high share of bowled and lbw can mean the ball keeps low or skids on,
+    but it can also be the bowlers who played there, so it is shown as numbers, not a verdict.
+    """
+    df = add_venue(deliveries, matches)
+    outs = df[df["is_wicket"]]
+    here = outs[outs["venue"] == venue]
+    if seasons is None:
+        seasons = sorted(here["season"].unique())
+    here = here[here["season"].isin(seasons)]
+    league = outs[outs["season"].isin(seasons)]
+    table = pd.DataFrame({"here": here["dismissal_kind"].value_counts(), "league": league["dismissal_kind"].value_counts()}).fillna(0)
+    table["here_pct"] = (table["here"] / table["here"].sum() * 100).round(1)
+    table["league_pct"] = (table["league"] / table["league"].sum() * 100).round(1)
+    table = table.reset_index().rename(columns={"index": "dismissal_kind", "dismissal_kind": "dismissal_kind"})
+    table.columns = ["dismissal_kind", "here", "league", "here_pct", "league_pct"]
+    return table.sort_values(["here", "dismissal_kind"], ascending=[False, True]).reset_index(drop=True)
+
+
+def same_season_split(here_rows, season_totals, keys, count_columns):
+    """
+    Compare a player at one ground with HIMSELF at all other grounds in the SAME seasons.
+    here_rows     : counts per (player, venue, season)
+    season_totals : counts per (player, season) at all grounds
+    For each season he played at the ground: elsewhere = season total - here.
+    Then everything is added up per (player, venue).
+    """
+    merged = here_rows.merge(season_totals, on=[keys[0], "season"], suffixes=("", "_total"))
+    for column in count_columns:
+        merged["else_" + column] = merged[column + "_total"] - merged[column]
+    keep = list(keys) + count_columns + ["else_" + column for column in count_columns]
+    return merged[keep].groupby(list(keys)).sum().reset_index()
+
+
+def player_ground_batting(deliveries, matches):
+    """
+    Every batter at every ground: here vs other grounds in the same seasons.
+      balls (faced), runs, outs, fours, sixes, dots (balls faced with no run off the bat)
+    and innings at the ground. Strike rate and average are worked out from these counts.
+    """
+    df = add_venue(deliveries, matches)
+    faced = df[df["is_ball_faced"]].copy()
+    faced["is_bat_dot"] = faced["batsman_runs"] == 0
+    here = faced.groupby(["batter", "venue", "season"]).agg(
+        balls=("batsman_runs", "size"), runs=("batsman_runs", "sum"), fours=("is_four", "sum"),
+        sixes=("is_six", "sum"), dots=("is_bat_dot", "sum")).reset_index()
+    outs = df[df["is_wicket"]].groupby(["player_dismissed", "venue", "season"]).size().reset_index(name="outs")
+    outs = outs.rename(columns={"player_dismissed": "batter"})
+    here = here.merge(outs, on=["batter", "venue", "season"], how="left")
+    here["outs"] = here["outs"].fillna(0).astype(int)
+    count_columns = ["balls", "runs", "outs", "fours", "sixes", "dots"]
+    totals = here.groupby(["batter", "season"])[count_columns].sum().reset_index()
+    table = same_season_split(here, totals, ["batter", "venue"], count_columns)
+    innings = faced.groupby(["batter", "venue"])["match_id"].nunique().reset_index(name="innings")
+    table = table.merge(innings, on=["batter", "venue"])
+    table["strike_rate"] = (table["runs"] / table["balls"] * 100).round(1)
+    table["else_strike_rate"] = (table["else_runs"] / table["else_balls"].where(table["else_balls"] > 0) * 100).round(1)
+    table["strike_rate_diff"] = (table["strike_rate"] - table["else_strike_rate"]).round(1)
+    table["average"] = (table["runs"] / table["outs"].where(table["outs"] > 0)).round(1)
+    table["else_average"] = (table["else_runs"] / table["else_outs"].where(table["else_outs"] > 0)).round(1)
+    return table
+
+
+def player_ground_bowling(deliveries, matches):
+    """
+    Every bowler at every ground: here vs other grounds in the same seasons.
+      legal_balls, runs (conceded: bat runs + wides + no-balls), wickets (bowler's), dots
+    Economy and balls per wicket are worked out from these counts.
+    """
+    df = add_venue(deliveries, matches)
+    here = df.groupby(["bowler", "venue", "season"]).agg(
+        legal_balls=("is_legal_ball", "sum"), runs=("runs_conceded", "sum"),
+        wickets=("is_bowler_wicket", "sum"), dots=("is_dot_ball", "sum")).reset_index()
+    count_columns = ["legal_balls", "runs", "wickets", "dots"]
+    totals = here.groupby(["bowler", "season"])[count_columns].sum().reset_index()
+    table = same_season_split(here, totals, ["bowler", "venue"], count_columns)
+    games = df.groupby(["bowler", "venue"])["match_id"].nunique().reset_index(name="matches")
+    table = table.merge(games, on=["bowler", "venue"])
+    table["economy"] = (table["runs"] / (table["legal_balls"] / 6)).round(2)
+    table["else_economy"] = (table["else_runs"] / (table["else_legal_balls"].where(table["else_legal_balls"] > 0) / 6)).round(2)
+    table["economy_diff"] = (table["economy"] - table["else_economy"]).round(2)
+    return table
+
+
+def fielding_events(deliveries):
+    """
+    Every fielding dismissal, credited to the fielder (one row per fielder):
+      catch     : "caught" (the named fielder) and "caught and bowled" (the bowler)
+      run out   : every fielder named on the run out
+      stumping  : the wicket-keeper named
+    Substitute fielders ("(sub)") are left out: they were not in the playing XI.
+    The data records only dismissals, not dropped catches or runs saved.
+    """
+    df = remove_super_overs(deliveries)
+    rows = []
+    for i in df.index[df["dismissal_kind"].isin(["caught", "caught and bowled", "run out", "stumped"])]:
+        kind = df.at[i, "dismissal_kind"]
+        if kind == "caught and bowled":
+            rows.append([df.at[i, "match_id"], df.at[i, "season"], df.at[i, "bowler"], "catch"])
+            continue
+        fielders = df.at[i, "fielder"]
+        if not isinstance(fielders, str):
+            continue
+        for name in fielders.split(", "):
+            if name.endswith("(sub)"):
+                continue
+            event = "catch" if kind == "caught" else ("run_out" if kind == "run out" else "stumping")
+            rows.append([df.at[i, "match_id"], df.at[i, "season"], name, event])
+    return pd.DataFrame(rows, columns=["match_id", "season", "player", "event"])
+
+
+def player_ground_fielding(deliveries, matches):
+    """
+    Every fielder at every ground: catches, run outs and stumpings, and the matches
+    he played there, against other grounds in the same seasons (per match).
+    A player "played" a match if he batted, bowled or took a fielding dismissal in it.
+    """
+    events = fielding_events(deliveries).merge(matches[["match_id", "venue"]], on="match_id")
+    df = remove_super_overs(deliveries).merge(matches[["match_id", "venue"]], on="match_id")
+    played = pd.concat([df[["match_id", "season", "venue", "batter"]].rename(columns={"batter": "player"}),
+                        df[["match_id", "season", "venue", "non_striker"]].rename(columns={"non_striker": "player"}),
+                        df[["match_id", "season", "venue", "bowler"]].rename(columns={"bowler": "player"}),
+                        events[["match_id", "season", "venue", "player"]]]).drop_duplicates()
+    here = played.groupby(["player", "venue", "season"])["match_id"].nunique().reset_index(name="matches")
+    for event in ["catch", "run_out", "stumping"]:
+        counts = events[events["event"] == event].groupby(["player", "venue", "season"]).size().reset_index(name=event + "es" if event == "catch" else event + "s")
+        here = here.merge(counts, on=["player", "venue", "season"], how="left")
+    count_columns = ["matches", "catches", "run_outs", "stumpings"]
+    for column in count_columns:
+        here[column] = here[column].fillna(0).astype(int)
+    totals = here.groupby(["player", "season"])[count_columns].sum().reset_index()
+    table = same_season_split(here, totals, ["player", "venue"], count_columns)
+    table["dismissals_per_match"] = ((table["catches"] + table["run_outs"] + table["stumpings"]) / table["matches"]).round(2)
+    table["else_dismissals_per_match"] = ((table["else_catches"] + table["else_run_outs"] + table["else_stumpings"])
+                                          / table["else_matches"].where(table["else_matches"] > 0)).round(2)
+    return table
+
+
+def best_ground_fits(batting, bowling, venue, min_balls=120, n=5):
+    """
+    Players who do much better at this ground than at other grounds in the same seasons
+    (at least min_balls here AND elsewhere, so a short hot streak does not count):
+      batters: the biggest strike-rate gain;  bowlers: the biggest economy drop.
+    """
+    bat = batting[(batting["venue"] == venue) & (batting["balls"] >= min_balls) & (batting["else_balls"] >= min_balls)]
+    bat = bat.sort_values(["strike_rate_diff", "batter"], ascending=[False, True]).head(n)
+    bowl = bowling[(bowling["venue"] == venue) & (bowling["legal_balls"] >= min_balls) & (bowling["else_legal_balls"] >= min_balls)]
+    bowl = bowl.sort_values(["economy_diff", "bowler"], ascending=[True, True]).head(n)
+    return (bat[["batter", "balls", "runs", "strike_rate", "else_strike_rate", "strike_rate_diff"]].reset_index(drop=True),
+            bowl[["bowler", "legal_balls", "wickets", "economy", "else_economy", "economy_diff"]].reset_index(drop=True))

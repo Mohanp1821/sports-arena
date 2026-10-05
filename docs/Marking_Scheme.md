@@ -11,7 +11,7 @@ open-source libraries, documentation, containerisation)
 | 2 | Repository & commit discipline | 3 | GitHub history, feature branches (incl. `feature/ipl-2008-2026`), tags `v1.0`-`v1.2`, `git_commands.sh` |
 | 3 | Architecture design (containerisation) | 4 | `Dockerfile`, `docker-compose.yml` (2 services + optional `llm` profile), `docs/Code_Explanation.md` §14 |
 | 4 | Progress demonstrated (live demo) | 3 | `./run_all.sh`, `docker compose up`, `outputs/index.html`, `outputs/match_centre.html` |
-| 5 | Q&A | 2 | `docs/Viva_QA.md` (40 questions with answers) |
+| 5 | Q&A | 2 | `docs/Viva_QA.md` (44 questions with answers) |
 | | **Total** | **15** | |
 
 ---
@@ -35,7 +35,7 @@ Answering these needs every ball, cleaned so names and teams agree across 19 sea
 | In scope | Out of scope |
 |---|---|
 | IPL 2008-2026, every ball | Seasons after 2026; live data |
-| Cleaning layer, cricket metrics, 35 charts, offline dashboard with drop-downs, match centre | Pace vs spin splits (no bowling styles in the data) |
+| Cleaning layer, cricket metrics, 37 charts, offline dashboard with drop-downs, match centre | Pace vs spin splits (no bowling styles in the data) |
 | 2027 champion and award predictions, backtest, honest limits | Auctions, injuries (users can edit `data/squads_2027.csv`) |
 | Offline chatbot + optional local open-weights LLM | Paid / cloud AI APIs |
 | Terminal, Docker and Colab ways to run | A hosted website |
@@ -86,7 +86,7 @@ Answering these needs every ball, cleaned so names and teams agree across 19 sea
 About 6 minutes:
 
 ```bash
-./run_all.sh                       # 8 steps, about 1 minute, ends with "All 21 chatbot checks passed"
+./run_all.sh                       # 8 steps, about 1 minute, ends with "All 24 chatbot checks passed"
 open outputs/index.html            # the dashboard (works offline)
 git log --oneline --graph --all    # the history
 colima start && docker compose up --build    # the containerised version, then http://localhost:8080
@@ -100,7 +100,8 @@ Points to say:
 - "Steps 5-6: both models favour RCB for 2027 (22.5% and 20.7%). The backtest shows neither beats a coin flip's log loss
   before a season starts; we report that honestly."
 - **Demo clicks:** Rivalries → CSK v MI → click a date in "Last 5 meetings" to open the match centre;
-  Matchups → V Kohli v JJ Bumrah; Grounds → Chepauk; Trends → points table 2026 and the chase calculator;
+  Matchups → V Kohli v JJ Bumrah; Grounds → Chepauk; Pitch & player fit → Chepauk, then type "V Kohli" and click
+  M Chinnaswamy Stadium in his "best grounds" chart; Trends → points table 2026 and the chase calculator;
   Ask Sports Arena → "Who won the Orange Cap in 2016?", "Kohli vs Bumrah", "Who will win IPL 2027?".
 
 Backup: the Colab notebook (badge in `README.md`).
@@ -109,5 +110,5 @@ Backup: the Colab notebook (badge in `README.md`).
 
 ## 5. Q&A (2 marks)
 
-`docs/Viva_QA.md`: 40 questions on reproducibility, the merge and name map, cricket formulas, both models, the backtest,
+`docs/Viva_QA.md`: 44 questions on reproducibility, the merge and name map, cricket formulas, both models, the backtest,
 the dashboard, the chatbot, Git, Docker and licences. `docs/Code_Explanation.md` explains every file in plain language.

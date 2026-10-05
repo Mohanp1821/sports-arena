@@ -615,6 +615,52 @@ def plot_impact_scores(deliveries, season, n=10):
     save_chart(fig, "impact_scores_" + str(season) + ".png")
 
 
+def plot_ground_map(deliveries, matches, min_matches=20):
+    """
+    How each ground plays: runs index (x) against wickets index (y), both 100 = league
+    average in the same seasons. The dashed lines at 100 split the chart into four kinds of ground.
+    """
+    table = metrics.pitch_profile(deliveries, matches, min_matches=min_matches)
+    fig, ax = plt.subplots(figsize=(12, 8))
+    ax.scatter(table["runs_index"], table["wickets_index"], s=table["matches"] * 3, color=BLUE, alpha=0.7,
+               edgecolor="white", linewidth=1)
+    for i in range(len(table)):
+        row = table.iloc[i]
+        ax.annotate(row["venue"].split(",")[0] + " (" + str(row["matches"]) + ")", (row["runs_index"], row["wickets_index"]),
+                    xytext=(6, 4), textcoords="offset points", fontsize=9)
+    ax.axvline(100, color=GREY, linestyle="--")
+    ax.axhline(100, color=GREY, linestyle="--")
+    ax.text(0.98, 0.98, "More runs, more wickets", transform=ax.transAxes, ha="right", va="top", fontsize=11, weight="bold")
+    ax.text(0.98, 0.02, "Batting paradise", transform=ax.transAxes, ha="right", va="bottom", fontsize=11, weight="bold")
+    ax.text(0.02, 0.98, "Bowler-friendly", transform=ax.transAxes, ha="left", va="top", fontsize=11, weight="bold")
+    ax.text(0.02, 0.02, "Slow, low-risk", transform=ax.transAxes, ha="left", va="bottom", fontsize=11, weight="bold")
+    ax.set_title("How each ground plays, " + metrics.season_range_text(matches) + " (min " + str(min_matches)
+                 + " matches; dot size = matches)")
+    ax.set_xlabel("Runs index (100 = league average in the same seasons)")
+    ax.set_ylabel("Wickets index (100 = league average in the same seasons)")
+    save_chart(fig, "ground_map.png")
+
+
+def plot_player_ground_fit(deliveries, matches, player, min_balls=150):
+    """A batter's strike rate at each ground minus his strike rate elsewhere in the same seasons."""
+    table = metrics.player_ground_batting(deliveries, matches)
+    table = table[(table["batter"] == player) & (table["balls"] >= min_balls)].sort_values("strike_rate_diff")
+    colours = [ORANGE if value >= 0 else BLUE for value in table["strike_rate_diff"]]
+    fig, ax = plt.subplots(figsize=(11, 6))
+    ax.barh(table["venue"].str.split(",").str[0], table["strike_rate_diff"], color=colours)
+    for i in range(len(table)):
+        row = table.iloc[i]
+        ax.text(row["strike_rate_diff"], i, " " + str(row["strike_rate"]) + " vs " + str(row["else_strike_rate"])
+                + " (" + str(row["balls"]) + " balls) ", va="center", ha="left" if row["strike_rate_diff"] >= 0 else "right", fontsize=9)
+    ax.axvline(0, color=GREY, linewidth=1)
+    limit = table["strike_rate_diff"].abs().max() * 1.9
+    ax.set_xlim(-limit, limit)
+    ax.set_title(player + ": strike rate at each ground minus elsewhere in the same seasons (min " + str(min_balls) + " balls)")
+    ax.set_xlabel("Strike-rate difference (orange = faster at this ground)")
+    ax.set_ylabel("Ground")
+    save_chart(fig, "player_ground_fit_" + safe_file_name(player) + ".png")
+
+
 # ---------------------------------------------------------------------------
 # Main: run everything in order
 # ---------------------------------------------------------------------------
@@ -699,6 +745,8 @@ def main():
     plot_impact_choices(impact, deliveries, matches)
     plot_scoring_inflation(deliveries, matches)
     plot_impact_scores(deliveries, latest_season)
+    plot_ground_map(deliveries, matches)
+    plot_player_ground_fit(deliveries, matches, MATCHUP_BATTER)
 
     print("\nFitting the chase win-probability model (logistic regression) ...")
     model = metrics.win_probability_model(metrics.chase_states(deliveries, matches))

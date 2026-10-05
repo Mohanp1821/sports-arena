@@ -82,6 +82,25 @@ For every ball of every normal chase we know the runs needed, balls left and wic
 won. Logistic regression learns how these turn into a chance. Example: 60 needed off 60 balls is about 86% with
 7 wickets left. The dashboard calculator uses the same learned weights.
 
+**Q17a. How do you describe "how a pitch plays" without pitch reports?**
+The data has no pitch reports or ball-tracking, so we measure what happened at each ground: runs, wickets, fours and sixes,
+and dot balls, each divided by what the league average would give from the same number of balls **in the same seasons**
+(index 100 = average). Chepauk has a runs index of 96 and 10.6% fewer boundaries than the league; Chinnaswamy 104.7.
+We say clearly that this mixes the pitch with boundary size, outfield and weather.
+
+**Q17b. Why compare with the same seasons?**
+Scoring has inflated (first-innings average 161.9 in 2008, 195.1 in 2026). A ground used mostly in recent seasons would
+look like a "batting pitch" just because of the era. Comparing each season with that season's league average removes this.
+
+**Q17c. How do you measure how a ground suits a particular player?**
+We compare the player with **himself at other grounds in the same seasons**: Kohli strikes at 145.1 at Chinnaswamy vs 133.7
+elsewhere in those seasons (+11.4), but 110.4 at Chepauk vs 136.1 (−25.7). Bowlers use economy, fielders catches, run outs
+and stumpings per match. The page warns when there are fewer than 60 balls (or 5 matches) at the ground.
+
+**Q17d. What are the limits of the fielding numbers?**
+Ball-by-ball data only records dismissals (catches, run outs, stumpings), not dropped catches, misfields or runs saved, and a
+match only counts if the player batted, bowled or took a dismissal in it.
+
 **Q17. Why are pace vs spin splits missing?**
 The data does not record bowling styles. Guessing them would break the rule that every number is calculated from the
 data, so we left them out and said so.
@@ -156,7 +175,7 @@ ambiguous ("Sharma") it asks which one; if the question is out of scope it says 
 
 **Q32. How do you stop the chatbot inventing numbers?**
 It has no numbers of its own: every number comes from `outputs/chat_facts.json`, which Python calculated from the data.
-`tests/test_chatbot.js` checks 21 questions against the expected facts (e.g. 2016 Orange Cap = V Kohli, 973) and that
+`tests/test_chatbot.js` checks 24 questions against the expected facts (e.g. 2016 Orange Cap = V Kohli, 973) and that
 every numeric answer names its source.
 
 **Q33. What does the optional local-LLM mode add, and what is RAG?**

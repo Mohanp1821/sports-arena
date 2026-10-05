@@ -126,14 +126,31 @@ map, the Impact Player list, the source page and the original Kaggle files.
 | Chase win probability | `chase_states`, `win_probability_model` | Before every chase ball: runs needed, balls left, wickets left (and required rate) → **logistic regression** learns the chance the chasing team wins (about 140,000 situations) |
 | Season impact score | `season_impact_scores` | Runs × (season run rate ÷ phase run rate) + wickets × (runs per wicket in that phase); the weights come from each season's own data |
 
+### Pitch and player fit (how a ground plays, and how it suits a player)
+The data has **no pitch reports** (grass, cracks, soil) and no ball-tracking, so a ground's "pitch behaviour" is measured
+from what happened there, always **compared with the league in the same seasons** (so the 2026 scoring boom does not make
+grounds used recently look flatter):
+
+| Function | How it is calculated |
+|---|---|
+| `pitch_components` | Per ground and season: runs, wickets, boundaries, dot balls, and what the league average would expect from the same number of balls that season (e.g. expected runs = legal balls × league runs per ball) |
+| `pitch_profile` / `profile_from_components` | Add the seasons you choose, then **index = actual ÷ expected × 100** (100 = average, 110 = 10% more). Label: 105+ = high-scoring, 95 or less = low-scoring (`PITCH_HIGH`, `PITCH_LOW`) |
+| `phase_index_from_components` | The same runs index for the Powerplay, Middle and Death overs (Chepauk's Middle overs: 93.3) |
+| `pitch_dismissal_mix` | % of each way of getting out at the ground vs the league (a clue, e.g. bowled/lbw, not a verdict) |
+| `player_ground_batting` / `_bowling` | A player at a ground vs **the same player at other grounds in the same seasons** (`same_season_split`): elsewhere = his season total − here, added over the seasons he played at the ground. This compares him with himself, in the same years, so his age and the era cancel out |
+| `fielding_events`, `player_ground_fielding` | Catches (caught and bowled → the bowler), run outs (every named fielder), stumpings; substitutes left out; per match here vs elsewhere. No drops or runs saved are recorded |
+| `best_ground_fits` | Players with the biggest strike-rate gain / economy drop at a ground (min 120 balls here and elsewhere) |
+
+Checks: the whole league's index is exactly 100 every season; here + elsewhere balls = all the player's balls in those seasons.
+
 **Pace vs spin** splits were left out: the data has no bowling styles, and guessing them would break the rule
 "every number comes from the data".
 
-## 9. `analysis.py`: the charts (35 PNG files)
+## 9. `analysis.py`: the charts (37 PNG files)
 
 Earlier charts: form, careers, team win %, phase run rate, bat first vs chase, first-innings trend, home vs away,
 head to head, caps, top 10s, quadrant, death-over specialists, Player of the Match, heatmap.
-Phase 2 adds: rivalry (CSK v MI), Kohli vs the bowlers he faced most, Chepauk profile, home fortress, finishers,
+Phase 2 adds: the ground map (runs index vs wickets index) and Kohli's strike rate at each ground vs elsewhere, rivalry (CSK v MI), Kohli vs the bowlers he faced most, Chepauk profile, home fortress, finishers,
 partnerships, Impact Player era, Impact Player choices, scoring inflation, chase win probability, impact scores.
 Rules: a title, axis labels, a legend when there are 2+ series, **no dual y-axes** (two panels instead), and the
 colour-blind-safe colours BLUE, ORANGE and AQUA.
@@ -247,7 +264,7 @@ with the model name and the number of facts used. The page uses it when `GET /he
 otherwise it stays offline. Nothing is sent to the internet.
 
 ### Tests (`tests/test_chatbot.js`)
-21 question → expected-answer checks run with Node.js, e.g. "Who won the Orange Cap in 2016?" must contain "V Kohli" and
+24 question → expected-answer checks run with Node.js, e.g. "Who won the Orange Cap in 2016?" must contain "V Kohli" and
 "973", and every numeric answer must name its source.
 
 ---

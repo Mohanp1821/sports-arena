@@ -340,7 +340,12 @@ def test_dashboard_analyst_data(matches, deliveries, impact):
     key = str(min(csk, mi)) + "|" + str(max(csk, mi))
     assert data["rivalry"][key]["overall"][0] == len(metrics.rivalry_matches(matches, "Chennai Super Kings", "Mumbai Indians"))
     assert len(data["points"]) == 19
-    print("PASS  dashboard analyst data matches metrics.py (Kohli v Bumrah, CSK v MI, 19 points tables)")
+    # Pitch view: the page's Chepauk row (all seasons) must equal metrics.pitch_profile.
+    chepauk = data["venues"].index("MA Chidambaram Stadium, Chepauk")
+    page_row = [r for r in data["pitch"]["all"] if r[0] == chepauk][0]
+    profile = metrics.pitch_profile(deliveries, matches)
+    assert page_row[3] == profile[profile["venue"] == "MA Chidambaram Stadium, Chepauk"]["runs_index"].iloc[0]
+    print("PASS  dashboard analyst data matches metrics.py (Kohli v Bumrah, CSK v MI, 19 points tables, Chepauk pitch)")
 
 
 def test_model_b(matches, deliveries, impact):
@@ -367,6 +372,46 @@ def test_model_b(matches, deliveries, impact):
     print("PASS  Model B: fair chances, 10 squads, training and features use only earlier seasons")
 
 
+def test_pitch_and_fit(matches, deliveries):
+    """Pitch indexes, the here-vs-elsewhere split and fielding credits."""
+    import pandas as pd
+
+    # Indexes compare with the league in the same seasons, so the whole league is exactly 100 every season.
+    parts = metrics.pitch_components(deliveries, matches)
+    by_season = parts.groupby("season")[["runs", "exp_runs", "wickets", "exp_wickets"]].sum()
+    assert ((by_season["runs"] / by_season["exp_runs"] - 1).abs() < 1e-9).all(), "league runs index must be 100"
+    assert ((by_season["wickets"] / by_season["exp_wickets"] - 1).abs() < 1e-9).all(), "league wickets index must be 100"
+
+    # One ground worked out directly: runs index = runs / expected runs x 100.
+    chepauk = parts[parts["venue"] == "MA Chidambaram Stadium, Chepauk"]
+    expected = round(chepauk["runs"].sum() / chepauk["exp_runs"].sum() * 100, 1)
+    profile = metrics.profile_from_components(parts)
+    assert profile[profile["venue"] == "MA Chidambaram Stadium, Chepauk"]["runs_index"].iloc[0] == expected
+    assert metrics.pitch_label(106, 100).startswith("high-scoring")
+    assert metrics.pitch_label(95, 90).startswith("low-scoring")
+
+    # Here + elsewhere = all of the player's balls in the seasons he played at that ground.
+    batting = metrics.player_ground_batting(deliveries, matches)
+    row = batting[(batting["batter"] == "V Kohli") & (batting["venue"] == "M Chinnaswamy Stadium")].iloc[0]
+    balls = metrics.add_venue(deliveries, matches)
+    kohli = balls[(balls["batter"] == "V Kohli") & balls["is_ball_faced"]]
+    seasons_here = kohli[kohli["venue"] == "M Chinnaswamy Stadium"]["season"].unique()
+    assert row["balls"] + row["else_balls"] == len(kohli[kohli["season"].isin(seasons_here)])
+
+    # Fielding on a hand-made example: a catch by a substitute is not credited; caught and
+    # bowled goes to the bowler; a run out naming two fielders credits both.
+    tiny = pd.DataFrame({
+        "match_id": [1, 1, 1], "season": [2026] * 3, "inning": [1] * 3, "over": [1, 1, 1], "ball": [1, 2, 3],
+        "batter": ["A", "B", "C"], "bowler": ["X", "X", "X"], "is_super_over": [0] * 3,
+        "player_dismissed": ["A", "B", "C"], "dismissal_kind": ["caught", "caught and bowled", "run out"],
+        "fielder": ["S (sub)", None, "Y, Z"]})
+    events = metrics.fielding_events(tiny)
+    assert len(events) == 3 and list(events["player"]) == ["X", "Y", "Z"]
+    assert list(events["event"]) == ["catch", "run_out", "run_out"]
+    print("PASS  pitch and player fit: league index = 100 each season, Chepauk index, label rules, "
+          "here + elsewhere = all balls (Kohli at Chinnaswamy), fielding credits")
+
+
 def main():
     matches, deliveries = metrics.load_processed_data()
     impact = metrics.load_impact_players()
@@ -384,6 +429,7 @@ def main():
     test_analyst_views(matches, deliveries, impact)
     test_dashboard_analyst_data(matches, deliveries, impact)
     test_model_b(matches, deliveries, impact)
+    test_pitch_and_fit(matches, deliveries)
     print("\nAll fact checks passed.")
 
 

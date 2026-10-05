@@ -269,6 +269,51 @@ def matchup_facts(deliveries, names):
     return rows
 
 
+FIT_MIN_BALLS = 30   # player-at-ground records with fewer balls are too small to quote
+
+
+def pitch_facts(matches, deliveries):
+    """
+    How each ground plays (all seasons, and the Impact Player era 2023+):
+    {venue: [matches, run rate, runs index, wickets index, boundary index, dot index,
+             avg first innings, chase win %, label]}   (indexes: 100 = league in the same seasons)
+    """
+    parts = metrics.pitch_components(deliveries, matches)
+    seasons = sorted(matches["season"].unique())
+    result = {}
+    for key, chosen in [("all", None), ("recent", [season for season in seasons if season >= 2023])]:
+        profile = metrics.profile_from_components(parts, chosen)
+        result[key] = {}
+        for i in range(len(profile)):
+            row = profile.iloc[i]
+            result[key][row["venue"]] = [clean(row[column]) for column in
+                                         ["matches", "run_rate", "runs_index", "wickets_index", "boundary_index",
+                                          "dot_index", "avg_first_innings", "chase_win_pct", "label"]]
+    return result
+
+
+def fit_facts(matches, deliveries):
+    """
+    Each player at each ground vs other grounds in the same seasons (at least FIT_MIN_BALLS here):
+      bat  "player|venue": [balls, runs, outs, else balls, else runs, else outs]
+      bowl "player|venue": [legal balls, runs, wickets, else legal balls, else runs, else wickets]
+    """
+    batting = metrics.player_ground_batting(deliveries, matches)
+    bowling = metrics.player_ground_bowling(deliveries, matches)
+    bat = {}
+    for i in range(len(batting)):
+        row = batting.iloc[i]
+        if row["balls"] >= FIT_MIN_BALLS:
+            bat[row["batter"] + "|" + row["venue"]] = [clean(row[c]) for c in ["balls", "runs", "outs", "else_balls", "else_runs", "else_outs"]]
+    bowl = {}
+    for i in range(len(bowling)):
+        row = bowling.iloc[i]
+        if row["legal_balls"] >= FIT_MIN_BALLS:
+            bowl[row["bowler"] + "|" + row["venue"]] = [clean(row[c]) for c in ["legal_balls", "runs", "wickets", "else_legal_balls",
+                                                                                 "else_runs", "else_wickets"]]
+    return {"bat": bat, "bowl": bowl}
+
+
 def impact_facts(matches, deliveries, impact):
     """The Impact Player era comparison and how teams used the substitute."""
     summary = metrics.impact_era_summary(deliveries, matches)
@@ -359,6 +404,24 @@ def fact_lines(facts):
         if row[0] >= 5:
             lines.append(team + " at " + venue + ": won " + str(row[1]) + " of " + str(row[0]) + " matches ("
                          + str(round(row[1] / row[0] * 100, 1)) + "%), " + str(row[2]) + "-" + str(row[3]) + ".")
+    for venue, p in sorted(facts["pitch"]["all"].items()):
+        if p[0] >= 5:
+            lines.append("How " + venue + " plays (pitch and conditions, " + facts["meta"]["season_range"] + ", " + str(p[0])
+                         + " matches): " + p[8] + "; runs index " + str(p[2]) + ", wickets index " + str(p[3])
+                         + ", boundary index " + str(p[4]) + " (100 = league average in the same seasons); run rate "
+                         + str(p[1]) + ", average first innings " + str(p[6]) + ", chasing side won " + str(p[7]) + "%.")
+    for key, row in sorted(facts["fit"]["bat"].items()):
+        player, venue = key.split("|")
+        if row[0] >= 120 and row[3] > 0:
+            lines.append(player + " batting at " + venue + ": strike rate " + str(round(row[1] / row[0] * 100, 1)) + " ("
+                         + str(row[1]) + " runs off " + str(row[0]) + " balls) vs " + str(round(row[4] / row[3] * 100, 1))
+                         + " at other grounds in the same seasons.")
+    for key, row in sorted(facts["fit"]["bowl"].items()):
+        player, venue = key.split("|")
+        if row[0] >= 120 and row[3] > 0:
+            lines.append(player + " bowling at " + venue + ": economy " + str(round(row[1] / (row[0] / 6), 2)) + ", "
+                         + str(row[2]) + " wickets in " + overs(row[0]) + " overs, vs economy "
+                         + str(round(row[4] / (row[3] / 6), 2)) + " at other grounds in the same seasons.")
     for era in facts["impact"]["eras"]:
         lines.append("Impact Player comparison, " + era[0] + ": average first-innings score " + str(era[2]) + ", "
                      + str(era[3]) + " totals of 200+ (" + str(era[4]) + " per match), chases won " + str(era[5]) + "%.")
@@ -416,6 +479,7 @@ def build_facts(matches, deliveries, impact):
         "players": players, "names": sorted(players), "matchups": matchup_facts(deliveries, sorted(players)),
         "champions": champions, "caps": caps, "rivalry": rivalry, "ground": ground,
         "matches": match_list, "impact": impact_facts(matches, deliveries, impact),
+        "pitch": pitch_facts(matches, deliveries), "fit": fit_facts(matches, deliveries),
         "predictions": prediction_facts(next_season),
     }
     lines = fact_lines(facts)

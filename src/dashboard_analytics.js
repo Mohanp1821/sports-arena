@@ -10,6 +10,8 @@
 //   5. Impact Player era     (2020-22 vs 2023-26, each team's choices)
 //   6. Trends                (scoring inflation, points tables, chase
 //                             win-probability calculator, impact scores)
+//   7. Pitch and player fit  (how a ground plays; how it suits a batter,
+//                             bowler or fielder compared with other grounds)
 //
 // How it works: build_report.py puts the tables calculated by
 // src/dashboard_data.py into the page as JSON (<script id="analyst-data">).
@@ -454,6 +456,213 @@ function setupTrends() {
 
 
 // ---------------------------------------------------------------------------
+// 7. Pitch and player fit
+// ---------------------------------------------------------------------------
+// The data has no pitch reports, so "how the pitch plays" = how the ground has
+// played: runs, wickets, boundaries and dot balls compared with the league in
+// the SAME seasons (index 100 = average). Python worked out every index.
+
+// A bar that grows left (below 100) or right (above 100) from the middle.
+// higherIsGood decides the colour: e.g. more runs is good for batters.
+function indexBar(label, value, note) {
+    if (value === null || value === undefined) {
+        return "<div class='bar-row index-row'><span class='bar-label'>" + safe(label) + "</span><span class='note'>not enough data</span><span></span></div>";
+    }
+    const difference = Math.max(-40, Math.min(40, value - 100));      // keep the bar inside the box
+    const width = Math.abs(difference) / 40 * 50;                      // 50% = the half-width of the track
+    const left = difference >= 0 ? 50 : 50 - width;
+    return "<div class='bar-row index-row'><span class='bar-label'>" + safe(label) + "</span>"
+         + "<span class='bar-track' style='position:relative'><span style='position:absolute;left:50%;top:0;bottom:0;width:1px;background:#888'></span>"
+         + "<span class='bar-fill' style='position:absolute;left:" + left + "%;width:" + width + "%;background:"
+         + (difference >= 0 ? "#eb6834" : "#2a78d6") + "'></span></span>"
+         + "<span class='bar-value'>" + value + (note ? " " + safe(note) : "") + "</span></div>";
+}
+
+function moreOrFewer(value) {
+    const difference = round(value - 100, 1);
+    if (difference === 0) { return "the same as"; }
+    return Math.abs(difference) + "% " + (difference > 0 ? "more than" : "fewer than");
+}
+
+function drawPitch() {
+    const v = Number(byId("pf-venue").value);
+    const period = byId("pf-period").value;
+    const out = byId("pf-profile");
+    // Row: [venue, matches, run rate, runs idx, wickets idx, boundary idx, dot idx, avg 1st inns, chase win %, label]
+    const p = AD.pitch[period].find(function (r) { return r[0] === v; });
+    if (!p) {
+        out.innerHTML = "<p class='note'>No IPL matches at " + safe(VENUES[v]) + " in this period. Pick another period.</p>";
+        return;
+    }
+    const periodName = byId("pf-period").selectedOptions[0].textContent;
+    let html = "<p><b>" + safe(VENUES[v]) + "</b>, " + safe(periodName) + " (" + p[1] + " matches): <b>" + safe(p[9]) + "</b>.</p>"
+        + "<div class='numbers'>" + card("run rate (runs per over)", p[2]) + card("average 1st-innings score", show(p[7]))
+        + card("chasing team won", p[8] === null ? "-" : p[8] + "%") + card("matches", p[1]) + "</div>"
+        + "<div class='two-columns'><div class='panel'><h4>Compared with the league in the same seasons (100 = average)</h4>"
+        + indexBar("Runs", p[3], "(" + moreOrFewer(p[3]) + " average)")
+        + indexBar("Wickets per ball", p[4], "(" + moreOrFewer(p[4]) + " average)")
+        + indexBar("Fours and sixes", p[5], "(" + moreOrFewer(p[5]) + " average)")
+        + indexBar("Dot balls", p[6], "(" + moreOrFewer(p[6]) + " average)")
+        + "<p class='note'>Orange = above the league, blue = below. Labels: " + AD.pitch_thresholds[0]
+        + "+ runs index = high-scoring, " + AD.pitch_thresholds[1] + " or less = low-scoring.</p></div>";
+
+    // Phases: [venue, phase, run rate, runs index]
+    const phaseRows = ["Powerplay", "Middle", "Death"].map(function (phase) {
+        const row = AD.pitch_phase[period].find(function (r) { return r[0] === v && r[1] === phase; });
+        return row ? indexBar(phase, row[3], "(" + row[2] + " runs an over)") : indexBar(phase, null, "");
+    }).join("");
+    html += "<div class='panel'><h4>Runs by phase (100 = league in the same phases and seasons)</h4>" + phaseRows
+          + "<p class='note'>A low Middle-overs index often means the ground helps spin or slower balls, "
+          + "but the data does not say why.</p></div></div>";
+
+    // Dismissals: [venue, kind, count, % here, % league]
+    // Rare kinds (under 1% here and in the league, e.g. "obstructing the field") are left out.
+    const outs = AD.pitch_outs[period].filter(function (r) { return r[0] === v && (r[3] >= 1 || r[4] >= 1); })
+        .sort(function (a, b) { return b[2] - a[2]; })
+        .map(function (r) { return [AD.pitch_out_kinds[r[1]], r[2], r[3] + "%", r[4] + "%", (r[3] - r[4] > 0 ? "+" : "") + round(r[3] - r[4], 1)]; });
+    html += "<div class='panel'><h4>How batters got out here</h4>"
+          + htmlTable(["Dismissal", "Times", "% here", "% league (same seasons)", "Difference (points)"], outs)
+          + "<p class='note'>More bowled and lbw than the league can mean the ball keeps low or skids on, but it can also "
+          + "be the bowlers who played here: read it as a clue, not a verdict.</p></div>";
+
+    // Players who do best here: [name, balls, SR here, SR elsewhere, difference] and bowlers.
+    const best = AD.fit_best[String(v)];
+    html += "<div class='two-columns'><div class='panel'><h4>Batters who score faster here (min 120 balls here and elsewhere)</h4>"
+          + htmlTable(["Batter", "Balls here", "SR here", "SR elsewhere", "Difference"], best.bat.map(function (r) {
+                return [r[0], r[1], r[2], r[3], "+" + r[4]]; }))
+          + "</div><div class='panel'><h4>Bowlers who are cheaper here (min 120 balls here and elsewhere)</h4>"
+          + htmlTable(["Bowler", "Balls here", "Econ here", "Econ elsewhere", "Difference"], best.bowl.map(function (r) {
+                return [r[0], r[1], r[2], r[3], r[4]]; }))
+          + "</div></div><p class='note'>All seasons. \"Elsewhere\" = the same player at other grounds in the same seasons.</p>";
+    out.innerHTML = html;
+    drawFit();
+}
+
+// One row of a here-vs-elsewhere table: [measure, here, elsewhere, difference].
+function compareRow(name, here, elsewhere, places) {
+    const difference = (typeof here === "number" && typeof elsewhere === "number") ? round(here - elsewhere, places) : "-";
+    return [name, here, elsewhere, typeof difference === "number" && difference > 0 ? "+" + difference : difference];
+}
+
+function ratio(top, bottom, times, places) {
+    return bottom > 0 ? round(top / bottom * times, places) : "-";
+}
+
+function sampleNote(count, minimum, unit) {
+    return count < minimum ? "<p class='note'><b>Small sample:</b> only " + count + " " + unit + " here, so treat this with care.</p>" : "";
+}
+
+function drawFit() {
+    const name = byId("pf-player").value;
+    const p = playerIndex(name);
+    const v = Number(byId("pf-venue").value);
+    const out = byId("pf-fit");
+    if (p < 0) { out.innerHTML = noPlayer(name); return; }
+    const ground = VENUES[v];
+    let html = "";
+
+    // Batting: [p, v, innings, balls, runs, outs, 4s, 6s, dots, else balls, else runs, else outs, else 4s, else 6s, else dots]
+    const bat = AD.fit_bat.find(function (r) { return r[0] === p && r[1] === v; });
+    if (bat) {
+        const srHere = ratio(bat[4], bat[3], 100, 1), srElse = ratio(bat[10], bat[9], 100, 1);
+        const rows = [compareRow("Strike rate", srHere, srElse, 1),
+                      compareRow("Average", ratio(bat[4], bat[5], 1, 1), ratio(bat[10], bat[11], 1, 1), 1),
+                      compareRow("Fours and sixes %", ratio(bat[6] + bat[7], bat[3], 100, 1), ratio(bat[12] + bat[13], bat[9], 100, 1), 1),
+                      compareRow("Dot balls %", ratio(bat[8], bat[3], 100, 1), ratio(bat[14], bat[9], 100, 1), 1),
+                      ["Balls faced", bat[3], bat[9], ""], ["Runs", bat[4], bat[10], ""]];
+        html += "<div class='panel'><h4>Batting: " + safe(name) + " at " + safe(ground) + " (" + bat[2] + " innings)</h4>"
+              + (typeof srHere === "number" && typeof srElse === "number"
+                 ? "<p>Strikes at <b>" + srHere + "</b> here vs <b>" + srElse + "</b> at other grounds in the same seasons ("
+                   + (srHere >= srElse ? "+" : "") + round(srHere - srElse, 1) + ").</p>" : "")
+              + htmlTable(["Measure", "Here", "Other grounds, same seasons", "Difference"], rows)
+              + sampleNote(bat[3], 60, "balls") + "</div>";
+    }
+    // Bowling: [p, v, matches, legal balls, runs, wickets, dots, else legal, else runs, else wickets, else dots]
+    const bowl = AD.fit_bowl.find(function (r) { return r[0] === p && r[1] === v; });
+    if (bowl) {
+        const econHere = economy(bowl[4], bowl[3]), econElse = economy(bowl[8], bowl[7]);
+        const rows = [compareRow("Economy", econHere, econElse, 2),
+                      compareRow("Balls per wicket", ratio(bowl[3], bowl[5], 1, 1), ratio(bowl[7], bowl[9], 1, 1), 1),
+                      compareRow("Dot balls %", ratio(bowl[6], bowl[3], 100, 1), ratio(bowl[10], bowl[7], 100, 1), 1),
+                      ["Overs", oversText(bowl[3]), oversText(bowl[7]), ""], ["Wickets", bowl[5], bowl[9], ""]];
+        html += "<div class='panel'><h4>Bowling: " + safe(name) + " at " + safe(ground) + " (" + bowl[2] + " matches)</h4>"
+              + (typeof econHere === "number" && typeof econElse === "number"
+                 ? "<p>Economy <b>" + econHere + "</b> here vs <b>" + econElse + "</b> elsewhere in the same seasons ("
+                   + (econHere <= econElse ? "cheaper here" : "more expensive here") + ").</p>" : "")
+              + htmlTable(["Measure", "Here", "Other grounds, same seasons", "Difference"], rows)
+              + sampleNote(bowl[3], 60, "balls") + "</div>";
+    }
+    // Fielding: [p, v, matches, catches, run outs, stumpings, else matches, else catches, else run outs, else stumpings]
+    const field = AD.fit_field.find(function (r) { return r[0] === p && r[1] === v; });
+    if (field) {
+        const rows = [compareRow("Dismissals per match", ratio(field[3] + field[4] + field[5], field[2], 1, 2),
+                                 ratio(field[7] + field[8] + field[9], field[6], 1, 2), 2),
+                      ["Catches", field[3], field[7], ""], ["Run outs", field[4], field[8], ""],
+                      ["Stumpings", field[5], field[9], ""], ["Matches", field[2], field[6], ""]];
+        html += "<div class='panel'><h4>Fielding: " + safe(name) + " at " + safe(ground) + "</h4>"
+              + htmlTable(["Measure", "Here", "Other grounds, same seasons", "Difference"], rows)
+              + "<p class='note'>The data records only dismissals (catches, run outs, stumpings), not dropped catches or "
+              + "runs saved. A match counts if he batted, bowled or took a dismissal in it.</p>"
+              + sampleNote(field[2], 5, "matches") + "</div>";
+    }
+    if (!html) {
+        html = "<p class='note'>" + safe(name) + " has no batting, bowling or fielding record at " + safe(ground)
+             + " (at least 12 balls or 2 matches) in the data.</p>";
+    }
+    out.innerHTML = html;
+    drawPlayerGrounds(p);
+}
+
+// Where does this player do best? One bar per ground (min 60 balls there), clickable.
+function drawPlayerGrounds(p) {
+    const batRows = AD.fit_bat.filter(function (r) { return r[0] === p && r[3] >= 60 && r[9] > 0; }).map(function (r) {
+        const difference = round(r[4] / r[3] * 100 - r[10] / r[9] * 100, 1);
+        return { label: VENUES[r[1]], value: Math.abs(difference), key: String(r[1]),
+                 text: (difference > 0 ? "+" : "") + difference + " strike rate (" + r[3] + " balls)", sort: difference };
+    });
+    const bowlRows = AD.fit_bowl.filter(function (r) { return r[0] === p && r[3] >= 60 && r[7] > 0; }).map(function (r) {
+        const difference = round(r[4] / (r[3] / 6) - r[8] / (r[7] / 6), 2);
+        return { label: VENUES[r[1]], value: Math.abs(difference), key: String(r[1]),
+                 text: (difference > 0 ? "+" : "") + difference + " economy (" + oversText(r[3]) + " overs)", sort: -difference };
+    });
+    function chart(title, rows) {
+        if (rows.length === 0) { return ""; }
+        rows.sort(function (a, b) { return b.sort - a.sort; });
+        const top = Math.max.apply(null, rows.map(function (r) { return r.value; }).concat([1]));
+        return "<h4>" + title + "</h4>" + htmlBars(rows, top, VENUES[Number(byId("pf-venue").value)]);
+    }
+    const html = chart("Batting: strike rate here minus elsewhere (same seasons), grounds with 60+ balls", batRows)
+               + chart("Bowling: economy here minus elsewhere (same seasons; negative = cheaper), grounds with 60+ balls", bowlRows);
+    byId("pf-grounds").innerHTML = html ? html + "<p class='note'>Click a ground to open its profile. The bar length "
+        + "shows the size of the difference; the text shows its direction (best grounds first).</p>"
+        : "<p class='note'>Not enough balls at any ground (60+) to compare.</p>";
+}
+
+function setupPitch() {
+    const counts = {};
+    AD.pitch["all"].forEach(function (r) { counts[r[0]] = r[1]; });
+    const order = VENUES.map(function (v, i) { return i; }).filter(function (i) { return counts[i]; })
+        .sort(function (a, b) { return counts[b] - counts[a]; });
+    fillSelect(byId("pf-venue"), order.map(function (i) { return [i, VENUES[i] + " (" + counts[i] + " matches)"]; }),
+               VENUES.indexOf("MA Chidambaram Stadium, Chepauk"));
+    fillSelect(byId("pf-period"), AD.pitch_periods, "all");
+    byId("pf-player").value = "MS Dhoni";
+    byId("pf-venue").addEventListener("change", drawPitch);
+    byId("pf-period").addEventListener("change", drawPitch);
+    byId("pf-player").addEventListener("change", drawFit);
+    byId("pf-grounds").addEventListener("click", function (event) {
+        const bar = event.target.closest(".bar-row.clickable");
+        if (bar) {
+            byId("pf-venue").value = bar.dataset.key;
+            drawPitch();
+            byId("pitch").scrollIntoView({ behavior: "smooth" });
+        }
+    });
+    drawPitch();
+}
+
+
+// ---------------------------------------------------------------------------
 // Start: draw every view once when the page opens.
 // ---------------------------------------------------------------------------
 addPlayerList();
@@ -463,3 +672,4 @@ setupGrounds();
 setupSpecialists();
 setupImpact();
 setupTrends();
+setupPitch();
