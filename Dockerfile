@@ -29,4 +29,5 @@ CMD python src/verify_data.py && \
     python src/predict.py && \
     python src/predict_ml.py && \
     python src/build_report.py && \
-    node tests/test_chatbot.js
+    node tests/test_chatbot.js && \
+    node tests/test_site.js

@@ -3,14 +3,17 @@ build_report.py
 ---------------
 Step 4 of the Sports Arena pipeline.
 
-Builds a simple web dashboard, outputs/index.html, that shows:
-  - headline numbers (matches, balls, seasons)
-  - key insights
-  - the Orange Cap / Purple Cap table
-  - predictions for the next season (made by predict.py)
-  - an INTERACTIVE "Explore the data" section: filter by season and team,
-    click the bars, and search any player (the code is in dashboard_explorer.js)
-  - every chart made by analysis.py
+Builds the Sports Arena site, outputs/index.html: ONE offline page with several
+views, switched by the address after "#" (the router is in src/site.js):
+  - Home (#/home): headline numbers, champion, caps, 2027 favourite, quick links
+  - Players (#/players, #/player/V Kohli): a page for every player
+  - Grounds (#/grounds, #/ground/Eden Gardens): a page for every ground
+  - Teams: the interactive explorer and the rivalry centre
+  - 2027 predictions: Model A vs Model B
+  - Ask: the "Ask Sports Arena" chatbot
+  - More analysis: matchups, pitch tool, specialists, Impact Player era, trends,
+    insights, caps and every chart made by analysis.py
+It also writes outputs/match_centre.html and outputs/chat_facts.json.
 
 Open outputs/index.html in any web browser. With Docker, the "dashboard"
 service serves it at http://localhost:8080.
@@ -31,6 +34,7 @@ OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
 EXPLORER_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_explorer.js")
 ANALYTICS_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_analytics.js")
 CHATBOT_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "chatbot.js")
+SITE_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "site.js")
 CHASE_MODEL_FILE = os.path.join(OUTPUT_FOLDER, "chase_win_probability_model.csv")   # saved by analysis.py
 DEFAULT_PLAYER = "V Kohli"   # player shown first in the player search
 
@@ -81,69 +85,157 @@ CHART_SECTIONS = {
 
 # The look of the page (CSS). Kept in one place so the Python code stays simple.
 PAGE_STYLE = """
-body { margin: 0; background: #f6f6f4; color: #1a1a1a;
-       font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.5; }
-main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 64px; }
-h1 { margin: 0; font-size: 30px; }
-h2 { margin-top: 44px; border-top: 1px solid #ddd; padding-top: 16px; }
-.subtitle { color: #555; margin-top: 4px; }
-.numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 24px; }
-.number { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 12px 16px; }
-.number b { display: block; font-size: 26px; }
-.number span { color: #555; font-size: 14px; }
+/* ---- Design tokens: every colour is a variable, so dark mode only changes these ---- */
+:root { --bg: #f5f6f3; --panel: #ffffff; --ink: #14243b; --muted: #56626f; --line: #dde2dc; --soft: #eef1ec;
+        --accent: #e8622c; --accent-ink: #ffffff; --blue: #2a78d6; --header: #14243b; --header-ink: #ffffff;
+        --chart-bar: #2a78d6; --chart-hl: #e8622c; --chart-line: #e8622c; --chart-grid: #e3e7e1;
+        --display: "Barlow Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+        --body: "Source Sans 3", -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+        --bg: #0f1a22; --panel: #16242f; --ink: #e6edf1; --muted: #9caab6; --line: #2b3c49; --soft: #1d2e3a;
+        --accent: #f0804f; --accent-ink: #0f1a22; --blue: #6aa8ee; --header: #0b141b; --header-ink: #e6edf1;
+        --chart-bar: #6aa8ee; --chart-hl: #f0804f; --chart-line: #f0804f; --chart-grid: #2b3c49; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #0f1a22; --panel: #16242f; --ink: #e6edf1; --muted: #9caab6; --line: #2b3c49; --soft: #1d2e3a;
+        --accent: #f0804f; --accent-ink: #0f1a22; --blue: #6aa8ee; --header: #0b141b; --header-ink: #e6edf1;
+        --chart-bar: #6aa8ee; --chart-hl: #f0804f; --chart-line: #f0804f; --chart-grid: #2b3c49; color-scheme: dark; }
+
+/* ---- Base ---- */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--body); }
+a { color: var(--blue); }
+main { max-width: 1160px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { margin: 0 0 6px; font: 700 clamp(28px, 4.5vw, 40px)/1.1 var(--display); letter-spacing: .2px; }
+h2 { margin: 36px 0 12px; font: 700 26px/1.2 var(--display); border-top: 1px solid var(--line); padding-top: 14px; scroll-margin-top: 120px; }
+h3 { font: 600 20px/1.2 var(--display); }
+.subtitle, .note { color: var(--muted); }
+.note { font-size: 14px; }
+[hidden] { display: none !important; }
+
+/* ---- Header: brand, nav, search, theme ---- */
+.site-header { position: sticky; top: 0; z-index: 20; background: var(--header); color: var(--header-ink); }
+.site-header .bar { max-width: 1160px; margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.brand { color: var(--header-ink); text-decoration: none; font: 700 24px/1 var(--display); white-space: nowrap; }
+.brand span { font: 400 13px var(--body); opacity: .75; margin-left: 6px; }
+.site-nav { display: flex; gap: 2px; overflow-x: auto; flex: 1 1 420px; }
+.site-nav a { color: var(--header-ink); text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 15px; white-space: nowrap; opacity: .85; }
+.site-nav a:hover { background: rgba(255,255,255,.12); opacity: 1; }
+.site-nav a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); opacity: 1; font-weight: 600; }
+#site-search { display: flex; gap: 6px; flex: 1 1 260px; max-width: 360px; }
+#site-search input { flex: 1; min-width: 0; }
+#site-search-hint { max-width: 1160px; margin: 0 auto; padding: 0 16px; font-size: 14px; }
+#site-search-hint:not(:empty) { padding: 6px 16px 8px; }
+#site-search-hint a { color: var(--header-ink); }
+#theme-toggle { background: transparent; color: var(--header-ink); border-color: rgba(255,255,255,.35); }
+
+/* ---- Building blocks ---- */
+select, input, button { font: inherit; font-size: 15px; padding: 6px 10px; border: 1px solid var(--line);
+                        border-radius: 6px; background: var(--panel); color: var(--ink); }
+button, .button { cursor: pointer; background: var(--soft); }
+.button { display: inline-block; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); color: var(--ink);
+          text-decoration: none; font-weight: 600; white-space: nowrap; }
+.button:hover { border-color: var(--accent); }
+.numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 16px; }
+.number { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.number b { display: block; font: 700 28px/1.15 var(--display); }
+.number span { color: var(--muted); font-size: 13px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin-top: 16px; min-width: 0; }
+.panel h3, .panel h4 { margin: 0 0 10px; }
+.two-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 0 16px; }
+.filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; background: var(--panel);
+           border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 12px 0 4px; }
+.filters label { display: flex; flex-direction: column; font-size: 13px; color: var(--muted); gap: 4px; }
+table { border-collapse: collapse; font-size: 14px; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; }
+.table-box { overflow-x: auto; margin-bottom: 12px; }
+td:first-child { white-space: nowrap; }
+.scroll { max-height: 360px; overflow-y: auto; }
 ul.insights li { margin-bottom: 6px; }
 .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px; }
-figure { margin: 0; background: white; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; }
+.charts.wide { grid-template-columns: 1fr; }
+figure { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 figure img { width: 100%; display: block; }
 figcaption { padding: 8px 12px; font-size: 14px; color: #333; border-top: 1px solid #eee; }
-table { border-collapse: collapse; background: white; font-size: 14px; width: 100%; }
-th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
-th { background: #eef3fb; }
-.table-box { overflow-x: auto; margin-bottom: 16px; }
-.note { color: #555; font-size: 14px; }
-nav { position: sticky; top: 0; z-index: 10; background: #1a1a1a; }
-nav div { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; overflow-x: auto; }
-nav a { color: white; text-decoration: none; padding: 10px 12px; font-size: 14px; white-space: nowrap; }
-nav a:hover { background: #333; }
-nav a.star { background: #eb6834; font-weight: bold; }
-h2 { scroll-margin-top: 50px; }
-.charts.wide { grid-template-columns: 1fr; }
 .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
-.pick { background: white; border: 1px solid #ddd; border-left: 5px solid #eb6834; border-radius: 10px; padding: 10px 14px; }
-.pick span { display: block; color: #555; font-size: 13px; }
-.pick b { font-size: 20px; }
-.filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; background: white;
-           border: 1px solid #ddd; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; }
-.filters label { display: flex; flex-direction: column; font-size: 13px; color: #555; gap: 4px; }
-select, input, button { font: inherit; font-size: 15px; padding: 6px 10px; border: 1px solid #bbb;
-                        border-radius: 6px; background: white; color: #1a1a1a; }
-button { cursor: pointer; background: #eef3fb; }
-.panel { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 12px 16px; margin-top: 16px; }
-.panel h3, .panel h4 { margin: 0 0 10px; }
-.two-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
-.scroll { max-height: 360px; overflow-y: auto; }
+.pick { background: var(--panel); border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 10px; padding: 10px 14px; }
+.pick span { display: block; color: var(--muted); font-size: 13px; }
+.pick b { font: 700 22px var(--display); }
+
+/* ---- Bars made of HTML (explore, analysis views) ---- */
 .bar-row { display: grid; grid-template-columns: minmax(90px, 230px) 1fr minmax(70px, auto);
            gap: 10px; align-items: center; padding: 3px 4px; border-radius: 4px; font-size: 14px; }
 .bar-row.clickable { cursor: pointer; }
-.bar-row.clickable:hover { background: #f1f1ee; }
+.bar-row.clickable:hover { background: var(--soft); }
 .bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bar-track { background: #eeeeea; border-radius: 4px; height: 16px; overflow: hidden; }
-.bar-fill { display: block; height: 100%; background: #2a78d6; }
-.bar-row.highlight .bar-fill { background: #eb6834; }
+.bar-track { background: var(--soft); border-radius: 4px; height: 16px; overflow: hidden; }
+.bar-fill { display: block; height: 100%; background: var(--blue); }
+.bar-row.highlight .bar-fill { background: var(--accent); }
 .bar-row.highlight { font-weight: bold; }
-.bar-value { white-space: nowrap; color: #333; }
+.bar-value { white-space: nowrap; }
 .bar-row.index-row { grid-template-columns: minmax(90px, 170px) minmax(80px, 1fr) minmax(150px, 230px); }
 .index-row .bar-value { white-space: normal; font-size: 13px; }
-.chat { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 12px 16px; }
-#chat-log { height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px; }
+
+/* ---- SVG charts (site.js) ---- */
+svg.chart { width: 100%; height: auto; display: block; }
+svg.chart .grid { stroke: var(--chart-grid); stroke-width: 1; }
+svg.chart .axis { fill: var(--muted); font-size: 11px; font-family: var(--body); }
+svg.chart .bar { fill: var(--chart-bar); }
+svg.chart .bar.hl, svg.chart a:hover .bar, svg.chart .bar:hover { fill: var(--chart-hl); }
+svg.chart .line { fill: none; stroke: var(--chart-line); stroke-width: 2.5; }
+svg.chart .dot { fill: var(--panel); stroke: var(--chart-line); stroke-width: 2; }
+svg.chart .dot:hover { fill: var(--chart-line); }
+
+/* ---- Home, directories, profile pages ---- */
+.hero { padding: 12px 0 4px; }
+.hero p { color: var(--muted); max-width: 70ch; }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+.feature { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; text-decoration: none; color: var(--ink); }
+.feature:hover { border-color: var(--accent); }
+.feature span { display: block; color: var(--muted); font-size: 13px; }
+.feature b { display: block; font: 700 24px/1.15 var(--display); margin: 4px 0; }
+.feature small { color: var(--muted); }
+.feature.accent { border-left: 5px solid var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; flex-direction: column; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px;
+        text-decoration: none; color: var(--ink); background: var(--soft); font-weight: 600; font-size: 14px; }
+.chip small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.chip:hover { border-color: var(--accent); }
+.crumbs { font-size: 14px; color: var(--muted); margin: 0 0 6px; }
+.profile-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.profile-head p { margin: 4px 0; color: var(--muted); }
+.badge { display: inline-block; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 1px 10px;
+         font-size: 13px; font-weight: 600; margin-right: 6px; }
+.callout { background: var(--soft); border-left: 4px solid var(--accent); padding: 8px 12px; border-radius: 6px; }
+.ground-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-top: 12px; }
+.ground-card { display: flex; flex-direction: column; gap: 4px; background: var(--panel); border: 1px solid var(--line);
+               border-radius: 12px; padding: 12px 14px; text-decoration: none; color: var(--ink); }
+.ground-card:hover { border-color: var(--accent); }
+.ground-card span { color: var(--muted); font-size: 13px; }
+.ground-card small { color: var(--muted); }
+.index-chip { align-self: flex-start; padding: 0 8px; border-radius: 999px; background: var(--soft); color: var(--ink) !important; font-weight: 600; }
+.index-chip.up { background: var(--accent); color: var(--accent-ink) !important; }
+.index-chip.down { background: var(--blue); color: #fff !important; }
+.view-intro { margin-bottom: 4px; }
+.subnav { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+
+/* ---- Chat ---- */
+.chat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+#chat-log { height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px; }
 .chat-msg { max-width: 88%; padding: 8px 12px; border-radius: 10px; font-size: 15px; white-space: pre-wrap; }
-.chat-msg.user { align-self: flex-end; background: #2a78d6; color: white; }
-.chat-msg.bot { align-self: flex-start; background: #f1f1ee; }
-.chat-msg small { display: block; margin-top: 4px; color: #555; font-size: 12px; }
+.chat-msg.user { align-self: flex-end; background: var(--blue); color: #fff; }
+.chat-msg.bot { align-self: flex-start; background: var(--soft); }
+.chat-msg small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
 #chat-form { display: flex; gap: 8px; margin-top: 8px; }
 #chat-input { flex: 1; }
 #chat-examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 #chat-examples button { font-size: 13px; padding: 4px 8px; }
+
+@media (max-width: 700px) {
+  .site-header { position: static; }     /* on a phone the header scrolls away, so it does not cover the page */
+  .site-nav { order: 3; flex-basis: 100%; }
+  #site-search { max-width: none; order: 2; }
+  .bar-row, .bar-row.index-row { grid-template-columns: minmax(80px, 120px) 1fr minmax(60px, auto); font-size: 13px; }
+}
 """
 
 
@@ -607,80 +699,107 @@ def section_id(name):
     return name.lower().replace(" ", "-")
 
 
-def navigation_bar(next_season):
-    """A menu fixed at the top of the page with a link to every section."""
-    links = [("predictions", "Predictions " + str(next_season) + ": A vs B"), ("ask", "Ask Sports Arena"), ("explore", "Explore (interactive)"),
-             ("rivalry", "Rivalries"), ("matchups", "Matchups"), ("grounds", "Grounds"), ("pitch", "Pitch & player fit"),
-             ("specialists", "Specialists"), ("impact-era", "Impact Player era"), ("trends", "Trends"),
-             ("match-centre", "Match centre"), ("insights", "Key insights"), ("caps", "Cap winners")]
-    for section_name in CHART_SECTIONS:
-        links.append((section_id(section_name), section_name))
+# Which view (page of the site) each section belongs to. Sections not listed go to "analysis".
+SECTION_VIEWS = {"predictions": "predictions", "ask": "ask", "explore": "teams", "rivalry": "teams"}
 
-    parts = ["<nav><div>"]
-    for target, label in links:
-        css_class = " class='star'" if target in ["predictions", "ask", "explore"] else ""
-        parts.append("<a href='#" + target + "'" + css_class + ">" + label + "</a>")
-    parts.append("</div></nav>")
-    return "".join(parts)
+
+def site_header(next_season):
+    """The header on every view: the brand, the menu, one search box and the light/dark switch."""
+    links = [("home", "#/home", "Home"), ("players", "#/players", "Players"), ("grounds", "#/grounds", "Grounds"),
+             ("teams", "#/teams", "Teams"), ("predictions", "#/predictions", str(next_season) + " predictions"),
+             ("ask", "#/ask", "Ask"), ("analysis", "#/analysis", "More analysis")]
+    nav = "".join("<a data-nav='" + key + "' href='" + href + "'>" + label + "</a>" for key, href, label in links)
+    nav += "<a href='match_centre.html'>Match centre</a>"
+    return ("<header class='site-header'><div class='bar'>"
+            "<a class='brand' href='#/home'>Sports Arena<span>IPL analytics</span></a>"
+            "<nav class='site-nav' aria-label='Main'>" + nav + "</nav>"
+            "<form id='site-search' role='search'><input id='site-search-input' list='site-search-list' "
+            "placeholder='Search a player, ground or team' aria-label='Search a player, ground or team'>"
+            "<button type='submit'>Go</button></form>"
+            "<button id='theme-toggle' type='button' aria-label='Switch between light and dark'>&#9680;</button>"
+            "</div><div id='site-search-hint' aria-live='polite'></div>"
+            "<datalist id='site-search-list'></datalist></header>")
+
+
+def wrap_sections(html):
+    """
+    Put every section (it starts with <h2 id='...'>) into the view it belongs to:
+    <div data-view='teams'> ... </div>. The router in site.js shows one view at a time.
+    """
+    pieces = html.split("<h2 id='")
+    parts = [pieces[0]] if pieces[0].strip() else []
+    for piece in pieces[1:]:
+        section = piece.split("'")[0]
+        view = SECTION_VIEWS.get(section, "analysis")
+        parts.append("<div data-view='" + view + "'><h2 id='" + piece + "</div>")
+    return "\n".join(parts)
+
+
+def analysis_menu():
+    """Links to every section of the "More analysis" view."""
+    links = [("matchups", "Matchups"), ("grounds", "Ground explorer"), ("pitch", "Pitch & player fit tool"),
+             ("specialists", "Specialists"), ("impact-era", "Impact Player era"), ("trends", "Trends"),
+             ("insights", "Key insights"), ("caps", "Cap winners")]
+    for section_name in CHART_SECTIONS:
+        links.append((section_id(section_name), "Charts: " + section_name))
+    return ("<div data-view='analysis'><h1>More analysis</h1><p class='note view-intro'>Every tool and chart in one place. "
+            "For one player or one ground, use the Players and Grounds pages.</p><div class='subnav chips'>"
+            + "".join("<a class='chip' href='#" + target + "'>" + label + "</a>" for target, label in links) + "</div></div>")
 
 
 def make_page(matches, deliveries):
-    """Build the full HTML page as one text string."""
+    """Build the full HTML page (all views) as one text string."""
+    next_season = int(matches["season"].max()) + 1
+    impact = metrics.load_impact_players()
     parts = []
     parts.append("<!doctype html><html lang='en'><head><meta charset='utf-8'>")
     parts.append("<meta name='viewport' content='width=device-width, initial-scale=1'>")
-    parts.append("<title>Sports Arena Dashboard</title><style>" + PAGE_STYLE + "</style></head><body>")
-    next_season = int(matches["season"].max()) + 1
-    parts.append(navigation_bar(next_season))
+    parts.append("<title>Sports Arena</title><style>" + PAGE_STYLE + "</style></head><body>")
+    parts.append(site_header(next_season))
     parts.append("<main>")
 
-    # Title
-    parts.append("<h1>Sports Arena: IPL Performance Dashboard</h1>")
-    parts.append("<p class='subtitle'>Indian Premier League " + metrics.season_range_text(matches) + ", built from ball-by-ball data "
-                 "with Python, pandas, matplotlib, seaborn, scikit-learn and plain JavaScript.</p>")
-
-    # Headline number boxes
-    parts.append("<div class='numbers'>")
+    # New views drawn by site.js: Home, Players (directory + one player), Grounds (directory + one ground)
+    parts.append("<div data-view='home'><div id='home-page'></div><p class='subtitle'>Built from ball-by-ball data with "
+                 "Python, pandas, matplotlib, seaborn, scikit-learn and plain JavaScript.</p><div class='numbers'>")
     for value, label in headline_numbers(matches, deliveries):
         parts.append("<div class='number'><b>" + value + "</b><span>" + label + "</span></div>")
-    parts.append("</div>")
+    parts.append("</div></div>")
+    parts.append("<div data-view='players' hidden><div id='players-page'></div></div>")
+    parts.append("<div data-view='grounds' hidden><div id='grounds-page'></div></div>")
+    parts.append("<div data-view='teams' hidden><h1>Teams</h1><p class='note view-intro'>Filter by season and team, "
+                 "then compare any two teams in the rivalry centre.</p></div>")
+    parts.append(analysis_menu())
 
-    # Predictions for the next season (made by predict.py), near the top so they are easy to find
-    parts.append(prediction_section(matches, deliveries, next_season))
+    # Existing sections, each put into its view
+    parts.append(wrap_sections(prediction_section(matches, deliveries, next_season)))
+    parts.append(wrap_sections(chat_section(matches, deliveries, impact)))
+    parts.append(wrap_sections(explorer_section(matches, deliveries)))
+    parts.append(wrap_sections(analyst_sections(matches, deliveries, impact)))
 
-    # The chatbot, straight after the predictions
-    impact = metrics.load_impact_players()
-    parts.append(chat_section(matches, deliveries, impact))
-
-    # Interactive section: filters, clickable chart and player search
-    parts.append(explorer_section(matches, deliveries))
-
-    # Analyst views: rivalries, matchups, grounds, specialists, Impact Player era, trends
-    parts.append(analyst_sections(matches, deliveries, impact))
-
-    # Insights
-    parts.append("<h2 id='insights'>Key insights</h2><ul class='insights'>")
+    insights = ["<h2 id='insights'>Key insights</h2><ul class='insights'>"]
     for sentence in key_insights(matches, deliveries):
-        parts.append("<li>" + sentence + "</li>")
-    parts.append("</ul>")
-
-    # Orange / Purple Cap table (pandas can turn a DataFrame into an HTML table)
+        insights.append("<li>" + sentence + "</li>")
+    insights.append("</ul>")
     caps = metrics.cap_winners(deliveries)
     caps.columns = ["Season", "Orange Cap", "Runs", "Purple Cap", "Wickets", "Economy"]
-    parts.append("<h2 id='caps'>Orange Cap and Purple Cap winners</h2><div class='table-box'>")
-    parts.append(caps.to_html(index=False))
-    parts.append("</div>")
-
-    # Charts, section by section
+    insights.append("<h2 id='caps'>Orange Cap and Purple Cap winners</h2><div class='table-box'>" + caps.to_html(index=False) + "</div>")
     for section_name in CHART_SECTIONS:
-        parts.append("<h2 id='" + section_id(section_name) + "'>" + section_name + "</h2><div class='charts'>")
+        insights.append("<h2 id='" + section_id(section_name) + "'>Charts: " + section_name + "</h2><div class='charts'>")
         for file_name, title in CHART_SECTIONS[section_name]:
-            # Only show charts that exist (analysis.py must be run first).
-            if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
-                parts.append("<figure><img src='" + file_name + "' alt='" + title + "'>"
-                             "<figcaption>" + title + "</figcaption></figure>")
-        parts.append("</div>")
+            if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):   # only charts analysis.py has made
+                insights.append("<figure><img src='" + file_name + "' alt='" + title + "' loading='lazy'>"
+                                "<figcaption>" + title + "</figcaption></figure>")
+        insights.append("</div>")
+    parts.append(wrap_sections("".join(insights)))
 
+    # The site: its own data, then the router and the player and ground pages (src/site.js)
+    players = sorted(set(deliveries["batter"]) | set(deliveries["bowler"]) | set(deliveries["non_striker"]))
+    squads = pd.read_csv(os.path.join(metrics.PROJECT_FOLDER, "data", "squads_" + str(next_season) + ".csv"))
+    site = dashboard_data.site_data(matches, deliveries, players, sorted(matches["venue"].unique()), squads)
+    parts.append("<script type='application/json' id='site-data'>"
+                 + json.dumps(site, separators=(",", ":"), default=lambda value: value.item()).replace("</", "<\\/") + "</script>")
+    with open(SITE_SCRIPT, encoding="utf-8") as file:
+        parts.append("<script>\n" + file.read() + "\n</script>")
     parts.append("</main></body></html>")
     return "\n".join(parts)
 

@@ -69,9 +69,21 @@ Every number below is calculated by the pipeline (see `outputs/` and the dashboa
   <img src="outputs/rivalry_chennai_super_kings_vs_mumbai_indians.png" width="49%" alt="CSK v MI rivalry">
 </p>
 
-## 4. The dashboard (`outputs/index.html`)
+## 4. The site (`outputs/index.html`)
 
-Open it in any browser: everything is inside the page, so it works **offline** as a file.
+Open it in any browser: everything is inside one page, so it works **offline** as a file. A header on every view has
+the menu, **one search box** (players, grounds or teams, including nicknames like "SKY", "Kohli" or "Chepauk") and a
+light/dark switch. The address after `#` decides the view, so every page has its own link and Back works:
+
+| Page | Address | What it shows |
+|---|---|---|
+| **Home** | `#/home` | Headline numbers, the latest champion and caps, the 2027 favourite, top players and grounds |
+| **Player page** | `#/player/V Kohli` | Role, teams, 2027 squad, career cards; runs/strike rate and wickets/economy by season (hover charts); last 10 innings (click a bar to open the scorecard); phase splits; toughest and favourite bowlers; record against each team; how he gets out; how each ground suits him |
+| **Ground page** | `#/ground/Eden Gardens` | Pitch profile for any period, scores by season, toss and chasing, win % of each team there, top players and best fits, highest totals and recent matches |
+| Players / Grounds | `#/players`, `#/grounds` | Directories: top run scorers and wicket takers, 2027 squads; every ground with its runs index |
+| Teams, 2027 predictions, Ask, More analysis | `#/teams` … | The sections below, grouped |
+
+Sections inside those views:
 
 | Section | What you can do |
 |---|---|
@@ -169,7 +181,7 @@ data/merged/ ─► verify_data ─► prepare_data ─► analysis ─► test_
 | 5 | `src/predict.py` | Model A for 2027, the season simulator, and Model A's backtest |
 | 6 | `src/predict_ml.py` | Model B for 2027 and the Model A vs Model B comparison |
 | 7 | `src/build_report.py` | Builds `outputs/index.html`, `outputs/match_centre.html` and `outputs/chat_facts.json` |
-| 8 | `tests/test_chatbot.js` | Runs 24 questions through the chatbot |
+| 8 | `tests/test_chatbot.js`, `tests/test_site.js` | Runs 24 questions through the chatbot; checks the site's router, search, career numbers and charts |
 
 One-off data scripts (already run; their outputs are committed): `src/recover_merged_data.py`,
 `src/build_name_map.py` and `src/build_impact_players.py` (see `data/README.md`).
@@ -195,10 +207,11 @@ sports-arena/
 │   ├── verify_data.py, prepare_data.py, metrics.py, analysis.py
 │   ├── predict.py, predict_ml.py               the two models
 │   ├── dashboard_data.py, build_report.py      the dashboard
+│   ├── site.js                                 the new design: router, search, Home, player and ground pages
 │   ├── dashboard_explorer.js, dashboard_analytics.js, match_centre.py, match_centre.js
 │   ├── chat_facts.py, chatbot.js, chat_server.py    the chatbot
 │   └── recover_merged_data.py, build_name_map.py, build_impact_players.py   one-off data scripts
-├── tests/test_facts.py, tests/test_chatbot.js
+├── tests/test_facts.py, tests/test_chatbot.js, tests/test_site.js
 ├── notebooks/ipl_analysis.ipynb   the analysis in Colab
 ├── outputs/                 charts, prediction and backtest CSVs, index.html, match_centre.html, chat_facts.json
 ├── docs/                    Code_Explanation.md, Marking_Scheme.md, Viva_QA.md

@@ -99,7 +99,9 @@ Points to say:
 - "Step 4 checks all 38 Orange/Purple Caps and all 19 champions against the official records: all match."
 - "Steps 5-6: both models favour RCB for 2027 (22.5% and 20.7%). The backtest shows neither beats a coin flip's log loss
   before a season starts; we report that honestly."
-- **Demo clicks:** Rivalries → CSK v MI → click a date in "Last 5 meetings" to open the match centre;
+- **Demo clicks:** Home → click "V Kohli" (player page; hover the season chart; click a "last 10 innings" bar to open the
+  scorecard; scroll to "Grounds" and click M Chinnaswamy Stadium) → on the ground page change the Period → search "SKY"
+  in the header → switch light/dark with ◐. Then Teams → Rivalries → CSK v MI → click a date in "Last 5 meetings" to open the match centre;
   Matchups → V Kohli v JJ Bumrah; Grounds → Chepauk; Pitch & player fit → Chepauk, then type "V Kohli" and click
   M Chinnaswamy Stadium in his "best grounds" chart; Trends → points table 2026 and the chase calculator;
   Ask Sports Arena → "Who won the Orange Cap in 2016?", "Kohli vs Bumrah", "Who will win IPL 2027?".

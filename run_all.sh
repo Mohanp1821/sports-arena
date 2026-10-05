@@ -40,11 +40,12 @@ python src/predict_ml.py
 echo; echo "===== Step 7: build the dashboard -> outputs/index.html and match_centre.html ====="
 python src/build_report.py
 
-echo; echo "===== Step 8: chatbot question checks (Node.js) ====="
+echo; echo "===== Step 8: chatbot and site checks (Node.js) ====="
 if command -v node > /dev/null; then
     node tests/test_chatbot.js
+    node tests/test_site.js
 else
-    echo "SKIPPED: Node.js is not installed, so the chatbot checks could not run (Docker runs them)."
+    echo "SKIPPED: Node.js is not installed, so the chatbot and site checks could not run (Docker runs them)."
 fi
 
 echo; echo "Finished. Open outputs/index.html in your browser to see the dashboard."

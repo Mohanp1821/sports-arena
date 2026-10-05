@@ -377,6 +377,85 @@ def pitch_data(matches, deliveries, players, venues):
     }
 
 
+# ---------------------------------------------------------------------------
+# 8. Player and ground pages (the new site design, src/site.js)
+# ---------------------------------------------------------------------------
+LAST_N = 10     # how many recent innings / bowling matches the "form" chart shows
+
+
+def site_data(matches, deliveries, players, venues, squads):
+    """
+    Extra tables for the player and ground pages (the rest comes from the
+    analyst data and the chat facts, so nothing is stored twice):
+      phase splits, the last 10 innings and bowling spells, Player of the Match
+      awards, fielding totals, the 2027 squad and each ground's home teams.
+    """
+    player_position = index_of(players)
+    phases = ["Powerplay", "Middle", "Death"]
+    df = metrics.add_ball_columns(deliveries)
+    df["is_wicket"] = df["player_dismissed"].notna() & (df["dismissal_kind"] != "retired hurt")
+
+    # Phase splits. Batting: [player, phase, runs, balls faced, outs]; bowling: [player, phase, legal balls, runs, wickets]
+    faced = df[df["is_ball_faced"]]
+    bat = faced.groupby(["batter", "phase"]).agg(runs=("batsman_runs", "sum"), balls=("batsman_runs", "size")).reset_index()
+    outs = df[df["is_wicket"]].groupby(["player_dismissed", "phase"]).size().reset_index(name="outs")
+    bat = bat.merge(outs.rename(columns={"player_dismissed": "batter"}), on=["batter", "phase"], how="left").fillna({"outs": 0})
+    bat["p"] = bat["batter"].map(player_position)
+    bat["ph"] = bat["phase"].map(lambda phase: phases.index(phase))
+    bowl = df.groupby(["bowler", "phase"]).agg(legal=("is_legal_ball", "sum"), runs=("runs_conceded", "sum"),
+                                               wickets=("is_bowler_wicket", "sum")).reset_index()
+    bowl["p"] = bowl["bowler"].map(player_position)
+    bowl["ph"] = bowl["phase"].map(lambda phase: phases.index(phase))
+
+    # The last 10 innings of every batter: [date, opponent, runs, balls, out (1/0), match id]
+    innings = metrics.batting_innings(deliveries)
+    dismissed = set(zip(df.loc[df["is_wicket"], "match_id"], df.loc[df["is_wicket"], "player_dismissed"]))
+    last_bat = {}
+    for batter, rows in innings.groupby("batter"):
+        rows = rows.tail(LAST_N)
+        last_bat[str(player_position[batter])] = [
+            [rows["date"].iloc[i].strftime("%Y-%m-%d"), rows["bowling_team_franchise"].iloc[i], int(rows["runs"].iloc[i]),
+             int(rows["balls"].iloc[i]), 1 if (rows["match_id"].iloc[i], batter) in dismissed else 0, int(rows["match_id"].iloc[i])]
+            for i in range(len(rows))]
+
+    # The last 10 bowling matches: [date, opponent, legal balls, runs, wickets, match id]
+    spells = df.groupby(["bowler", "match_id", "date"]).agg(opponent=("batting_team_franchise", "first"),
+                                                            legal=("is_legal_ball", "sum"), runs=("runs_conceded", "sum"),
+                                                            wickets=("is_bowler_wicket", "sum")).reset_index()
+    spells = spells.sort_values(["bowler", "date", "match_id"])
+    last_bowl = {}
+    for bowler, rows in spells.groupby("bowler"):
+        rows = rows.tail(LAST_N)
+        last_bowl[str(player_position[bowler])] = [
+            [rows["date"].iloc[i].strftime("%Y-%m-%d"), rows["opponent"].iloc[i], int(rows["legal"].iloc[i]),
+             int(rows["runs"].iloc[i]), int(rows["wickets"].iloc[i]), int(rows["match_id"].iloc[i])] for i in range(len(rows))]
+
+    potm = matches[matches["player_of_match"] != ""]["player_of_match"].value_counts()
+    events = metrics.fielding_events(deliveries)
+    fielding = events.groupby(["player", "event"]).size().unstack(fill_value=0)
+    field = {}
+    for player in fielding.index:
+        if player in player_position:
+            field[str(player_position[player])] = [int(fielding.loc[player].get(event, 0)) for event in ["catch", "run_out", "stumping"]]
+
+    home = {}
+    for team in metrics.HOME_GROUNDS:
+        for ground in metrics.HOME_GROUNDS[team]:
+            if ground in venues:
+                home.setdefault(ground, []).append(team)
+
+    return {
+        "phases": phases,
+        "bat_phase": table_rows(bat, ["p", "ph", "runs", "balls", "outs"]),
+        "bowl_phase": table_rows(bowl, ["p", "ph", "legal", "runs", "wickets"]),
+        "last_bat": last_bat, "last_bowl": last_bowl,
+        "potm": {str(player_position[name]): int(count) for name, count in potm.items() if name in player_position},
+        "field": field,
+        "squads": {row["player"]: row["team"] for row in squads.to_dict("records")},
+        "home": home,
+    }
+
+
 def analyst_data(matches, deliveries, impact, chase_model_file):
     """Everything the analyst views need, as one dictionary (saved into the page as JSON)."""
     teams = sorted(set(matches["team1_franchise"]) | set(matches["team2_franchise"]))

@@ -242,6 +242,24 @@ One page, `outputs/index.html`, with all data inside it (so it works offline):
 **Why plain JavaScript (no Plotly/Streamlit)?** Nothing to install, no internet needed, and Docker serves the page as a
 normal file. `tests/test_facts.py` checks that the page's tables give the same numbers as `metrics.py`.
 
+### The site design (`src/site.js`)
+- **One page, several views.** Every section sits in a `<div data-view='...'>`; `build_report.wrap_sections` puts each
+  existing section into its view (Teams, Predictions, Ask, More analysis).
+- **Hash router** (`parseRoute`, `route`): the part of the address after `#` says what to show (`#/player/V Kohli`,
+  `#/ground/Eden Gardens`, `#/teams`). The page shows that view and hides the others, so every page has a link and the
+  browser's Back button works, while it stays one offline file. Old links like `#rivalry` still work: the router finds
+  the view that holds that section.
+- **Search** (`resolveSearch`): exact names first, then the chatbot's alias lists ("sky", "chepauk", "kings xi punjab"),
+  then names that contain the text; several matches → "Did you mean…".
+- **Player and ground pages** are drawn from three data blocks already in the page (analyst data, chatbot facts and the
+  small `site_data` block: phase splits, last 10 innings and spells, awards, fielding, squads, home grounds). A role's
+  sections appear only if it is a real part of the player's game (120+ balls batted, 300+ balls bowled).
+- **Charts** (`svgBars`, `svgLine`) are SVG written as text: bars and dots carry a `<title>`, which shows as a tooltip on
+  hover; form bars link to the match centre. Axes use round steps (`niceMax`).
+- **Design tokens:** every colour is a CSS variable; dark mode (from the computer's setting or the ◐ button, remembered in
+  the browser) only changes the variables. On phones the columns stack and the header scrolls away.
+- **Tests:** `tests/test_site.js` (router, search, roles, career numbers, charts) and `test_site_data` in `test_facts.py`.
+
 ## 13. The chatbot
 
 ### Offline engine (`chat_facts.py` + `chatbot.js`)

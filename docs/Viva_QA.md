@@ -168,6 +168,16 @@ in 2025 and 776 in 2026 to win the Orange Cap; neither model had him as its top 
 Python calculates every table and writes it into the page as JSON. Plain JavaScript only looks rows up when a drop-down
 changes (any team pair, batter and bowler, ground, phase, season). The page works offline as a file and in Docker.
 
+**Q30a. How does one HTML file have a page for every player?**
+A hash router: the part of the address after `#` (e.g. `#/player/V Kohli`) is read by JavaScript (`src/site.js`), which
+shows the right view and draws that player's page from data already inside the file. Changing the hash does not reload
+the page, so it works offline, each page has its own link, and the Back button works.
+
+**Q30b. How did you design the site?**
+By "things" (players, grounds, teams) instead of by analysis type; one search box on every view; the same layout on every
+profile page (header, headline cards, charts, tables, source notes); colours as CSS variables with a dark mode; charts
+drawn as SVG with hover details; columns that stack on a phone. Small samples are hidden or flagged.
+
 **Q31. How does "Ask Sports Arena" answer without an AI model?** (`src/chatbot.js`)
 It finds the names in the question using alias lists (e.g. "SKY" → SA Yadav, "Kings XI Punjab" → Punjab Kings), decides
 the question type from keywords, and fills in an answer **only** from the facts file, adding its source. If a name is

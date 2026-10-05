@@ -372,6 +372,25 @@ def test_model_b(matches, deliveries, impact):
     print("PASS  Model B: fair chances, 10 squads, training and features use only earlier seasons")
 
 
+def test_site_data(matches, deliveries):
+    """The player-page data (last 10 innings, phases) must agree with metrics.py."""
+    import pandas as pd
+    import dashboard_data
+    players = sorted(set(deliveries["batter"]) | set(deliveries["bowler"]) | set(deliveries["non_striker"]))
+    squads = pd.read_csv(os.path.join(PROJECT_FOLDER, "data", "squads_2027.csv"))
+    data = dashboard_data.site_data(matches, deliveries, players, sorted(matches["venue"].unique()), squads)
+    kohli = str(players.index("V Kohli"))
+    innings = metrics.batting_innings(deliveries)
+    last10 = innings[innings["batter"] == "V Kohli"].tail(10)
+    assert [row[2] for row in data["last_bat"][kohli]] == list(last10["runs"]), "last 10 innings must match"
+    # Phase runs add up to his career runs.
+    career = metrics.batting_stats(deliveries)
+    career_runs = career[career["batter"] == "V Kohli"]["runs"].iloc[0]
+    assert sum(row[2] for row in data["bat_phase"] if row[0] == int(kohli)) == career_runs
+    assert data["home"]["Wankhede Stadium"] == ["Mumbai Indians"]
+    print("PASS  site data: Kohli's last 10 innings and phase runs match metrics.py; home grounds")
+
+
 def test_pitch_and_fit(matches, deliveries):
     """Pitch indexes, the here-vs-elsewhere split and fielding credits."""
     import pandas as pd
@@ -430,6 +449,7 @@ def main():
     test_dashboard_analyst_data(matches, deliveries, impact)
     test_model_b(matches, deliveries, impact)
     test_pitch_and_fit(matches, deliveries)
+    test_site_data(matches, deliveries)
     print("\nAll fact checks passed.")
 
 
