@@ -5,6 +5,9 @@ Builds outputs/match_centre.html: a ball-by-ball MATCH CENTRE for all
 1,243 matches, using the PROCESSED data (fixed player names, standard
 ground names, franchise names for filtering).
 
+Every player, team and ground name links back to its page on the main site
+(index.html#/player/..., #/team/..., #/ground/...).
+
 For any match it shows (the drawing code is in src/match_centre.js):
   - the scorecard: every batter with how they got out, and the bowling card
   - an over-by-over strip: one symbol per ball
@@ -124,7 +127,13 @@ def build_data(matches, deliveries):
             "u": [u for u in [match["umpire1"], match["umpire2"]] if isinstance(u, str) and u != ""],
             "i": innings_list,
         })
-    return {"p": names, "k": kinds, "m": match_list}
+    # Which names have a player page on the main site: anyone who batted or bowled outside super overs
+    # (the same players as the site's player pages). Fielders who only came on as substitutes have none,
+    # so their names are shown without a link.
+    normal = metrics.remove_super_overs(deliveries)
+    page_players = set(normal["batter"]) | set(normal["non_striker"]) | set(normal["bowler"])
+    has_page = [1 if name in page_players else 0 for name in names]
+    return {"p": names, "hp": has_page, "k": kinds, "m": match_list}
 
 
 def build_page(matches, deliveries, output_path):

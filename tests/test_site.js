@@ -77,6 +77,15 @@ check("ground cell -> ground link", site.linkForText("Eden Gardens", lookup).ind
 check("partnership cell -> two links", (site.linkForText("AB de Villiers & V Kohli", lookup).match(/<a /g) || []).length === 2);
 check("other text is left alone", site.linkForText("V Kohli scored 973", lookup) === null && site.linkForText("973", lookup) === null);
 
+// 6. Match centre links back to the main site (src/match_centre.js).
+const centre = require(path.join(projectFolder, "src", "match_centre.js"));
+const pages = { "V Kohli": true, "MS Dhoni": true };
+check("match centre: player with a page -> link", centre.linkName("V Kohli", pages) === "<a href='index.html#/player/V%20Kohli'>V Kohli</a>");
+check("match centre: no page -> plain text", centre.linkName("A Sub", pages) === "A Sub");
+check("match centre: run out with two fielders and a substitute",
+      centre.linkFielders("MS Dhoni, A Sub (sub)", pages) === "<a href='index.html#/player/MS%20Dhoni'>MS Dhoni</a>, A Sub (sub)");
+check("match centre: team link address", centre.siteLink("team", "Mumbai Indians") === "index.html#/team/Mumbai%20Indians");
+
 if (failed > 0) {
     console.log("\n" + failed + " site check(s) failed.");
     process.exit(1);

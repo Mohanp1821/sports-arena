@@ -268,6 +268,10 @@ normal file. `tests/test_facts.py` checks that the page's tables give the same n
   redraws, noticed by a `MutationObserver`), each cell or bar label whose WHOLE text is a known player, ground or team
   (including old team names like "Kings XI Punjab") becomes a link; partnership cells ("AB de Villiers & V Kohli") get two
   links. Only exact names are linked, so ordinary text is never changed, and bars that already select a filter are skipped.
+- **Match centre links:** `outputs/match_centre.html` links every player (batters, bowlers, each name in the dismissal text,
+  the over strip and the raw rows), both teams, the toss winner, the ground and the player of the match back to the site
+  (`index.html#/player/...`). Names that only ever appear as a substitute fielder have no player page, so they stay plain
+  text (`match_centre.build_data` marks which names have a page).
 - **Design tokens:** every colour is a CSS variable; dark mode (from the computer's setting or the ◐ button, remembered in
   the browser) only changes the variables. On phones the columns stack and the header scrolls away.
 - **Tests:** `tests/test_site.js` (router, search, roles, career numbers, charts) and `test_site_data` in `test_facts.py`.

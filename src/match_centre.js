@@ -15,9 +15,14 @@
 // Plain JavaScript, no libraries, so it works offline.
 // =============================================================================
 
-const DATA = JSON.parse(document.getElementById("match-data").textContent);
+// The data is read only in a browser; in Node.js (tests/test_site.js) these lists are empty.
+const IN_BROWSER = typeof document !== "undefined" && document.getElementById("match-data") !== null;
+const DATA = IN_BROWSER ? JSON.parse(document.getElementById("match-data").textContent) : { p: [], hp: [], k: [], m: [] };
 const NAMES = DATA.p;
 const KINDS = DATA.k;
+// The names that have a player page on the main site (index.html#/player/...).
+const PAGE = {};
+NAMES.forEach(function (name, i) { if (DATA.hp[i] === 1) { PAGE[name] = true; } });
 const MATCHES = DATA.m.slice().sort(function (a, b) { return b.d.localeCompare(a.d) || b.id - a.id; });
 // Dismissals credited to the bowler (a run out is not).
 const BOWLER_KINDS = ["bowled", "caught", "caught and bowled", "lbw", "stumped", "hit wicket"];
@@ -33,6 +38,43 @@ function safe(text) {
 }
 
 function nameOf(position) { return position >= 0 ? NAMES[position] : ""; }
+
+// ---------------------------------------------------------------------------
+// Links back to the main site (pure functions: they only use their inputs)
+// ---------------------------------------------------------------------------
+// The address of a page on the main site, e.g. index.html#/player/V%20Kohli
+function siteLink(kind, name) {
+    return "index.html#/" + kind + "/" + encodeURIComponent(name);
+}
+
+function escapeText(text) {
+    return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+// A player's name as a link, if he has a page (pageSet = {name: true}); otherwise plain text.
+function linkName(name, pageSet) {
+    if (!name) { return ""; }
+    if (pageSet[name]) { return "<a href='" + siteLink("player", name) + "'>" + escapeText(name) + "</a>"; }
+    return escapeText(name);
+}
+
+// The fielder text can hold several names and "(sub)" marks: "A, B (sub)".
+// Each name is linked on its own; "(sub)" stays as text after the name.
+function linkFielders(text, pageSet) {
+    if (!text) { return ""; }
+    return text.split(", ").map(function (part) {
+        const isSub = part.indexOf(" (sub)") > 0;
+        const name = part.replace(" (sub)", "");
+        return linkName(name, pageSet) + (isSub ? " (sub)" : "");
+    }).join(", ");
+}
+
+// Shorter forms used below: a player by his position in NAMES, a team by its franchise, a ground.
+function playerAt(position) { return linkName(nameOf(position), PAGE); }
+function teamLink(franchise, shownName) {
+    return "<a href='" + siteLink("team", franchise) + "'>" + escapeText(shownName || franchise) + "</a>";
+}
+function groundLink(venue) { return "<a href='" + siteLink("ground", venue) + "'>" + escapeText(venue) + "</a>"; }
 
 // 117 legal balls -> "19.3" overs (19 overs and 3 balls).
 function oversText(balls) { return Math.floor(balls / 6) + (balls % 6 ? "." + (balls % 6) : ""); }
@@ -95,19 +137,19 @@ function drawList() {
 // ---------------------------------------------------------------------------
 // Scorecard
 // ---------------------------------------------------------------------------
-// How a batter got out, written the cricket way: "c Fielder b Bowler".
+// How a batter got out, written the cricket way: "c Fielder b Bowler" (as HTML, with each name linked).
 function howOut(b) {
     const kind = KINDS[b[12]];
-    const bowler = nameOf(b[4]);
-    const fielder = nameOf(b[13]).split(", ")[0].replace(" (sub)", "");
+    const bowler = playerAt(b[4]);
+    const fielder = linkName(nameOf(b[13]).split(", ")[0].replace(" (sub)", ""), PAGE);
     if (kind === "caught") { return "c " + fielder + " b " + bowler; }
-    if (kind === "caught and bowled") { return "c & b " + bowler; }
+    if (kind === "caught and bowled") { return "c &amp; b " + bowler; }
     if (kind === "bowled") { return "b " + bowler; }
     if (kind === "lbw") { return "lbw b " + bowler; }
     if (kind === "stumped") { return "st " + fielder + " b " + bowler; }
     if (kind === "hit wicket") { return "hit wicket b " + bowler; }
-    if (kind === "run out") { return "run out" + (b[13] >= 0 ? " (" + nameOf(b[13]).replace(/ \(sub\)/g, "") + ")" : ""); }
-    return kind;    // retired hurt, retired out, obstructing the field
+    if (kind === "run out") { return "run out" + (b[13] >= 0 ? " (" + linkFielders(nameOf(b[13]).replace(/ \(sub\)/g, ""), PAGE) + ")" : ""); }
+    return escapeText(kind);    // retired hurt, retired out, obstructing the field
 }
 
 function scorecardHTML(innings) {
@@ -140,7 +182,7 @@ function scorecardHTML(innings) {
              + "<th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>";
     batters.forEach(function (p) {
         const x = bat[p];
-        html += "<tr><td>" + safe(nameOf(p)) + "</td><td class='how'>" + safe(x.out) + "</td><td><b>" + x.runs
+        html += "<tr><td>" + playerAt(p) + "</td><td class='how'>" + x.out + "</td><td><b>" + x.runs
               + "</b></td><td>" + x.balls + "</td><td>" + x.fours + "</td><td>" + x.sixes + "</td><td>"
               + (x.balls ? (x.runs * 100 / x.balls).toFixed(1) : "-") + "</td></tr>";
     });
@@ -151,7 +193,7 @@ function scorecardHTML(innings) {
           + "<th>Econ</th></tr></thead><tbody>";
     bowlers.forEach(function (p) {
         const y = bowl[p];
-        html += "<tr><td>" + safe(nameOf(p)) + "</td><td>" + oversText(y.legal) + "</td><td>" + y.dots + "</td><td>"
+        html += "<tr><td>" + playerAt(p) + "</td><td>" + oversText(y.legal) + "</td><td>" + y.dots + "</td><td>"
               + y.runs + "</td><td><b>" + y.wickets + "</b></td><td>"
               + (y.legal ? (y.runs * 6 / y.legal).toFixed(2) : "-") + "</td></tr>";
     });
@@ -186,9 +228,11 @@ function oversHTML(innings) {
     order.forEach(function (o) {
         const balls = overs[o];
         const runs = balls.reduce(function (sum, b) { return sum + ballRuns(b); }, 0);
-        const bowlers = balls.map(function (b) { return nameOf(b[4]); })
-                             .filter(function (n, i, all) { return all.indexOf(n) === i; }).join(", ");
-        html += "<div class='over'><b>" + o + "</b><span class='who'>" + safe(bowlers) + "</span><span>"
+        const bowlerPositions = balls.map(function (b) { return b[4]; })
+                                     .filter(function (n, i, all) { return all.indexOf(n) === i; });
+        const bowlers = bowlerPositions.map(nameOf).join(", ");
+        html += "<div class='over'><b>" + o + "</b><span class='who' title='" + safe(bowlers) + "'>"
+              + bowlerPositions.map(playerAt).join(", ") + "</span><span>"
               + balls.map(function (b) {
                     const s = ballSymbol(b);
                     return "<span class='ball " + s[0] + "' title='" + safe(nameOf(b[2]) + " to " + nameOf(b[4])) + "'>"
@@ -213,10 +257,11 @@ function rawHTML(m) {
     m.i.forEach(function (innings, n) {
         innings.b.forEach(function (b) {
             const extras = b[6] + b[7] + b[8] + b[9] + b[10];
-            const cells = [n + 1, innings.t, b[0], b[1], nameOf(b[2]), nameOf(b[3]), nameOf(b[4]), innings.so,
-                           b[6], b[8], b[9], b[7], b[10], b[5], extras, b[5] + extras,
-                           nameOf(b[11]), KINDS[b[12]], nameOf(b[13])];
-            html += "<tr>" + cells.map(function (c) { return "<td>" + safe(c) + "</td>"; }).join("") + "</tr>";
+            // Name columns are links; every other cell is plain text.
+            const cells = [n + 1, teamLink(franchiseOf(m, innings.t), innings.t), b[0], b[1], playerAt(b[2]), playerAt(b[3]),
+                           playerAt(b[4]), innings.so, b[6], b[8], b[9], b[7], b[10], b[5], extras, b[5] + extras,
+                           playerAt(b[11]), escapeText(KINDS[b[12]]), linkFielders(nameOf(b[13]), PAGE)];
+            html += "<tr>" + cells.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "</tr>";
             count += 1;
         });
     });
@@ -233,10 +278,10 @@ function drawMatch() {
         byId("detail").innerHTML = "<p class='note'>Pick a match from the list.</p>";
         return;
     }
-    let html = "<h2 style='margin:0'>" + safe(m.t1) + " v " + safe(m.t2) + "</h2><p><b>" + safe(m.res) + "</b></p>"
-        + "<div class='meta'><div>Date<b>" + m.d + "</b></div><div>Ground<b>" + safe(m.v) + ", " + safe(m.c) + "</b></div>"
-        + "<div>Stage<b>" + safe(m.st) + "</b></div><div>Toss<b>" + safe(m.tw) + ", chose to " + safe(m.td) + "</b></div>"
-        + "<div>Player of the match<b>" + safe(m.pom || "Not awarded") + "</b></div>"
+    let html = "<h2 style='margin:0'>" + teamLink(m.f1, m.t1) + " v " + teamLink(m.f2, m.t2) + "</h2><p><b>" + safe(m.res) + "</b></p>"
+        + "<div class='meta'><div>Date<b>" + m.d + "</b></div><div>Ground<b>" + groundLink(m.v) + ", " + safe(m.c) + "</b></div>"
+        + "<div>Stage<b>" + safe(m.st) + "</b></div><div>Toss<b>" + teamLink(franchiseOf(m, m.tw), m.tw) + ", chose to " + safe(m.td) + "</b></div>"
+        + "<div>Player of the match<b>" + (m.pom ? linkName(m.pom, PAGE) : "Not awarded") + "</b></div>"
         + "<div>Umpires<b>" + safe(m.u.join(", ") || "-") + "</b></div><div>Match id<b>" + m.id + "</b></div></div>"
         + "<div class='tabs'>" + [["card", "Scorecard"], ["overs", "Over by over"], ["raw", "Raw ball rows"]].map(function (t) {
               return "<button data-view='" + t[0] + "' class='" + (view === t[0] ? "on" : "") + "'>" + t[1] + "</button>";
@@ -247,11 +292,16 @@ function drawMatch() {
         html += rawHTML(m);
     } else {
         m.i.forEach(function (innings) {
-            html += "<h3>" + (innings.so ? "Super over: " : "") + safe(innings.t) + " " + scoreText(innings) + "</h3>"
+            html += "<h3>" + (innings.so ? "Super over: " : "") + teamLink(franchiseOf(m, innings.t), innings.t) + " " + scoreText(innings) + "</h3>"
                   + (view === "card" ? scorecardHTML(innings) : oversHTML(innings));
         });
     }
     byId("detail").innerHTML = html;
+}
+
+// The franchise of a team name used in this match (t1 -> f1, t2 -> f2), for team-page links.
+function franchiseOf(m, seasonName) {
+    return seasonName === m.t2 ? m.f2 : m.f1;
 }
 
 function openMatch(id) {
@@ -264,35 +314,43 @@ function openMatch(id) {
 // ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
-const seasons = MATCHES.map(function (m) { return m.s; })
-                       .filter(function (s, i, all) { return all.indexOf(s) === i; }).sort().reverse();
-byId("season").innerHTML = "<option value='all'>All seasons</option>"
-    + seasons.map(function (s) { return "<option>" + s + "</option>"; }).join("");
-const teams = MATCHES.map(function (m) { return m.f1; }).concat(MATCHES.map(function (m) { return m.f2; }))
-                     .filter(function (t, i, all) { return all.indexOf(t) === i; }).sort();
-byId("team").innerHTML = "<option value='all'>All teams</option>"
-    + teams.map(function (t) { return "<option>" + safe(t) + "</option>"; }).join("");
+// Only in a browser (Node.js loads this file just to test the link functions).
+if (IN_BROWSER) {
+    const seasons = MATCHES.map(function (m) { return m.s; })
+                           .filter(function (s, i, all) { return all.indexOf(s) === i; }).sort().reverse();
+    byId("season").innerHTML = "<option value='all'>All seasons</option>"
+        + seasons.map(function (s) { return "<option>" + s + "</option>"; }).join("");
+    const teams = MATCHES.map(function (m) { return m.f1; }).concat(MATCHES.map(function (m) { return m.f2; }))
+                         .filter(function (t, i, all) { return all.indexOf(t) === i; }).sort();
+    byId("team").innerHTML = "<option value='all'>All teams</option>"
+        + teams.map(function (t) { return "<option>" + safe(t) + "</option>"; }).join("");
 
-["season", "team"].forEach(function (id) { byId(id).addEventListener("change", drawList); });
-byId("search").addEventListener("input", drawList);
-byId("list").addEventListener("click", function (event) {
-    const row = event.target.closest(".row");
-    if (row) {
-        location.hash = row.dataset.id;     // also lets the browser's back button work
+    ["season", "team"].forEach(function (id) { byId(id).addEventListener("change", drawList); });
+    byId("search").addEventListener("input", drawList);
+    byId("list").addEventListener("click", function (event) {
+        const row = event.target.closest(".row");
+        if (row) {
+            location.hash = row.dataset.id;     // also lets the browser's back button work
+        }
+    });
+    byId("detail").addEventListener("click", function (event) {
+        const tab = event.target.closest("[data-view]");
+        if (tab) { view = tab.dataset.view; drawMatch(); }
+    });
+    window.addEventListener("hashchange", function () { openMatch(Number(location.hash.slice(1))); });
+
+    // Open the match in the address (#id), or else the latest match.
+    const fromAddress = Number(location.hash.slice(1));
+    if (fromAddress && MATCHES.some(function (m) { return m.id === fromAddress; })) {
+        byId("season").value = "all";
+        openMatch(fromAddress);
+    } else {
+        byId("season").value = String(seasons[0]);
+        openMatch(MATCHES[0].id);
     }
-});
-byId("detail").addEventListener("click", function (event) {
-    const tab = event.target.closest("[data-view]");
-    if (tab) { view = tab.dataset.view; drawMatch(); }
-});
-window.addEventListener("hashchange", function () { openMatch(Number(location.hash.slice(1))); });
+}
 
-// Open the match in the address (#id), or else the latest match.
-const fromAddress = Number(location.hash.slice(1));
-if (fromAddress && MATCHES.some(function (m) { return m.id === fromAddress; })) {
-    byId("season").value = "all";
-    openMatch(fromAddress);
-} else {
-    byId("season").value = String(seasons[0]);
-    openMatch(MATCHES[0].id);
+// Let Node.js (tests/test_site.js) test the link functions.
+if (typeof module !== "undefined") {
+    module.exports = { siteLink: siteLink, linkName: linkName, linkFielders: linkFielders };
 }
