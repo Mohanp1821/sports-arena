@@ -68,6 +68,15 @@ const svg = site.svgBars([{ label: "a", value: 3, title: "A: 3" }, { label: "b",
 check("bar chart has 2 bars, hover text and a link", (svg.match(/<rect/g) || []).length === 2 && svg.indexOf("<title>B: 5</title>") > 0
       && svg.indexOf("href='#x'") > 0);
 
+// 5. Names in the older tables become links only when the WHOLE cell is a name.
+const lookup = { players: { "V Kohli": true, "AB de Villiers": true }, venues: { "Eden Gardens": true },
+                 teams: { "mumbai indians": "Mumbai Indians", "kings xi punjab": "Punjab Kings" } };
+check("player cell -> player link", site.linkForText(" V Kohli ", lookup) === "<a href='#/player/V%20Kohli'>V Kohli</a>");
+check("old team name -> franchise page", site.linkForText("Kings XI Punjab", lookup) === "<a href='#/team/Punjab%20Kings'>Kings XI Punjab</a>");
+check("ground cell -> ground link", site.linkForText("Eden Gardens", lookup).indexOf("#/ground/Eden%20Gardens") > 0);
+check("partnership cell -> two links", (site.linkForText("AB de Villiers & V Kohli", lookup).match(/<a /g) || []).length === 2);
+check("other text is left alone", site.linkForText("V Kohli scored 973", lookup) === null && site.linkForText("973", lookup) === null);
+
 if (failed > 0) {
     console.log("\n" + failed + " site check(s) failed.");
     process.exit(1);

@@ -73,7 +73,7 @@ Every number below is calculated by the pipeline (see `outputs/` and the dashboa
 
 Open it in any browser: everything is inside one page, so it works **offline** as a file. A header on every view has
 the menu, **one search box** (players, grounds or teams, including nicknames like "SKY", "Kohli" or "Chepauk") and a
-light/dark switch. The address after `#` decides the view, so every page has its own link and Back works:
+light/dark switch. Every player, ground and team name in every table links to its page. The address after `#` decides the view, so every page has its own link and Back works:
 
 | Page | Address | What it shows |
 |---|---|---|

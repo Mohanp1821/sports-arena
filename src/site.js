@@ -57,6 +57,23 @@ function compareHref(teamA, teamB, ground) {
     return "#/compare/" + encodeURIComponent(teamA) + "/" + encodeURIComponent(teamB) + "/" + encodeURIComponent(ground);
 }
 
+// Turn the text of one table cell into a link if the WHOLE text is a known name.
+//   lookup = { players: {name: true}, venues: {name: true}, teams: {lower-case name or old name: franchise} }
+// Also links both names in a partnership cell like "AB de Villiers & V Kohli".
+// Returns the HTML of the link(s), or null when the text is not a name (nothing changes then).
+function linkForText(text, lookup) {
+    const name = text.trim();
+    const escape = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#39;"); };
+    if (lookup.players[name]) { return "<a href='" + playerHref(name) + "'>" + escape(name) + "</a>"; }
+    if (lookup.venues[name]) { return "<a href='" + groundHref(name) + "'>" + escape(name) + "</a>"; }
+    if (lookup.teams[name.toLowerCase()]) { return "<a href='" + teamHref(lookup.teams[name.toLowerCase()]) + "'>" + escape(name) + "</a>"; }
+    const pair = name.split(" & ");
+    if (pair.length === 2 && lookup.players[pair[0]] && lookup.players[pair[1]]) {
+        return linkForText(pair[0], lookup) + " &amp; " + linkForText(pair[1], lookup);
+    }
+    return null;
+}
+
 // Compare two teams on one measure: which is better, and by how much, in words.
 // higherIsBetter: true for win % or run rate scored, false for run rate conceded.
 function edgeText(nameA, valueA, nameB, valueB, higherIsBetter, what, unit) {
@@ -942,6 +959,42 @@ function setupSite() {
         wireCompareForm("compare-form");
     }
 
+    // ----- Links in the older sections --------------------------------------
+    // The older views draw tables with plain names. After they draw (and whenever
+    // they redraw), each table cell or bar label whose whole text is a player,
+    // ground or team becomes a link to that page.
+    const LOOKUP = { players: {}, venues: {}, teams: {} };
+    AD.players.forEach(function (name) { LOOKUP.players[name] = true; });
+    AD.venues.forEach(function (name) { LOOKUP.venues[name] = true; });
+    AD.teams.forEach(function (name) { LOOKUP.teams[name.toLowerCase()] = name; });
+    Object.keys(CF.team_aliases).forEach(function (alias) {
+        if (alias.indexOf(" ") > 0) { LOOKUP.teams[alias] = CF.team_aliases[alias]; }   // full old names only, e.g. "kings xi punjab"
+    });
+    // The new pages and the chat already have their own links.
+    const SKIP = "#home-page, #players-page, #grounds-page, #teams-page, #team-page, #compare-page, #chat-log, .site-header";
+
+    function linkNamesIn(root) {
+        if (!root.querySelectorAll) { return; }
+        const cells = root.matches && root.matches("td, .bar-label") ? [root] : [];
+        root.querySelectorAll("td, .bar-label").forEach(function (cell) { cells.push(cell); });
+        cells.forEach(function (cell) {
+            if (cell.closest(SKIP)) { return; }
+            if (cell.closest(".bar-row.clickable")) { return; }            // clicking those bars already selects a filter
+            if (cell.querySelector("a, select, input, button")) { return; } // already has a link or a control
+            const html = linkForText(cell.textContent, LOOKUP);
+            if (html) { cell.innerHTML = html; }
+        });
+    }
+
+    linkNamesIn(document.querySelector("main"));
+    new MutationObserver(function (changes) {
+        changes.forEach(function (change) {
+            change.addedNodes.forEach(function (node) {
+                if (node.nodeType === 1) { linkNamesIn(node); }
+            });
+        });
+    }).observe(document.querySelector("main"), { childList: true, subtree: true });
+
     // ----- Router -----------------------------------------------------------
     function showView(view) {
         document.querySelectorAll("[data-view]").forEach(function (el) { el.hidden = el.dataset.view !== view; });
@@ -1052,5 +1105,5 @@ if (typeof document !== "undefined" && document.getElementById("site-data")) {
 if (typeof module !== "undefined") {
     module.exports = { parseRoute: parseRoute, playerRole: playerRole, careerNumbers: careerNumbers,
                        resolveSearch: resolveSearch, niceMax: niceMax, svgBars: svgBars, playerHref: playerHref,
-                       teamHref: teamHref, compareHref: compareHref, edgeText: edgeText };
+                       teamHref: teamHref, compareHref: compareHref, edgeText: edgeText, linkForText: linkForText };
 }

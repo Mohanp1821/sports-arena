@@ -264,6 +264,10 @@ normal file. `tests/test_facts.py` checks that the page's tables give the same n
   record there against ANY opponent from `metrics.team_ground_stats` (played, won, batting first and chasing, runs and balls
   scored and conceded, wickets) and `team_ground_phases`, next to the ground's own average; `edgeText` writes "X lead on …"
   from two numbers; `team_ground_top_players` gives each team's best players there. Fewer than 5 matches → "small sample".
+- **Links in the older tables** (`linkForText`, `linkNamesIn`): after an older section draws a table (and every time it
+  redraws, noticed by a `MutationObserver`), each cell or bar label whose WHOLE text is a known player, ground or team
+  (including old team names like "Kings XI Punjab") becomes a link; partnership cells ("AB de Villiers & V Kohli") get two
+  links. Only exact names are linked, so ordinary text is never changed, and bars that already select a filter are skipped.
 - **Design tokens:** every colour is a CSS variable; dark mode (from the computer's setting or the ◐ button, remembered in
   the browser) only changes the variables. On phones the columns stack and the header scrolls away.
 - **Tests:** `tests/test_site.js` (router, search, roles, career numbers, charts) and `test_site_data` in `test_facts.py`.
