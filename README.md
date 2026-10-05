@@ -80,8 +80,10 @@ light/dark switch. The address after `#` decides the view, so every page has its
 | **Home** | `#/home` | Headline numbers, the latest champion and caps, the 2027 favourite, top players and grounds |
 | **Player page** | `#/player/V Kohli` | Role, teams, 2027 squad, career cards; runs/strike rate and wickets/economy by season (hover charts); last 10 innings (click a bar to open the scorecard); phase splits; toughest and favourite bowlers; record against each team; how he gets out; how each ground suits him |
 | **Ground page** | `#/ground/Eden Gardens` | Pitch profile for any period, scores by season, toss and chasing, win % of each team there, top players and best fits, highest totals and recent matches |
-| Players / Grounds | `#/players`, `#/grounds` | Directories: top run scorers and wicket takers, 2027 squads; every ground with its runs index |
-| Teams, 2027 predictions, Ask, More analysis | `#/teams` … | The sections below, grouped |
+| **Team page** | `#/team/Mumbai Indians` | Names used, home grounds, titles; win %, league position and finish every season; the 2027 outlook from both models and the squad; how they bat and bowl by phase vs the league (any seasons); batting first vs chasing and toss choices; Impact Player choices; all-time and latest top players, partnerships; record against every team; record at every ground; last 10 matches, biggest wins and defeats |
+| **Two teams at one ground** | `#/compare/CSK/MI/Wankhede` (full names) | Head to head at that ground and their meetings there; both teams' record there against anyone (win %, batting first/chasing, average score, run rates, runs per wicket) next to the ground average, with "who leads" lines; run rate by phase; each team's best batters and bowlers there. Open it from a team page ("compare here"), a ground page or the Teams page |
+| Players / Grounds / Teams | `#/players`, `#/grounds`, `#/teams` | Directories: top players and 2027 squads; every ground with its runs index; every franchise with its titles |
+| 2027 predictions, Ask, More analysis | `#/predictions` … | The sections below, grouped (the explorer and rivalry centre are under Teams) |
 
 Sections inside those views:
 

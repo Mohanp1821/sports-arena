@@ -220,12 +220,18 @@ def team_facts(matches, deliveries):
 
     results = metrics.team_results(matches)
     rivalry = {}
+    rivalry_ground = {}
     for (team, opponent), rows in results.groupby(["team", "opponent"]):
         if team < opponent:
             games = metrics.rivalry_matches(matches, team, opponent)
             last = games.iloc[-1]
             last_text = (last["date"].strftime("%Y-%m-%d") + ": " + (last["winner"] + " " + metrics.margin_text(last)
                          if not last["no_result"] else "no result") + " at " + last["venue"])
+            # The same record at each ground: {venue: [played, team wins, opponent wins, no result]}
+            for venue, at_ground in games.groupby("venue"):
+                rivalry_ground.setdefault(team + "|" + opponent, {})[venue] = [
+                    len(at_ground), int((at_ground["winner_franchise"] == team).sum()),
+                    int((at_ground["winner_franchise"] == opponent).sum()), int(at_ground["no_result"].sum())]
             rivalry[team + "|" + opponent] = [len(games), int((games["winner_franchise"] == team).sum()),
                                               int((games["winner_franchise"] == opponent).sum()),
                                               int(games["no_result"].sum()), last_text]
@@ -245,7 +251,7 @@ def team_facts(matches, deliveries):
         match_list.append([m["date"].strftime("%Y-%m-%d"), m["team1"], m["team2"], m["team1_franchise"], m["team2_franchise"],
                            result, m["venue"], m["player_of_match"], int(m["match_id"]),
                            m["playoff_name"] if m["stage"] == "Playoff" else "League"])
-    return champion_rows, cap_rows, rivalry, ground, match_list
+    return champion_rows, cap_rows, rivalry, ground, match_list, rivalry_ground
 
 
 MIN_MATCHUP_BALLS = 6      # batter-vs-bowler pairs that met at least this many balls
@@ -399,6 +405,12 @@ def fact_lines(facts):
         a, b = key.split("|")
         lines.append(a + " vs " + b + ": " + str(row[0]) + " matches, " + a + " won " + str(row[1]) + ", " + b + " won "
                      + str(row[2]) + ", no result " + str(row[3]) + ". Last meeting " + row[4] + ".")
+    for key, grounds in sorted(facts["rivalry_ground"].items()):
+        a, b = key.split("|")
+        for venue, row in sorted(grounds.items()):
+            if row[0] >= 3:
+                lines.append(a + " vs " + b + " at " + venue + ": " + str(row[0]) + " matches, " + a + " won " + str(row[1])
+                             + ", " + b + " won " + str(row[2]) + ".")
     for key, row in sorted(facts["ground"].items()):
         team, venue = key.split("|")
         if row[0] >= 5:
@@ -451,7 +463,7 @@ def fact_lines(facts):
 def build_facts(matches, deliveries, impact):
     """Build the facts (structured + lines), save outputs/chat_facts.json, return the structured part."""
     players = player_facts(matches, deliveries)
-    champions, caps, rivalry, ground, match_list = team_facts(matches, deliveries)
+    champions, caps, rivalry, ground, match_list, rivalry_ground = team_facts(matches, deliveries)
     next_season = int(matches["season"].max()) + 1
     venues = sorted(matches["venue"].unique())
     venue_aliases = {}
@@ -477,7 +489,7 @@ def build_facts(matches, deliveries, impact):
                  "first_season": int(matches["season"].min()), "last_season": int(matches["season"].max())},
         "team_aliases": team_aliases, "player_aliases": player_aliases(players), "venue_aliases": venue_aliases,
         "players": players, "names": sorted(players), "matchups": matchup_facts(deliveries, sorted(players)),
-        "champions": champions, "caps": caps, "rivalry": rivalry, "ground": ground,
+        "champions": champions, "caps": caps, "rivalry": rivalry, "rivalry_ground": rivalry_ground, "ground": ground,
         "matches": match_list, "impact": impact_facts(matches, deliveries, impact),
         "pitch": pitch_facts(matches, deliveries), "fit": fit_facts(matches, deliveries),
         "predictions": prediction_facts(next_season),

@@ -101,7 +101,8 @@ Points to say:
   before a season starts; we report that honestly."
 - **Demo clicks:** Home → click "V Kohli" (player page; hover the season chart; click a "last 10 innings" bar to open the
   scorecard; scroll to "Grounds" and click M Chinnaswamy Stadium) → on the ground page change the Period → search "SKY"
-  in the header → switch light/dark with ◐. Then Teams → Rivalries → CSK v MI → click a date in "Last 5 meetings" to open the match centre;
+  in the header → switch light/dark with ◐ → Teams → Mumbai Indians (season chart, how they play) → "compare here" on
+  Wankhede (MI v CSK at Wankhede side by side). Then Teams → Rivalries → CSK v MI → click a date in "Last 5 meetings" to open the match centre;
   Matchups → V Kohli v JJ Bumrah; Grounds → Chepauk; Pitch & player fit → Chepauk, then type "V Kohli" and click
   M Chinnaswamy Stadium in his "best grounds" chart; Trends → points table 2026 and the chase calculator;
   Ask Sports Arena → "Who won the Orange Cap in 2016?", "Kohli vs Bumrah", "Who will win IPL 2027?".

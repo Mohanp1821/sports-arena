@@ -178,6 +178,17 @@ By "things" (players, grounds, teams) instead of by analysis type; one search bo
 profile page (header, headline cards, charts, tables, source notes); colours as CSS variables with a dark mode; charts
 drawn as SVG with hover details; columns that stack on a phone. Small samples are hidden or flagged.
 
+**Q30c. What does the team page show, and how is "how they play" measured?**
+Titles, every season's win %, league position and finish, the 2027 outlook, top players, records against each team and at
+each ground. "How they play" divides the runs a team scored (and conceded) in each phase by what the league average would
+give from the same balls in the same seasons: Mumbai's death-overs batting index is 103.8 (3.8% faster than the league).
+
+**Q30d. How do you compare two teams at one ground fairly?**
+Their head to head at that ground can be only a handful of matches, so we also show each team's record there against
+ANY opponent (win %, batting first and chasing, run rates scored and conceded, runs per wicket), next to the ground's own
+average, plus each team's best players there. Example: at Wankhede MI lead CSK 8-6 head to head; against anyone MI have won
+59.6% there and CSK 51.9%. The page flags teams with fewer than 5 matches at the ground.
+
 **Q31. How does "Ask Sports Arena" answer without an AI model?** (`src/chatbot.js`)
 It finds the names in the question using alias lists (e.g. "SKY" → SA Yadav, "Kings XI Punjab" → Punjab Kings), decides
 the question type from keywords, and fills in an answer **only** from the facts file, adding its source. If a name is

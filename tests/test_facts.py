@@ -388,7 +388,24 @@ def test_site_data(matches, deliveries):
     career_runs = career[career["batter"] == "V Kohli"]["runs"].iloc[0]
     assert sum(row[2] for row in data["bat_phase"] if row[0] == int(kohli)) == career_runs
     assert data["home"]["Wankhede Stadium"] == ["Mumbai Indians"]
-    print("PASS  site data: Kohli's last 10 innings and phase runs match metrics.py; home grounds")
+    # Team pages: season wins add up to the franchise's wins; stages match the official champions.
+    seasons = data["team"]["seasons"]["Chennai Super Kings"]
+    results = metrics.team_results(matches)
+    assert sum(row[3] for row in seasons) == int(results[results["team"] == "Chennai Super Kings"]["won"].sum())
+    champion_years = [row[0] for row in seasons if row[7] == "Champion"]
+    assert champion_years == [2010, 2011, 2018, 2021, 2023], "CSK title years"
+    # Team at a ground: MI's wins at Wankhede equal team_at_ground's.
+    venues = sorted(matches["venue"].unique())
+    teams = sorted(set(matches["team1_franchise"]) | set(matches["team2_franchise"]))
+    row = [r for r in data["team"]["ground"] if r[0] == teams.index("Mumbai Indians") and r[1] == venues.index("Wankhede Stadium")][0]
+    at_ground = metrics.team_at_ground(matches, "Mumbai Indians", "Wankhede Stadium")
+    assert row[2] == at_ground["played"].sum() and row[3] == at_ground["wins"].sum()
+    # Phase indexes: across all teams, runs scored = league-expected runs (index 100), every season.
+    phases = metrics.team_phase_components(deliveries)
+    by_season = phases.groupby("season")[["bat_runs", "bat_expected"]].sum()
+    assert ((by_season["bat_runs"] / by_season["bat_expected"] - 1).abs() < 1e-9).all()
+    print("PASS  site data: Kohli's last 10 innings and phase runs match metrics.py; home grounds; team seasons, "
+          "CSK title years, MI at Wankhede, team phase indexes = 100 league-wide")
 
 
 def test_pitch_and_fit(matches, deliveries):

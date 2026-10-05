@@ -291,6 +291,24 @@ function answerRivalry(facts, teamA, teamB) {
                  + " (franchise records, old team names included; super-over wins count as wins).");
 }
 
+function answerRivalryAtGround(facts, teamA, teamB, venue) {
+    const first = teamA < teamB ? teamA : teamB;
+    const second = teamA < teamB ? teamB : teamA;
+    const grounds = facts.rivalry_ground[first + "|" + second] || {};
+    const row = grounds[venue];
+    const record = function (team) {
+        const r = facts.ground[team + "|" + venue];
+        return r ? team + " have won " + r[1] + " of " + r[0] + " there (" + roundTo(r[1] / r[0] * 100, 1) + "%)"
+                 : team + " have not played there";
+    };
+    const text = (row ? first + " vs " + second + " at " + venue + ": " + row[0] + " matches, " + first + " won " + row[1] + ", "
+                        + second + " won " + row[2] + (row[3] ? ", no result " + row[3] : "") + "."
+                      : first + " and " + second + " have never played each other at " + venue + ".")
+               + " Against anyone at this ground: " + record(teamA) + "; " + record(teamB) + ".";
+    return reply(text, "Source: match results " + facts.meta.season_range + " (franchise records). "
+                 + "The dashboard's compare page (Teams) has run rates and players at the ground side by side.");
+}
+
 function answerTeamAtGround(facts, team, venue) {
     const row = facts.ground[team + "|" + venue];
     if (!row) { return reply(team + " have no finished matches at " + venue + " in the data.", DATA_SOURCE); }
@@ -510,6 +528,8 @@ function answerQuestion(question, facts) {
         result = answerChampion(facts, q);
     } else if (q.players.length >= 2) {
         result = answerMatchup(facts, q.players[0], q.players[1]);
+    } else if (q.teams.length >= 2 && q.venues.length >= 1) {
+        result = answerRivalryAtGround(facts, q.teams[0], q.teams[1], q.venues[0]);
     } else if (q.teams.length >= 2) {
         result = answerRivalry(facts, q.teams[0], q.teams[1]);
     } else if (q.teams.length === 1 && q.venues.length >= 1) {

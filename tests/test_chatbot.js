@@ -29,6 +29,7 @@ const favourite = facts.predictions.teams.slice().sort(function (a, b) { return 
 const orange2027 = facts.predictions.awards_a.find(function (r) { return r[0] === "Orange Cap (most runs)" && r[1] === 1; });
 const eras = facts.impact.eras;
 const chepauk = facts.pitch.all["MA Chidambaram Stadium, Chepauk"];
+const cskMiWankhede = facts.rivalry_ground["Chennai Super Kings|Mumbai Indians"]["Wankhede Stadium"];
 const kohliChinnaswamy = facts.fit.bat["V Kohli|M Chinnaswamy Stadium"];
 const topRuns = Object.keys(facts.players).sort(function (a, b) {
     return facts.players[b].career[2] - facts.players[a].career[2];
@@ -59,6 +60,7 @@ const CHECKS = [
     ["Sharma stats", ["Which", "RG Sharma"]],
     ["How does the pitch at Chepauk play?", ["MA Chidambaram Stadium, Chepauk", "Runs index " + chepauk[2]]],
     ["Kohli at Chinnaswamy", ["V Kohli", "M Chinnaswamy Stadium", kohliChinnaswamy[1] + " runs off " + kohliChinnaswamy[0] + " balls"]],
+    ["CSK vs MI at Wankhede", ["at Wankhede Stadium", cskMiWankhede[0] + " matches", "Chennai Super Kings won " + cskMiWankhede[1]]],
 ];
 
 let failed = 0;

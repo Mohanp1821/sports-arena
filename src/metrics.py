@@ -154,7 +154,7 @@ def batting_innings(deliveries):
     # The team columns are the same on every ball of an innings, so we keep them
     # (when they exist) to allow tables like "runs against each team".
     keys = ["batter", "match_id", "inning", "season", "date"]
-    for column in ["batting_team_franchise", "bowling_team_franchise"]:
+    for column in ["batting_team_franchise", "bowling_team_franchise", "venue"]:
         if column in df.columns:
             keys.append(column)
     innings = df.groupby(keys).agg(
@@ -1512,3 +1512,183 @@ def best_ground_fits(batting, bowling, venue, min_balls=120, n=5):
     bowl = bowl.sort_values(["economy_diff", "bowler"], ascending=[True, True]).head(n)
     return (bat[["batter", "balls", "runs", "strike_rate", "else_strike_rate", "strike_rate_diff"]].reset_index(drop=True),
             bowl[["bowler", "legal_balls", "wickets", "economy", "else_economy", "economy_diff"]].reset_index(drop=True))
+
+
+# ===========================================================================
+# TEAM PAGES: one franchise's seasons, style, players and matches, and two
+# teams compared at one ground.
+# ===========================================================================
+
+def team_season_summary(deliveries, matches):
+    """
+    One row per franchise per season: played, won, win %, league position
+    (from the rebuilt points table) and how far they got:
+    Champion, Runner-up, Playoffs (lost in the playoffs) or League stage.
+    """
+    results = team_results(matches)
+    table = results.groupby(["team", "season"]).agg(played=("match_id", "count"), won=("won", "sum")).reset_index()
+    table["win_pct"] = (table["won"] / table["played"] * 100).round(1)
+
+    positions = []
+    for season in sorted(matches["season"].unique()):
+        points = points_table(deliveries, matches, season)
+        for i in range(len(points)):
+            positions.append([points["team"].iloc[i], season, int(points["position"].iloc[i]), int(points["points"].iloc[i])])
+    table = table.merge(pd.DataFrame(positions, columns=["team", "season", "position", "points"]), on=["team", "season"], how="left")
+
+    stages = {}
+    for i in range(len(matches)):
+        match = matches.iloc[i]
+        if match["stage"] != "Playoff":
+            continue
+        for team in [match["team1_franchise"], match["team2_franchise"]]:
+            key = (team, match["season"])
+            if match["playoff_name"] == "Final":
+                stages[key] = "Champion" if match["winner_franchise"] == team else "Runner-up"
+            elif key not in stages:
+                stages[key] = "Playoffs"
+    table["stage"] = [stages.get((table["team"].iloc[i], table["season"].iloc[i]), "League stage") for i in range(len(table))]
+    return table.sort_values(["team", "season"]).reset_index(drop=True)
+
+
+def team_names_by_season(matches):
+    """The name each franchise used in each season, e.g. Delhi Capitals -> Delhi Daredevils in 2015."""
+    pairs = pd.concat([matches[["season", "team1", "team1_franchise"]].rename(columns={"team1": "name", "team1_franchise": "team"}),
+                       matches[["season", "team2", "team2_franchise"]].rename(columns={"team2": "name", "team2_franchise": "team"})])
+    return pairs.drop_duplicates().sort_values(["team", "season"]).reset_index(drop=True)
+
+
+def team_phase_components(deliveries):
+    """
+    Per franchise, season and phase: runs scored and conceded, legal balls, and
+    what the league average would give from the same balls in that season and phase.
+    Batting index = runs / expected x 100 (higher = scores faster than the league);
+    bowling index = runs conceded / expected x 100 (LOWER = concedes less than the league).
+    """
+    df = add_ball_columns(deliveries)
+    league = df.groupby(["season", "phase"]).agg(runs=("total_runs", "sum"), legal=("is_legal_ball", "sum")).reset_index()
+    league["runs_per_ball"] = league["runs"] / league["legal"]
+    bat = df.groupby(["batting_team_franchise", "season", "phase"]).agg(
+        bat_runs=("total_runs", "sum"), bat_balls=("is_legal_ball", "sum")).reset_index().rename(columns={"batting_team_franchise": "team"})
+    bowl = df.groupby(["bowling_team_franchise", "season", "phase"]).agg(
+        bowl_runs=("total_runs", "sum"), bowl_balls=("is_legal_ball", "sum")).reset_index().rename(columns={"bowling_team_franchise": "team"})
+    table = bat.merge(bowl, on=["team", "season", "phase"], how="outer").fillna(0)
+    table = table.merge(league[["season", "phase", "runs_per_ball"]], on=["season", "phase"])
+    table["bat_expected"] = table["bat_balls"] * table["runs_per_ball"]
+    table["bowl_expected"] = table["bowl_balls"] * table["runs_per_ball"]
+    return table[["team", "season", "phase", "bat_runs", "bat_balls", "bat_expected", "bowl_runs", "bowl_balls", "bowl_expected"]]
+
+
+def team_style(deliveries, matches):
+    """
+    For each franchise: batting first vs chasing (played and won), and after
+    winning the toss how often it chose to bat or field and won.
+    """
+    totals = innings_totals(deliveries, matches)
+    first = totals[totals["inning"] == 1][["match_id", "batting_team", "bowling_team"]]
+    played = matches[matches["no_result"] == False][["match_id", "winner_franchise", "toss_winner_franchise", "toss_decision"]]
+    played = played.merge(first, on="match_id")
+    rows = []
+    teams = sorted(set(played["batting_team"]) | set(played["bowling_team"]))
+    for team in teams:
+        bat_first = played[played["batting_team"] == team]
+        chasing = played[played["bowling_team"] == team]
+        tosses = played[played["toss_winner_franchise"] == team]
+        chose_bat = tosses[tosses["toss_decision"] == "bat"]
+        chose_field = tosses[tosses["toss_decision"] == "field"]
+        rows.append({"team": team,
+                     "bat_first_played": len(bat_first), "bat_first_won": int((bat_first["winner_franchise"] == team).sum()),
+                     "chase_played": len(chasing), "chase_won": int((chasing["winner_franchise"] == team).sum()),
+                     "tosses_won": len(tosses),
+                     "chose_bat": len(chose_bat), "chose_bat_won": int((chose_bat["winner_franchise"] == team).sum()),
+                     "chose_field": len(chose_field), "chose_field_won": int((chose_field["winner_franchise"] == team).sum())})
+    return pd.DataFrame(rows)
+
+
+def team_top_players(deliveries, n=10):
+    """The franchise's all-time top run-scorers and wicket-takers (for that franchise only)."""
+    batting = batting_stats(deliveries, ["batter", "batting_team_franchise"]).rename(columns={"batting_team_franchise": "team"})
+    batting = batting.sort_values(["team", "runs", "batter"], ascending=[True, False, True]).groupby("team").head(n)
+    bowling = bowling_stats(deliveries, ["bowler", "bowling_team_franchise"]).rename(columns={"bowling_team_franchise": "team"})
+    bowling = bowling.sort_values(["team", "wickets", "economy", "bowler"], ascending=[True, False, True, True]).groupby("team").head(n)
+    return batting.reset_index(drop=True), bowling.reset_index(drop=True)
+
+
+def team_extremes(matches, n=5):
+    """Each franchise's biggest wins and heaviest defeats, by runs and by wickets (no rain-rule matches)."""
+    normal = matches[(matches["no_result"] == False) & (matches["result"] == "normal") & (matches["dl_applied"] == 0)].copy()
+    normal["loser_franchise"] = normal["team1_franchise"].where(normal["winner_franchise"] != normal["team1_franchise"],
+                                                                 normal["team2_franchise"])
+    rows = []
+    for column, kind in [("win_by_runs", "runs"), ("win_by_wickets", "wickets")]:
+        part = normal[normal[column] > 0]
+        for side, team_column in [("win", "winner_franchise"), ("defeat", "loser_franchise")]:
+            ranked = part.sort_values([column, "date"], ascending=[False, True]).groupby(team_column).head(n)
+            for i in range(len(ranked)):
+                match = ranked.iloc[i]
+                opponent = match["loser_franchise"] if side == "win" else match["winner_franchise"]
+                rows.append([match[team_column], side, kind, int(match[column]), opponent, match["date"].strftime("%Y-%m-%d"),
+                             match["venue"], int(match["match_id"])])
+    return pd.DataFrame(rows, columns=["team", "side", "kind", "margin", "opponent", "date", "venue", "match_id"])
+
+
+def team_ground_stats(deliveries, matches):
+    """
+    Every franchise at every ground (everything a two-team comparison needs):
+      played, won, no-results; batting-first and chasing played/won;
+      runs scored and conceded with legal balls (run rates), wickets taken and lost;
+      first-innings totals when batting first; highest total.
+    """
+    totals = innings_totals(deliveries, matches)
+    totals = totals[totals["inning"] <= 2]
+    results = team_results(matches)
+    record = results.groupby(["team", "venue"]).agg(played=("match_id", "count"), won=("won", "sum")).reset_index()
+
+    bat = totals.groupby(["batting_team", "venue"]).agg(runs_for=("runs", "sum"), balls_for=("legal_balls", "sum"),
+                                                        wickets_lost=("wickets", "sum"), highest=("runs", "max")).reset_index()
+    bat = bat.rename(columns={"batting_team": "team"})
+    bowl = totals.groupby(["bowling_team", "venue"]).agg(runs_against=("runs", "sum"), balls_against=("legal_balls", "sum"),
+                                                         wickets_taken=("wickets", "sum")).reset_index()
+    bowl = bowl.rename(columns={"bowling_team": "team"})
+
+    good = totals[(totals["no_result"] == False) & (totals["rain_affected"] == False)]
+    first = good[good["inning"] == 1].copy()
+    first["won"] = first["winner_franchise"] == first["batting_team"]
+    bat_first = first.groupby(["batting_team", "venue"]).agg(bat_first_played=("match_id", "count"), bat_first_won=("won", "sum"),
+                                                             first_innings_runs=("runs", "sum")).reset_index()
+    bat_first = bat_first.rename(columns={"batting_team": "team"})
+    second = good[good["inning"] == 2].copy()
+    second["won"] = second["winner_franchise"] == second["batting_team"]
+    chase = second.groupby(["batting_team", "venue"]).agg(chase_played=("match_id", "count"), chase_won=("won", "sum")).reset_index()
+    chase = chase.rename(columns={"batting_team": "team"})
+
+    table = record.merge(bat, on=["team", "venue"], how="outer").merge(bowl, on=["team", "venue"], how="outer")
+    table = table.merge(bat_first, on=["team", "venue"], how="left").merge(chase, on=["team", "venue"], how="left")
+    count_columns = ["played", "won", "runs_for", "balls_for", "wickets_lost", "highest", "runs_against", "balls_against",
+                     "wickets_taken", "bat_first_played", "bat_first_won", "first_innings_runs", "chase_played", "chase_won"]
+    for column in count_columns:
+        table[column] = table[column].fillna(0).astype(int)
+    return table.sort_values(["team", "venue"]).reset_index(drop=True)
+
+
+def team_ground_phases(deliveries, matches):
+    """Run rate scored and conceded in each phase, per franchise and ground."""
+    df = add_ball_columns(deliveries).merge(matches[["match_id", "venue"]], on="match_id")
+    bat = df.groupby(["batting_team_franchise", "venue", "phase"]).agg(runs=("total_runs", "sum"), balls=("is_legal_ball", "sum")).reset_index()
+    bat = bat.rename(columns={"batting_team_franchise": "team"})
+    bowl = df.groupby(["bowling_team_franchise", "venue", "phase"]).agg(runs_against=("total_runs", "sum"),
+                                                                       balls_against=("is_legal_ball", "sum")).reset_index()
+    bowl = bowl.rename(columns={"bowling_team_franchise": "team"})
+    return bat.merge(bowl, on=["team", "venue", "phase"], how="outer").fillna(0)
+
+
+def team_ground_top_players(deliveries, matches, n=5):
+    """Each franchise's top run-scorers and wicket-takers at each ground."""
+    df = deliveries.merge(matches[["match_id", "venue"]], on="match_id")
+    batting = batting_stats(df, ["batter", "batting_team_franchise", "venue"]).rename(columns={"batting_team_franchise": "team"})
+    batting = batting.sort_values(["team", "venue", "runs", "batter"], ascending=[True, True, False, True]).groupby(["team", "venue"]).head(n)
+    bowling = bowling_stats(df, ["bowler", "bowling_team_franchise", "venue"]).rename(columns={"bowling_team_franchise": "team"})
+    bowling = bowling[bowling["wickets"] > 0]
+    bowling = bowling.sort_values(["team", "venue", "wickets", "economy", "bowler"],
+                                  ascending=[True, True, False, True, True]).groupby(["team", "venue"]).head(n)
+    return batting.reset_index(drop=True), bowling.reset_index(drop=True)

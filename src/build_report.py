@@ -8,7 +8,9 @@ views, switched by the address after "#" (the router is in src/site.js):
   - Home (#/home): headline numbers, champion, caps, 2027 favourite, quick links
   - Players (#/players, #/player/V Kohli): a page for every player
   - Grounds (#/grounds, #/ground/Eden Gardens): a page for every ground
-  - Teams: the interactive explorer and the rivalry centre
+  - Teams (#/teams, #/team/Mumbai Indians): a page for every franchise, plus the
+    explorer and rivalry centre; #/compare/<team>/<team>/<ground> compares two
+    teams at one ground
   - 2027 predictions: Model A vs Model B
   - Ask: the "Ask Sports Arena" chatbot
   - More analysis: matchups, pitch tool, specialists, Impact Player era, trends,
@@ -766,8 +768,9 @@ def make_page(matches, deliveries):
     parts.append("</div></div>")
     parts.append("<div data-view='players' hidden><div id='players-page'></div></div>")
     parts.append("<div data-view='grounds' hidden><div id='grounds-page'></div></div>")
-    parts.append("<div data-view='teams' hidden><h1>Teams</h1><p class='note view-intro'>Filter by season and team, "
-                 "then compare any two teams in the rivalry centre.</p></div>")
+    parts.append("<div data-view='teams' hidden><div id='teams-page'></div></div>")
+    parts.append("<div data-view='team' hidden><div id='team-page'></div></div>")
+    parts.append("<div data-view='compare' hidden><div id='compare-page'></div></div>")
     parts.append(analysis_menu())
 
     # Existing sections, each put into its view

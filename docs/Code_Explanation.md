@@ -256,6 +256,14 @@ normal file. `tests/test_facts.py` checks that the page's tables give the same n
   sections appear only if it is a real part of the player's game (120+ balls batted, 300+ balls bowled).
 - **Charts** (`svgBars`, `svgLine`) are SVG written as text: bars and dots carry a `<title>`, which shows as a tooltip on
   hover; form bars link to the match centre. Axes use round steps (`niceMax`).
+- **Team pages** (`renderTeam`): `metrics.team_season_summary` (win %, league position from the rebuilt points table, and
+  how far they got: Champion / Runner-up / Playoffs / League stage), `team_phase_components` (runs scored and conceded per
+  phase against the league in the same seasons: batting index above 100 = faster, bowling index below 100 = cheaper),
+  `team_style` (batting first vs chasing, toss choices), `team_top_players`, `team_extremes` (biggest wins and defeats).
+- **Two teams at one ground** (`renderCompare`): the head to head at that ground (rivalry centre data), then each team's
+  record there against ANY opponent from `metrics.team_ground_stats` (played, won, batting first and chasing, runs and balls
+  scored and conceded, wickets) and `team_ground_phases`, next to the ground's own average; `edgeText` writes "X lead on …"
+  from two numbers; `team_ground_top_players` gives each team's best players there. Fewer than 5 matches → "small sample".
 - **Design tokens:** every colour is a CSS variable; dark mode (from the computer's setting or the ◐ button, remembered in
   the browser) only changes the variables. On phones the columns stack and the header scrolls away.
 - **Tests:** `tests/test_site.js` (router, search, roles, career numbers, charts) and `test_site_data` in `test_facts.py`.

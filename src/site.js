@@ -1,5 +1,7 @@
 // =============================================================================
 // site.js
+//   (also: #/teams directory, #/team/<name> team page, #/compare/<A>/<B>/<ground>
+//    two teams compared at one ground, #/rivalry/<A>/<B> opens the rivalry centre)
 // -----------------------------------------------------------------------------
 // The NEW SITE DESIGN of the Sports Arena dashboard: one page, several "views",
 // and a page for every player and every ground.
@@ -32,11 +34,15 @@ function parseRoute(hash) {
     const text = (hash || "").replace(/^#/, "");
     if (text === "" || text === "/" || text === "/home") { return { view: "home" }; }
     if (text.charAt(0) !== "/") { return { view: null, section: text }; }     // an old section link like #rivalry
-    const parts = text.slice(1).split("/");
-    const first = parts[0].split("?")[0];
-    const rest = decodeURIComponent(parts.slice(1).join("/"));
+    // Each part between "/" is decoded on its own, so names may contain any character.
+    const parts = text.slice(1).split("?")[0].split("/").map(function (part) { return decodeURIComponent(part); });
+    const first = parts[0];
+    const rest = parts.slice(1).join("/");
     if (first === "player" && rest) { return { view: "players", player: rest }; }
     if (first === "ground" && rest) { return { view: "grounds", ground: rest }; }
+    if (first === "team" && rest) { return { view: "team", team: rest }; }
+    if (first === "compare") { return { view: "compare", teamA: parts[1] || "", teamB: parts[2] || "", ground: parts[3] || "" }; }
+    if (first === "rivalry" && parts.length >= 3) { return { view: "rivalry", teamA: parts[1], teamB: parts[2] }; }
     if (first === "ask") {
         const query = text.indexOf("?q=") >= 0 ? decodeURIComponent(text.split("?q=")[1]) : "";
         return { view: "ask", question: query };
@@ -46,6 +52,21 @@ function parseRoute(hash) {
 
 function playerHref(name) { return "#/player/" + encodeURIComponent(name); }
 function groundHref(name) { return "#/ground/" + encodeURIComponent(name); }
+function teamHref(name) { return "#/team/" + encodeURIComponent(name); }
+function compareHref(teamA, teamB, ground) {
+    return "#/compare/" + encodeURIComponent(teamA) + "/" + encodeURIComponent(teamB) + "/" + encodeURIComponent(ground);
+}
+
+// Compare two teams on one measure: which is better, and by how much, in words.
+// higherIsBetter: true for win % or run rate scored, false for run rate conceded.
+function edgeText(nameA, valueA, nameB, valueB, higherIsBetter, what, unit) {
+    if (valueA === null || valueB === null || valueA === undefined || valueB === undefined) { return null; }
+    if (valueA === valueB) { return "Level on " + what + " (" + valueA + unit + ")."; }
+    const aBetter = higherIsBetter ? valueA > valueB : valueA < valueB;
+    const better = aBetter ? nameA : nameB;
+    return better + " lead on " + what + ": " + (aBetter ? valueA : valueB) + unit + " vs "
+         + (aBetter ? valueB : valueA) + unit + ".";
+}
 
 // What kind of player: from balls faced and balls bowled in his career.
 //   career = [matches, innings, runs, balls, outs, highest, 50s, 100s, sixes, wickets, legal balls bowled, runs conceded]
@@ -215,6 +236,18 @@ function setupSite() {
     const LAST = CF.meta.last_season;
 
     function pLink(name) { return "<a href='" + playerHref(name) + "'>" + safe(name) + "</a>"; }
+    function tLink(name) { return "<a href='" + teamHref(name) + "'>" + safe(name) + "</a>"; }
+    const TD = SD.team;
+    const CURRENT = AD.current_teams;
+    // Short codes ("CSK") from the chatbot's alias list: the first 2-4 letter alias of each team.
+    const CODE = {};
+    Object.keys(CF.team_aliases).forEach(function (alias) {
+        const team = CF.team_aliases[alias];
+        if (!CODE[team] && /^[a-z]{2,4}$/.test(alias)) { CODE[team] = alias.toUpperCase(); }
+    });
+    function titlesOf(team) {
+        return Object.keys(CF.champions).sort().filter(function (season) { return CF.champions[season][0] === team; });
+    }
     function gLink(name) { return "<a href='" + groundHref(name) + "'>" + safe(name) + "</a>"; }
     function panel(title, body, note) {
         return "<div class='panel'><h3>" + title + "</h3>" + body + (note ? "<p class='note'>" + note + "</p>" : "") + "</div>";
@@ -238,7 +271,7 @@ function setupSite() {
             + "<p>" + meta.matches.toLocaleString("en") + " matches and " + meta.balls.toLocaleString("en") + " deliveries across "
             + meta.seasons + " seasons. Search any player, ground or team above, or start here.</p></div>"
             + "<div class='feature-grid'>"
-            + "<a class='feature' href='#/teams'><span>IPL " + LAST + " champion</span><b>" + safe(champion[1]) + "</b><small>beat "
+            + "<a class='feature' href='" + teamHref(champion[0]) + "'><span>IPL " + LAST + " champion</span><b>" + safe(champion[1]) + "</b><small>beat "
             + safe(champion[2]) + ", " + safe(champion[3]) + "</small></a>"
             + "<a class='feature' href='" + playerHref(caps[0]) + "'><span>Orange Cap " + LAST + "</span><b>" + safe(caps[0])
             + "</b><small>" + caps[1] + " runs</small></a>"
@@ -246,7 +279,7 @@ function setupSite() {
             + "</b><small>" + caps[3] + " wickets</small></a>";
         if (CF.predictions) {
             const fav = CF.predictions.teams.slice().sort(function (a, b) { return b[1] - a[1]; })[0];
-            html += "<a class='feature accent' href='#/predictions'><span>IPL " + CF.predictions.season + " favourite</span><b>"
+            html += "<a class='feature accent' href='" + teamHref(fav[0]) + "'><span>IPL " + CF.predictions.season + " favourite</span><b>"
                   + safe(fav[0]) + "</b><small>Model A " + fav[1] + "%, Model B " + fav[3] + "% title chance</small></a>";
         }
         html += "</div>";
@@ -288,7 +321,7 @@ function setupSite() {
         function drawSquad() {
             const team = byId("squad-team").value;
             const players = Object.keys(SD.squads).filter(function (p) { return SD.squads[p] === team; }).sort();
-            byId("squad-list").innerHTML = panel(safe(team) + ": " + players.length + " players (data/squads_" + (LAST + 1) + ".csv)",
+            byId("squad-list").innerHTML = panel(tLink(team) + ": " + players.length + " players (data/squads_" + (LAST + 1) + ".csv)",
                 chips(players.map(function (p) {
                     const c = CF.players[p] ? careerNumbers(CF.players[p].career) : null;
                     return chip(playerHref(p), p, c ? c.runs + " runs · " + c.wickets + " wkts" : "");
@@ -319,8 +352,8 @@ function setupSite() {
         const bowls = player.career[10] >= 300 || (player.career[10] > 0 && player.career[3] < 120);
         let html = "<p class='crumbs'><a href='#/players'>Players</a> / " + safe(name) + "</p>"
             + "<div class='profile-head'><div><h1>" + safe(name) + "</h1><p><span class='badge'>" + playerRole(player.career, field[2])
-            + "</span> IPL " + seasons[0] + "-" + seasons[seasons.length - 1] + " · " + teams.map(safe).join(", ") + "</p>"
-            + (SD.squads[name] ? "<p class='note'>" + (LAST + 1) + " squad: <b>" + safe(SD.squads[name]) + "</b></p>" : "")
+            + "</span> IPL " + seasons[0] + "-" + seasons[seasons.length - 1] + " · " + teams.map(tLink).join(", ") + "</p>"
+            + (SD.squads[name] ? "<p class='note'>" + (LAST + 1) + " squad: <b>" + tLink(SD.squads[name]) + "</b></p>" : "")
             + "</div><a class='button' href='#/ask?q=" + encodeURIComponent(name + " career stats") + "'>Ask about " + safe(name) + "</a></div>";
 
         const cards = [card("matches", c.matches)];
@@ -429,8 +462,8 @@ function setupSite() {
         const vsPanels = [];
         if (batted) {
             const vs = AD.bat_vs.filter(function (r) { return r[0] === p; }).sort(function (a, b) { return b[3] - a[3]; })
-                .map(function (r) { return [AD.teams[r[1]], r[2], r[3], r[5] ? round(r[3] / r[5], 1) : "-", r[4] ? round(r[3] / r[4] * 100, 1) : "-"]; });
-            vsPanels.push(panel("Batting against each team", "<div class='table-box scroll'>" + htmlTable(["Opponent", "Inns", "Runs", "Avg", "SR"], vs) + "</div>"));
+                .map(function (r) { return [tLink(AD.teams[r[1]]), r[2], r[3], r[5] ? round(r[3] / r[5], 1) : "-", r[4] ? round(r[3] / r[4] * 100, 1) : "-"]; });
+            vsPanels.push(panel("Batting against each team", "<div class='table-box scroll'>" + linkTable(["Opponent", "Inns", "Runs", "Avg", "SR"], vs) + "</div>"));
             const outs = AD.outs.filter(function (r) { return r[0] === p; });
             const total = outs.reduce(function (sum, r) { return sum + r[2]; }, 0);
             if (total > 0) {
@@ -441,8 +474,8 @@ function setupSite() {
         }
         if (bowls) {
             const vs = AD.bowl_vs.filter(function (r) { return r[0] === p; }).sort(function (a, b) { return b[3] - a[3]; })
-                .map(function (r) { return [AD.teams[r[1]], r[2], r[3], oversText(r[4]), round(r[5] / (r[4] / 6), 2)]; });
-            vsPanels.push(panel("Bowling against each team", "<div class='table-box scroll'>" + htmlTable(["Opponent", "Matches", "Wkts", "Overs", "Econ"], vs) + "</div>"));
+                .map(function (r) { return [tLink(AD.teams[r[1]]), r[2], r[3], oversText(r[4]), round(r[5] / (r[4] / 6), 2)]; });
+            vsPanels.push(panel("Bowling against each team", "<div class='table-box scroll'>" + linkTable(["Opponent", "Matches", "Wkts", "Overs", "Econ"], vs) + "</div>"));
         }
         html += "<h2>Against each team</h2><div class='two-columns'>" + vsPanels.join("") + "</div>";
 
@@ -553,8 +586,13 @@ function setupSite() {
         const topBowl = AD.fit_bowl.filter(function (r) { return r[1] === v; }).sort(function (a, b) { return b[5] - a[5] || a[4] - b[4]; }).slice(0, 8)
             .map(function (r) { return [pLink(AD.players[r[0]]), r[2], r[5], round(r[4] / (r[3] / 6), 2)]; });
         const best = AD.fit_best[String(v)];
-        html += "<h2>Teams and players here</h2><div class='two-columns'>"
-            + panel("Win % here (3+ matches)", htmlBars(teamBars, 100, home ? home[0] : ""), "No-results not counted. Home team highlighted.")
+        const teamOrder = Object.keys(teamTotals).sort(function (a, b) { return teamTotals[b].played - teamTotals[a].played; });
+        html += "<h2>Teams and players here</h2>" + panel("Compare two teams at " + safe(name),
+                  compareForm("ground-compare", teamOrder[0] || CURRENT[0], teamOrder[1] || CURRENT[1], name),
+                  "Head to head here, and each team's record, scoring and bowling at this ground side by side.")
+            + "<div class='two-columns'>"
+            + panel("Win % here (3+ matches)", "<div id='ground-team-bars'>" + htmlBars(teamBars.map(function (bar) { bar.key = bar.label; return bar; }), 100, home ? home[0] : "")
+                    + "</div>", "No-results not counted. Home team highlighted. Click a team to open its page.")
             + panel("Top run-scorers here", linkTable(["Batter", "Inns", "Runs", "SR"], topBat))
             + panel("Top wicket-takers here", linkTable(["Bowler", "Matches", "Wkts", "Econ"], topBowl))
             + panel("Best fits: faster or cheaper here than elsewhere (120+ balls)",
@@ -573,16 +611,343 @@ function setupSite() {
 
         const periods = AD.pitch_periods.filter(function (pr) { return AD.pitch[pr[0]].some(function (r) { return r[0] === v; }); });
         fillSelect(byId("ground-period"), periods, "all");
+        wireCompareForm("ground-compare");
+        byId("ground-team-bars").addEventListener("click", function (event) {
+            const bar = event.target.closest(".bar-row.clickable");
+            if (bar) { location.hash = teamHref(bar.dataset.key); }
+        });
         const draw = function () { byId("ground-pitch").innerHTML = groundPitchBlock(v, byId("ground-period").value); };
         byId("ground-period").addEventListener("change", draw);
         draw();
     }
 
+
+    // ----- Teams directory --------------------------------------------------
+    function teamTotals(team) {
+        const rows = TD.seasons[team] || [];
+        let played = 0, won = 0;
+        rows.forEach(function (r) { played += r[2]; won += r[3]; });
+        return { played: played, won: won, seasons: rows.length, first: rows.length ? rows[0][0] : null,
+                 last: rows.length ? rows[rows.length - 1][0] : null,
+                 finals: rows.filter(function (r) { return r[7] === "Champion" || r[7] === "Runner-up"; }).length,
+                 playoffs: rows.filter(function (r) { return r[7] !== "League stage"; }).length };
+    }
+
+    function teamCard(team) {
+        const t = teamTotals(team);
+        const titles = titlesOf(team);
+        return "<a class='ground-card' href='" + teamHref(team) + "'><b>" + safe(team) + (CODE[team] ? " <small>" + CODE[team] + "</small>" : "")
+             + "</b><span>" + t.first + "-" + t.last + " · " + t.played + " matches · won " + round(t.won / t.played * 100, 1) + "%</span>"
+             + "<span class='index-chip" + (titles.length ? " up" : "") + "'>" + titles.length + " title" + (titles.length === 1 ? "" : "s") + "</span>"
+             + "<small>" + (titles.length ? titles.join(", ") : "playoffs " + t.playoffs + " times") + "</small></a>";
+    }
+
+    function renderTeams() {
+        const former = AD.teams.filter(function (t) { return CURRENT.indexOf(t) < 0; });
+        byId("teams-page").innerHTML = "<h1>Teams</h1><p class='note'>Every franchise " + CF.meta.season_range
+            + ". Renamed teams count as one franchise (Delhi Daredevils = Delhi Capitals).</p>"
+            + "<div class='ground-grid'>" + CURRENT.map(teamCard).join("") + "</div>"
+            + "<h2>Former teams</h2><div class='ground-grid'>" + former.map(teamCard).join("") + "</div>"
+            + "<h2>Compare two teams at one ground</h2>" + compareForm("teams-compare", CURRENT[0], CURRENT[1], null)
+            + "<p class='note'>Below: the season and team explorer and the rivalry centre.</p>";
+        wireCompareForm("teams-compare");
+    }
+
+    // ----- One team ---------------------------------------------------------
+    function phaseIndexRows(team, seasons) {
+        // Add up the chosen seasons, then index = runs / league-expected runs x 100.
+        const t = AD.teams.indexOf(team);
+        return SD.phases.map(function (phase, ph) {
+            let br = 0, bb = 0, be = 0, cr = 0, cb = 0, ce = 0;
+            TD.phases.forEach(function (r) {
+                if (r[0] === t && r[2] === ph && seasons.indexOf(r[1]) >= 0) {
+                    br += r[3]; bb += r[4]; be += r[5]; cr += r[6]; cb += r[7]; ce += r[8];
+                }
+            });
+            return { phase: phase, batRate: bb ? round(br / (bb / 6), 2) : null, batIndex: be ? round(br / be * 100, 1) : null,
+                     bowlRate: cb ? round(cr / (cb / 6), 2) : null, bowlIndex: ce ? round(cr / ce * 100, 1) : null };
+        });
+    }
+
+    function renderTeam(team) {
+        const page = byId("team-page");
+        if (!TD.seasons[team]) {
+            page.innerHTML = "<h1>Team not found</h1><p class='note'>No franchise called \"" + safe(team) + "\". <a href='#/teams'>See all teams</a>.</p>";
+            return;
+        }
+        const t = teamTotals(team);
+        const rows = TD.seasons[team];
+        const titles = titlesOf(team);
+        const otherNames = rows.map(function (r) { return r[1]; }).filter(function (n, i, all) { return n !== team && all.indexOf(n) === i; });
+        const homes = Object.keys(SD.home).filter(function (g) { return SD.home[g].indexOf(team) >= 0; });
+        const best = rows.slice().sort(function (a, b) { return b[4] - a[4]; })[0];
+        let html = "<p class='crumbs'><a href='#/teams'>Teams</a> / " + safe(team) + "</p>"
+            + "<div class='profile-head'><div><h1>" + safe(team) + (CODE[team] ? " <small class='note'>" + CODE[team] + "</small>" : "") + "</h1>"
+            + "<p>IPL " + t.first + "-" + t.last + (otherNames.length ? " · also played as " + otherNames.map(safe).join(", ") : "")
+            + (homes.length ? " · home: " + homes.map(gLink).join(", ") : "") + "</p>"
+            + (titles.length ? "<p><span class='badge'>" + titles.length + "× champion</span> " + titles.join(", ") + "</p>" : "")
+            + "</div><a class='button' href='#/ask?q=" + encodeURIComponent("How many titles have " + team + " won?") + "'>Ask about " + safe(team) + "</a></div>"
+            + "<div class='numbers'>" + card("matches", t.played) + card("won", t.won) + card("win %", round(t.won / t.played * 100, 1))
+            + card("titles", titles.length) + card("finals", t.finals) + card("playoff seasons", t.playoffs)
+            + card("best season", best[0] + " (" + best[4] + "%)") + "</div>";
+
+        // Season by season
+        html += "<h2>Season by season</h2><div class='two-columns'>" + panel("Win % by season (orange = champions)", svgBars(rows.map(function (r) {
+                return { label: String(r[0]).slice(2), value: r[4], highlight: r[7] === "Champion",
+                         title: r[0] + " (" + r[1] + "): won " + r[3] + " of " + r[2] + ", " + r[4] + "%, league position " + show(r[5]) + ", " + r[7] };
+            }), { label: "win % by season" }))
+            + panel("Seasons", "<div class='table-box scroll'>" + htmlTable(["Season", "Name", "P", "W", "Win %", "Pos", "Finish"],
+                rows.slice().reverse().map(function (r) { return [r[0], r[1], r[2], r[3], r[4], show(r[5]), r[7]]; })) + "</div>",
+                "Position from the points table rebuilt from the results (see Trends).") + "</div>";
+
+        // 2027 outlook
+        if (CF.predictions) {
+            const pred = CF.predictions.teams.find(function (r) { return r[0] === team; });
+            if (pred) {
+                const squad = Object.keys(SD.squads).filter(function (p) { return SD.squads[p] === team; }).sort();
+                html += "<h2>IPL " + CF.predictions.season + " outlook</h2><div class='numbers'>"
+                    + card("Model A title chance", pred[1] + "%") + card("Model A playoffs", pred[2] + "%")
+                    + card("Model B title chance", pred[3] + "%") + card("Model B playoffs", pred[4] + "%")
+                    + card("form strength (Model A)", pred[5]) + card("squad strength (Model B)", pred[6]) + card("Elo (Model B)", pred[7]) + "</div>"
+                    + panel("Squad (" + squad.length + " players, data/squads_" + CF.predictions.season + ".csv)",
+                            chips(squad.map(function (p) { return chip(playerHref(p), p, ""); })),
+                            CF.predictions.simulations.toLocaleString("en") + " simulated seasons per model. <a href='#/predictions'>How the models work &rarr;</a>");
+            }
+        }
+
+        // How they play
+        const style = TD.style[team];
+        html += "<h2>How they play</h2><div class='filters'><label>Seasons<select id='team-period'></select></label></div>"
+              + "<div id='team-phases'></div>";
+        if (style) {
+            html += "<div class='two-columns'>" + panel("Batting first vs chasing", htmlTable(["", "Played", "Won", "Win %"], [
+                        ["Batting first", style[0], style[1], style[0] ? round(style[1] / style[0] * 100, 1) : "-"],
+                        ["Chasing", style[2], style[3], style[2] ? round(style[3] / style[2] * 100, 1) : "-"]]))
+                  + panel("After winning the toss (" + style[4] + " times)", htmlTable(["Chose to", "Times", "Won", "Win %"], [
+                        ["Bat", style[5], style[6], style[5] ? round(style[6] / style[5] * 100, 1) : "-"],
+                        ["Field", style[7], style[8], style[7] ? round(style[8] / style[7] * 100, 1) : "-"]])) + "</div>";
+        }
+        const choices = AD.choices_team.filter(function (r) { return r[0] === team; });
+        if (choices.length) {
+            html += panel("Impact Player choices (2023 onwards)", htmlTable(["What the substitute did", "Times", "Wins", "Win %"],
+                          choices.map(function (r) { return [r[1], r[2], r[3], r[4] + "%"]; })));
+        }
+
+        // Players
+        const latest = Object.keys(CF.players).filter(function (n) {
+            const sRow = CF.players[n].seasons[String(t.last)];
+            return sRow && sRow[0] === team;
+        });
+        const latestBat = latest.slice().sort(function (a, b) { return CF.players[b].seasons[String(t.last)][1] - CF.players[a].seasons[String(t.last)][1]; }).slice(0, 5);
+        const latestBowl = latest.slice().sort(function (a, b) { return CF.players[b].seasons[String(t.last)][5] - CF.players[a].seasons[String(t.last)][5]; }).slice(0, 5);
+        html += "<h2>Players</h2><div class='two-columns'>"
+            + panel("All-time top run-scorers for " + safe(team), linkTable(["Batter", "Inns", "Runs", "SR", "Avg"],
+                    (TD.top_bat[team] || []).map(function (r) { return [pLink(r[0]), r[1], r[2], r[3], show(r[4])]; })))
+            + panel("All-time top wicket-takers for " + safe(team), linkTable(["Bowler", "Matches", "Wkts", "Econ"],
+                    (TD.top_bowl[team] || []).map(function (r) { return [pLink(r[0]), r[1], r[2], r[3]]; })))
+            + panel("Top performers in " + t.last, linkTable(["Batter", "Runs"], latestBat.map(function (n) { return [pLink(n), CF.players[n].seasons[String(t.last)][1]]; }))
+                    + linkTable(["Bowler", "Wickets"], latestBowl.map(function (n) { return [pLink(n), CF.players[n].seasons[String(t.last)][5]]; })))
+            + panel("Biggest partnerships", linkTable(["Pair", "Wkt", "Runs", "Balls", "Season"],
+                    (AD.partnerships[team] || []).slice(0, 6).map(function (r) { return [safe(r[0]), r[1], r[2], r[3], r[5]]; })))
+            + "</div>";
+
+        // Opponents
+        const opponents = Object.keys(CF.rivalry).filter(function (k) { return k.split("|").indexOf(team) >= 0; }).map(function (k) {
+            const pair = k.split("|"), row = CF.rivalry[k];
+            const first = pair[0] === team;
+            const won = first ? row[1] : row[2], lost = first ? row[2] : row[1];
+            const other = first ? pair[1] : pair[0];
+            return { other: other, played: row[0], cells: [tLink(other), row[0], won, lost, row[3], round(won / Math.max(1, won + lost) * 100, 1) + "%",
+                     "<a href='#/rivalry/" + encodeURIComponent(team) + "/" + encodeURIComponent(other) + "'>rivalry &rarr;</a>"] };
+        }).sort(function (a, b) { return b.played - a.played; });
+        html += "<h2>Against each team</h2>" + panel("Head-to-head records", "<div class='table-box'>"
+              + linkTable(["Opponent", "P", "W", "L", "NR", "Win %", ""], opponents.map(function (o) { return o.cells; })) + "</div>");
+
+        // Grounds
+        const tIndex = AD.teams.indexOf(team);
+        const fortress = AD.fortress.find(function (r) { return r[0] === team; });
+        const groundRows = TD.ground.filter(function (r) { return r[0] === tIndex && r[2] > 0; }).sort(function (a, b) { return b[2] - a[2]; });
+        const opponentFor = function (v) {
+            // A sensible opponent for the comparison: the ground's home team, else this team's most frequent opponent.
+            const home = SD.home[AD.venues[v]];
+            if (home && home[0] !== team) { return home[0]; }
+            return opponents.length ? opponents[0].other : CURRENT[0];
+        };
+        html += "<h2>Grounds</h2>" + (fortress ? "<p class='callout'>Home fortress index " + fortress[6] + ": won " + fortress[3]
+                + "% at home vs " + fortress[5] + "% away.</p>" : "")
+            + panel("Record at each ground", "<div class='table-box scroll'>" + linkTable(["Ground", "P", "W", "Win %", "Run rate scored", "Run rate conceded", ""],
+                groundRows.map(function (r) {
+                    return [gLink(AD.venues[r[1]]) + (homes.indexOf(AD.venues[r[1]]) >= 0 ? " <span class='badge'>home</span>" : ""), r[2], r[3],
+                            round(r[3] / r[2] * 100, 1), r[5] ? round(r[4] / (r[5] / 6), 2) : "-", r[9] ? round(r[8] / (r[9] / 6), 2) : "-",
+                            "<a href='" + compareHref(team, opponentFor(r[1]), AD.venues[r[1]]) + "'>compare here &rarr;</a>"];
+                })) + "</div>", "Win % leaves out no-results. \"Compare here\" opens this team against another team at that ground.");
+
+        // Matches
+        const recent = CF.matches.filter(function (m) { return m[3] === team || m[4] === team; }).slice(-10).reverse()
+            .map(function (m) { return [matchLink(m[8], m[0]), safe(m[1] + " v " + m[2]), gLink(m[6]), safe(m[5])]; });
+        const ext = TD.extremes[team] || [];
+        const extRows = function (side, kind) {
+            return ext.filter(function (r) { return r[0] === side && r[1] === kind; }).slice(0, 3)
+                .map(function (r) { return [matchLink(r[6], r[4]), (side === "win" ? "beat " : "lost to ") + safe(r[3]), "by " + r[2] + " " + r[1]]; });
+        };
+        html += "<h2>Matches</h2><div class='two-columns'>" + panel("Last 10 matches", linkTable(["Date", "Match", "Ground", "Result"], recent))
+            + panel("Biggest wins and heaviest defeats", linkTable(["Date", "Result", "Margin"],
+                    extRows("win", "runs").concat(extRows("win", "wickets"), extRows("defeat", "runs"), extRows("defeat", "wickets"))),
+                    "Rain-rule matches left out.") + "</div>";
+        page.innerHTML = html;
+
+        // Seasons filter for the phase indexes
+        const seasonsPlayed = rows.map(function (r) { return r[0]; });
+        const options = [["all", "All seasons " + t.first + "-" + t.last]];
+        if (seasonsPlayed.length > 3) { options.push(["last3", "Last 3 seasons (" + seasonsPlayed.slice(-3).join(", ") + ")"]); }
+        seasonsPlayed.slice().reverse().forEach(function (season) { options.push([String(season), String(season)]); });
+        fillSelect(byId("team-period"), options, "all");
+        const drawPhases = function () {
+            const choice = byId("team-period").value;
+            const chosen = choice === "all" ? seasonsPlayed : choice === "last3" ? seasonsPlayed.slice(-3) : [Number(choice)];
+            const phaseRows = phaseIndexRows(team, chosen);
+            byId("team-phases").innerHTML = "<div class='two-columns'>"
+                + panel("Batting: runs scored (100 = league in the same seasons and phase)", phaseRows.map(function (r) {
+                    return indexBar(r.phase, r.batIndex, r.batRate === null ? "" : "(" + r.batRate + " an over)"); }).join(""),
+                    "Orange = faster than the league.")
+                + panel("Bowling: runs conceded (100 = league; LOWER is better)", phaseRows.map(function (r) {
+                    return indexBar(r.phase, r.bowlIndex, r.bowlRate === null ? "" : "(" + r.bowlRate + " an over)"); }).join(""),
+                    "Blue = concedes less than the league (good for the bowling side).") + "</div>";
+        };
+        byId("team-period").addEventListener("change", drawPhases);
+        drawPhases();
+    }
+
+    // ----- Two teams at one ground -----------------------------------------
+    function compareForm(id, teamA, teamB, ground) {
+        const options = function (list, chosen) {
+            return list.map(function (x) { return "<option" + (x === chosen ? " selected" : "") + ">" + safe(x) + "</option>"; }).join("");
+        };
+        const grounds = AD.pitch["all"].slice().sort(function (a, b) { return b[1] - a[1]; }).map(function (r) { return AD.venues[r[0]]; });
+        return "<div class='filters' id='" + id + "'><label>Team A<select class='cmp-a'>" + options(AD.teams, teamA) + "</select></label>"
+             + "<label>Team B<select class='cmp-b'>" + options(AD.teams, teamB) + "</select></label>"
+             + "<label>Ground<select class='cmp-g'>" + options(grounds, ground || grounds[0]) + "</select></label>"
+             + "<button type='button' class='cmp-go'>Compare</button></div>";
+    }
+
+    function wireCompareForm(id) {
+        const form = byId(id);
+        if (!form) { return; }
+        form.querySelector(".cmp-go").addEventListener("click", function () {
+            location.hash = compareHref(form.querySelector(".cmp-a").value, form.querySelector(".cmp-b").value, form.querySelector(".cmp-g").value);
+        });
+    }
+
+    // One team's numbers at one ground, from TD.ground (null if it never played there).
+    function teamAtGround(team, v) {
+        const t = AD.teams.indexOf(team);
+        const r = TD.ground.find(function (x) { return x[0] === t && x[1] === v; });
+        if (!r || r[2] === 0) { return null; }
+        return { played: r[2], won: r[3], winPct: round(r[3] / r[2] * 100, 1),
+                 runRate: r[5] ? round(r[4] / (r[5] / 6), 2) : null, conceded: r[9] ? round(r[8] / (r[9] / 6), 2) : null,
+                 runsPerWicket: r[6] ? round(r[4] / r[6], 1) : null, bowlingAverage: r[10] ? round(r[8] / r[10], 1) : null,
+                 highest: r[7], batFirst: [r[11], r[12]], chase: [r[14], r[15]],
+                 avgFirstInnings: r[11] ? round(r[13] / r[11], 1) : null };
+    }
+
+    function renderCompare(r) {
+        const page = byId("compare-page");
+        const teamA = AD.teams.indexOf(r.teamA) >= 0 ? r.teamA : CURRENT[0];
+        const teamB = AD.teams.indexOf(r.teamB) >= 0 ? r.teamB : CURRENT[1];
+        const groundName = AD.venues.indexOf(r.ground) >= 0 ? r.ground : AD.venues[AD.pitch["all"].slice().sort(function (a, b) { return b[1] - a[1]; })[0][0]];
+        const v = AD.venues.indexOf(groundName);
+        let html = "<p class='crumbs'><a href='#/teams'>Teams</a> / Compare at a ground</p><h1>" + safe(teamA) + " v " + safe(teamB)
+            + "</h1><p class='note'>at " + gLink(groundName) + ". Every number is from matches at this ground, " + CF.meta.season_range + ".</p>"
+            + compareForm("compare-form", teamA, teamB, groundName);
+        if (teamA === teamB) {
+            page.innerHTML = html + "<p class='note'>Pick two different teams.</p>";
+            wireCompareForm("compare-form");
+            return;
+        }
+        const a = teamAtGround(teamA, v), b = teamAtGround(teamB, v);
+        const ground = AD.pitch["all"].find(function (x) { return x[0] === v; });
+
+        // Head-to-head at this ground
+        const ta = AD.teams.indexOf(teamA), tb = AD.teams.indexOf(teamB);
+        const pair = AD.rivalry[Math.min(ta, tb) + "|" + Math.max(ta, tb)];
+        const firstIsA = ta < tb;
+        const h2h = pair ? pair.grounds.find(function (g) { return g[0] === groundName; }) : null;
+        const meetings = CF.matches.filter(function (m) {
+            return m[6] === groundName && ((m[3] === teamA && m[4] === teamB) || (m[3] === teamB && m[4] === teamA));
+        }).slice(-6).reverse().map(function (m) { return [matchLink(m[8], m[0]), safe(m[5])]; });
+        if (h2h) {
+            const winsA = firstIsA ? h2h[2] : h2h[3], winsB = firstIsA ? h2h[3] : h2h[2];
+            html += "<h2>Head to head here</h2><div class='numbers'>" + card("matches here", h2h[1]) + card(teamA + " wins", winsA)
+                  + card(teamB + " wins", winsB) + card("no result", h2h[4]) + "</div>"
+                  + panel("Their meetings here", linkTable(["Date", "Result"], meetings));
+        } else {
+            html += "<h2>Head to head here</h2><p class='callout'>" + safe(teamA) + " and " + safe(teamB) + " have never played each other at "
+                  + safe(groundName) + ". The comparison below uses each team's matches here against anyone.</p>";
+        }
+
+        // Side by side
+        const val = function (x, key) { return x ? x[key] : null; };
+        const fmt = function (value, unit) { return value === null || value === undefined ? "-" : value + (unit || ""); };
+        const pct = function (pairOfCounts) { return pairOfCounts[0] ? round(pairOfCounts[1] / pairOfCounts[0] * 100, 1) : null; };
+        const rows = [
+            ["Matches here", fmt(val(a, "played")), fmt(val(b, "played")), fmt(ground ? ground[1] : null)],
+            ["Win %", fmt(val(a, "winPct"), "%"), fmt(val(b, "winPct"), "%"), "-"],
+            ["Batting first: won", a ? a.batFirst[1] + " of " + a.batFirst[0] : "-", b ? b.batFirst[1] + " of " + b.batFirst[0] : "-", "-"],
+            ["Chasing: won", a ? a.chase[1] + " of " + a.chase[0] : "-", b ? b.chase[1] + " of " + b.chase[0] : "-",
+             fmt(ground ? ground[8] : null, "% of chases won")],
+            ["Average score batting first", fmt(val(a, "avgFirstInnings")), fmt(val(b, "avgFirstInnings")), fmt(ground ? ground[7] : null)],
+            ["Run rate scored", fmt(val(a, "runRate")), fmt(val(b, "runRate")), fmt(ground ? ground[2] : null)],
+            ["Run rate conceded", fmt(val(a, "conceded")), fmt(val(b, "conceded")), fmt(ground ? ground[2] : null)],
+            ["Runs per wicket lost (batting)", fmt(val(a, "runsPerWicket")), fmt(val(b, "runsPerWicket")), "-"],
+            ["Runs per wicket taken (bowling)", fmt(val(a, "bowlingAverage")), fmt(val(b, "bowlingAverage")), "-"],
+            ["Highest total here", fmt(val(a, "highest")), fmt(val(b, "highest")), "-"]];
+        const edges = [edgeText(teamA, val(a, "winPct"), teamB, val(b, "winPct"), true, "win % here", "%"),
+                       edgeText(teamA, val(a, "runRate"), teamB, val(b, "runRate"), true, "scoring rate here", " an over"),
+                       edgeText(teamA, val(a, "conceded"), teamB, val(b, "conceded"), false, "runs conceded here", " an over"),
+                       edgeText(teamA, a ? pct(a.chase) : null, teamB, b ? pct(b.chase) : null, true, "chasing here", "% won")]
+            .filter(function (e) { return e; });
+        const small = [[teamA, a], [teamB, b]].filter(function (x) { return !x[1] || x[1].played < 5; })
+            .map(function (x) { return safe(x[0]) + (x[1] ? " has only " + x[1].played + " matches here" : " has never played here"); });
+        html += "<h2>Side by side at " + safe(groundName) + "</h2>"
+            + (edges.length ? "<ul class='insights'>" + edges.map(function (e) { return "<li>" + safe(e) + "</li>"; }).join("") + "</ul>" : "")
+            + (small.length ? "<p class='callout'><b>Small sample:</b> " + small.join("; ") + ".</p>" : "")
+            + panel("All matches here, against any opponent", "<div class='table-box'>" + htmlTable(["", teamA, teamB, "Ground average"], rows) + "</div>",
+                    "Ground average = all matches at the ground (run rate, average first-innings score, chases won).");
+
+        // Phases
+        const phaseCell = function (team, ph, scored) {
+            const t = AD.teams.indexOf(team);
+            const x = TD.ground_phase.find(function (q) { return q[0] === t && q[1] === v && q[2] === ph; });
+            if (!x) { return "-"; }
+            return scored ? (x[4] ? round(x[3] / (x[4] / 6), 2) : "-") : (x[6] ? round(x[5] / (x[6] / 6), 2) : "-");
+        };
+        const phaseRows = SD.phases.map(function (phase, ph) {
+            const g = AD.pitch_phase["all"].find(function (q) { return q[0] === v && q[1] === phase; });
+            return [phase, phaseCell(teamA, ph, true), phaseCell(teamB, ph, true), phaseCell(teamA, ph, false), phaseCell(teamB, ph, false), g ? g[2] : "-"];
+        });
+        html += panel("Run rate by phase here", "<div class='table-box'>" + htmlTable(["Phase", teamA + " scored", teamB + " scored",
+                      teamA + " conceded", teamB + " conceded", "Ground average"], phaseRows) + "</div>");
+
+        // Players
+        const playerPanel = function (team) {
+            const key = AD.teams.indexOf(team) + "|" + v;
+            return panel(safe(team) + ": best here", linkTable(["Batter", "Inns", "Runs", "SR"],
+                         (TD.ground_bat[key] || []).map(function (q) { return [pLink(q[0]), q[1], q[2], q[3]]; }))
+                   + linkTable(["Bowler", "Matches", "Wkts", "Econ"], (TD.ground_bowl[key] || []).map(function (q) { return [pLink(q[0]), q[1], q[2], q[3]]; })));
+        };
+        html += "<h2>Players at this ground</h2><div class='two-columns'>" + playerPanel(teamA) + playerPanel(teamB) + "</div>"
+              + "<p class='note'>" + tLink(teamA) + " · " + tLink(teamB) + " · " + gLink(groundName)
+              + " · <a href='#/rivalry/" + encodeURIComponent(teamA) + "/" + encodeURIComponent(teamB) + "'>full rivalry &rarr;</a></p>";
+        page.innerHTML = html;
+        wireCompareForm("compare-form");
+    }
+
     // ----- Router -----------------------------------------------------------
     function showView(view) {
         document.querySelectorAll("[data-view]").forEach(function (el) { el.hidden = el.dataset.view !== view; });
+        const navKey = view === "team" || view === "compare" ? "teams" : view;     // team pages light up "Teams"
         document.querySelectorAll(".site-nav a[data-nav]").forEach(function (a) {
-            if (a.dataset.nav === view) { a.setAttribute("aria-current", "page"); } else { a.removeAttribute("aria-current"); }
+            if (a.dataset.nav === navKey) { a.setAttribute("aria-current", "page"); } else { a.removeAttribute("aria-current"); }
         });
     }
 
@@ -597,7 +962,19 @@ function setupSite() {
             if (target) { target.scrollIntoView(); }
             return;
         }
-        const known = ["home", "players", "grounds", "teams", "predictions", "ask", "analysis"];
+        if (r.view === "rivalry") {
+            // Open the rivalry centre with these two teams chosen.
+            byId("riv-a").value = String(AD.teams.indexOf(r.teamA));
+            byId("riv-b").value = String(AD.teams.indexOf(r.teamB));
+            byId("riv-a").dispatchEvent(new Event("change"));
+            history.replaceState(null, "", "#rivalry");
+            document.title = "Rivalry centre | Sports Arena";
+            showView("teams");
+            renderTeams();
+            byId("rivalry").scrollIntoView();
+            return;
+        }
+        const known = ["home", "players", "grounds", "teams", "team", "compare", "predictions", "ask", "analysis"];
         const view = known.indexOf(r.view) >= 0 ? r.view : "home";
         showView(view);
         const titles = { teams: "Teams", predictions: "Predictions", ask: "Ask Sports Arena", analysis: "More analysis" };
@@ -611,6 +988,9 @@ function setupSite() {
             if (r.ground) { renderGround(r.ground); document.title = r.ground + " | Sports Arena"; }
             else { renderGrounds(); document.title = "Grounds | Sports Arena"; }
         }
+        if (view === "teams") { renderTeams(); }
+        if (view === "team") { renderTeam(r.team); document.title = r.team + " | Sports Arena"; }
+        if (view === "compare") { renderCompare(r); document.title = "Compare at a ground | Sports Arena"; }
         if (view === "ask" && r.question && byId("chat-input")) {
             byId("chat-input").value = r.question;
             byId("chat-form").dispatchEvent(new Event("submit", { cancelable: true }));
@@ -643,11 +1023,7 @@ function setupSite() {
         input.value = "";
         if (found.kind === "player") { location.hash = playerHref(found.name); }
         if (found.kind === "ground") { location.hash = groundHref(found.name); }
-        if (found.kind === "team") {
-            byId("filter-team").value = found.name;
-            byId("filter-team").dispatchEvent(new Event("change"));
-            location.hash = "#/teams";
-        }
+        if (found.kind === "team") { location.hash = teamHref(found.name); }
     });
     byId("site-search-hint").addEventListener("click", function () { byId("site-search-hint").innerHTML = ""; });
 
@@ -675,5 +1051,6 @@ if (typeof document !== "undefined" && document.getElementById("site-data")) {
 // Let Node.js (tests/test_site.js) test the small functions.
 if (typeof module !== "undefined") {
     module.exports = { parseRoute: parseRoute, playerRole: playerRole, careerNumbers: careerNumbers,
-                       resolveSearch: resolveSearch, niceMax: niceMax, svgBars: svgBars, playerHref: playerHref };
+                       resolveSearch: resolveSearch, niceMax: niceMax, svgBars: svgBars, playerHref: playerHref,
+                       teamHref: teamHref, compareHref: compareHref, edgeText: edgeText };
 }

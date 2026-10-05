@@ -453,6 +453,87 @@ def site_data(matches, deliveries, players, venues, squads):
         "field": field,
         "squads": {row["player"]: row["team"] for row in squads.to_dict("records")},
         "home": home,
+        "team": team_data(matches, deliveries, venues),
+    }
+
+
+def team_data(matches, deliveries, venues):
+    """
+    Everything the team pages and the "two teams at one ground" comparison need.
+    Teams and grounds are stored as positions in the sorted team / ground lists
+    (the same lists as the analyst data).
+    """
+    teams = sorted(set(matches["team1_franchise"]) | set(matches["team2_franchise"]))
+    team_position = index_of(teams)
+    venue_position = index_of(venues)
+    phases = ["Powerplay", "Middle", "Death"]
+
+    summary = metrics.team_season_summary(deliveries, matches)
+    names = metrics.team_names_by_season(matches)
+    name_of = {}
+    for i in range(len(names)):
+        name_of[(names["team"].iloc[i], int(names["season"].iloc[i]))] = names["name"].iloc[i]
+    seasons = {}
+    for i in range(len(summary)):
+        row = summary.iloc[i]
+        seasons.setdefault(row["team"], []).append(
+            [int(row["season"]), name_of.get((row["team"], int(row["season"])), row["team"]), int(row["played"]), int(row["won"]),
+             float(row["win_pct"]), clean_value(row["position"]), clean_value(row["points"]), row["stage"]])
+
+    phase_parts = metrics.team_phase_components(deliveries)
+    phase_parts["t"] = phase_parts["team"].map(team_position)
+    phase_parts["ph"] = phase_parts["phase"].map(lambda phase: phases.index(phase))
+    for column in ["bat_expected", "bowl_expected"]:
+        phase_parts[column] = phase_parts[column].round(1)
+
+    style = metrics.team_style(deliveries, matches)
+    style_rows = {}
+    for i in range(len(style)):
+        style_rows[style["team"].iloc[i]] = [int(v) for v in style.iloc[i][1:]]
+
+    batting, bowling = metrics.team_top_players(deliveries)
+    top_bat = {}
+    for team, rows in batting.groupby("team"):
+        top_bat[team] = table_rows(rows, ["batter", "innings", "runs", "strike_rate", "average"])
+    top_bowl = {}
+    for team, rows in bowling.groupby("team"):
+        top_bowl[team] = table_rows(rows, ["bowler", "matches", "wickets", "economy"])
+
+    extremes = metrics.team_extremes(matches)
+    extreme_rows = {}
+    for team, rows in extremes.groupby("team"):
+        extreme_rows[team] = table_rows(rows, ["side", "kind", "margin", "opponent", "date", "venue", "match_id"])
+
+    ground = metrics.team_ground_stats(deliveries, matches)
+    ground["t"] = ground["team"].map(team_position)
+    ground["v"] = ground["venue"].map(venue_position)
+    ground_phase = metrics.team_ground_phases(deliveries, matches)
+    ground_phase["t"] = ground_phase["team"].map(team_position)
+    ground_phase["v"] = ground_phase["venue"].map(venue_position)
+    ground_phase["ph"] = ground_phase["phase"].map(lambda phase: phases.index(phase))
+    ground_bat, ground_bowl = metrics.team_ground_top_players(deliveries, matches)
+    tg_bat = {}
+    for (team, venue), rows in ground_bat.groupby(["team", "venue"]):
+        tg_bat[str(team_position[team]) + "|" + str(venue_position[venue])] = table_rows(rows, ["batter", "innings", "runs", "strike_rate"])
+    tg_bowl = {}
+    for (team, venue), rows in ground_bowl.groupby(["team", "venue"]):
+        tg_bowl[str(team_position[team]) + "|" + str(venue_position[venue])] = table_rows(rows, ["bowler", "matches", "wickets", "economy"])
+
+    return {
+        "seasons": seasons,
+        # [team, season, phase, runs scored, legal balls, league-expected runs, runs conceded, legal balls, expected]
+        "phases": table_rows(phase_parts, ["t", "season", "ph", "bat_runs", "bat_balls", "bat_expected",
+                                           "bowl_runs", "bowl_balls", "bowl_expected"]),
+        # bat first played/won, chase played/won, tosses won, chose bat (n, won), chose field (n, won)
+        "style": style_rows, "top_bat": top_bat, "top_bowl": top_bowl, "extremes": extreme_rows,
+        # [team, ground, played, won, runs for, balls for, wickets lost, highest, runs against, balls against,
+        #  wickets taken, bat-first played, bat-first won, first-innings runs, chases, chases won]
+        "ground": table_rows(ground, ["t", "v", "played", "won", "runs_for", "balls_for", "wickets_lost", "highest",
+                                      "runs_against", "balls_against", "wickets_taken", "bat_first_played", "bat_first_won",
+                                      "first_innings_runs", "chase_played", "chase_won"]),
+        # [team, ground, phase, runs scored, balls, runs conceded, balls]
+        "ground_phase": table_rows(ground_phase, ["t", "v", "ph", "runs", "balls", "runs_against", "balls_against"]),
+        "ground_bat": tg_bat, "ground_bowl": tg_bowl,
     }
 
 

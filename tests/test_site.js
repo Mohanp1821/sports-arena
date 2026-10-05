@@ -34,6 +34,13 @@ check("route to home", site.parseRoute("").view === "home" && site.parseRoute("#
 check("old section link", site.parseRoute("#rivalry").view === null && site.parseRoute("#rivalry").section === "rivalry");
 check("ask with a question", site.parseRoute("#/ask?q=Kohli%20vs%20Bumrah").question === "Kohli vs Bumrah");
 check("links round-trip", site.parseRoute(site.playerHref("AB de Villiers")).player === "AB de Villiers");
+check("route to a team page", site.parseRoute(site.teamHref("Mumbai Indians")).team === "Mumbai Indians");
+const compare = site.parseRoute(site.compareHref("Chennai Super Kings", "Mumbai Indians", "MA Chidambaram Stadium, Chepauk"));
+check("route to a two-team comparison at a ground", compare.view === "compare" && compare.teamA === "Chennai Super Kings"
+      && compare.teamB === "Mumbai Indians" && compare.ground === "MA Chidambaram Stadium, Chepauk");
+check("route to a rivalry", site.parseRoute("#/rivalry/Royal%20Challengers%20Bengaluru/Kolkata%20Knight%20Riders").teamB === "Kolkata Knight Riders");
+check("edge text names the leader", site.edgeText("A", 60, "B", 50, true, "win %", "%") === "A lead on win %: 60% vs 50%."
+      && site.edgeText("A", 8.6, "B", 8.2, false, "runs conceded", "") === "B lead on runs conceded: 8.2 vs 8.6.");
 
 // 2. Search understands names, nicknames and grounds (using the chatbot's alias lists).
 const names = { players: facts.names, venues: Object.values(facts.venue_aliases).filter(function (v, i, all) { return all.indexOf(v) === i; }),
@@ -42,6 +49,7 @@ const aliases = { players: facts.player_aliases, venues: facts.venue_aliases, te
 check("search 'sky' -> SA Yadav", site.resolveSearch("sky", names, aliases).name === "SA Yadav");
 check("search 'chepauk' -> the ground", site.resolveSearch("Chepauk", names, aliases).name === "MA Chidambaram Stadium, Chepauk");
 check("search 'kings xi punjab' -> Punjab Kings", site.resolveSearch("Kings XI Punjab", names, aliases).name === "Punjab Kings");
+check("search 'csk' -> a team", site.resolveSearch("csk", names, aliases).kind === "team");
 check("search 'sharma' asks which one", site.resolveSearch("sharma", names, aliases).kind === "choose");
 check("search nonsense finds nothing", site.resolveSearch("zzzz", names, aliases) === null);
 
