@@ -1,28 +1,12 @@
 """
-build_impact_players.py
------------------------
-Builds data/impact_players_2020_2026.csv: every IMPACT PLAYER substitution.
+build_impact_players.py - one-off: data/impact_players_2020_2026.csv, every Impact Player substitution.
 
-What is the Impact Player rule?
-    From IPL 2023, each team may replace one player during the match with a
-    substitute (the "Impact Player"), who can then bat or bowl fully. So a
-    team effectively uses 12 players. Teams usually bring in an extra batter
-    when chasing, or an extra bowler after batting first.
+From 2023 a team may bring in one substitute (the Impact Player) who can bat or bowl.
+The ball-by-ball file has no column for this, but the Cricsheet JSON files record each
+substitution with the reason "impact_player" (concussion substitutes are left out).
+Columns: match_id, season, team, player_in, player_out, inning, over, ball.
 
-Where does the data come from?
-    The merged ball-by-ball file has no column for substitutions, but the
-    Cricsheet JSON files (data/cricsheet/ipl_json.zip) record each one on the
-    ball where it happened, under "replacements" -> "match", with the reason
-    "impact_player". (Concussion substitutes have their own reason and are
-    NOT Impact Players, so they are left out.)
-
-Output columns:
-    match_id, season, team, player_in, player_out, inning, over, ball
-    (over is 1-20 and ball counts every delivery in the over, the same way
-     as the ball-by-ball file, so a row can be joined to the exact ball)
-
-Run it with (needs data/cricsheet/ipl_json.zip, see data/README.md):
-    python src/build_impact_players.py
+Run (needs data/cricsheet/ipl_json.zip, see data/README.md):  python src/build_impact_players.py
 """
 
 import json

@@ -1,32 +1,12 @@
 """
-recover_merged_data.py
-----------------------
-A ONE-OFF script (not part of the normal pipeline).
+recover_merged_data.py - one-off: rebuild data/merged/*.csv from the published explorer page.
 
-Why it exists:
-    The merged 2008-2026 dataset was published as an interactive web page,
-    "IPL 2008-2026, ball by ball" (a copy is in data/source/, gzipped).
-    The page carries every ball of every match inside it as compact JSON,
-    and its "Raw CSV rows" tab rebuilds the rows of deliveries_2008_2026.csv
-    from that JSON. The original CSV files were not on this computer, so this
-    script does exactly what that tab does, for all 1,243 matches, and saves:
+The merged 2008-2026 dataset was published as a web page (a copy is in data/source/)
+that holds every ball as compact JSON. This script does what the page's "Raw CSV rows"
+tab does, for all 1,243 matches. After that the two CSV files are never edited:
+verify_data.py checks their fingerprints and every fix happens in prepare_data.py.
 
-        data/merged/deliveries_2008_2026.csv   (one row per ball, Kaggle columns)
-        data/merged/matches_2008_2026.csv      (one row per match, Kaggle columns)
-
-    After that, the two CSV files are the project's single source of truth.
-    They are NEVER edited again: src/verify_data.py checks their SHA-256
-    fingerprints, and every fix happens later in src/prepare_data.py.
-
-How the page stores one ball (a list of 14 numbers):
-    [over, ball, batter, non_striker, bowler, batsman_runs,
-     wide_runs, noball_runs, bye_runs, legbye_runs, penalty_runs,
-     player_dismissed, dismissal_kind, fielder]
-    Names are stored once in a list "p" and each ball holds their position
-    in that list (a number), which keeps the page small. -1 means "nobody".
-
-Run it with (only needed once):
-    python src/recover_merged_data.py
+Run (only needed once):  python src/recover_merged_data.py
 """
 
 import gzip
