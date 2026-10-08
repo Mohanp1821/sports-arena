@@ -91,7 +91,12 @@ map, the Impact Player list, the source page and the original Kaggle files.
 - **Legal ball** = not a wide and not a no-ball (only legal balls make up the 6 balls of an over).
 - **Runs conceded** = bat runs + wides + no-balls. Byes and leg-byes are not the bowler's fault.
 - **Bowler wicket** = bowled, caught, caught and bowled, lbw, stumped, hit wicket (a run out is a fielding dismissal; retired hurt is not out).
+- **Any wicket** (`is_wicket`) = any batter out except retired hurt; used for team totals, partnerships and chases.
 - **Super overs** are removed before every statistic (official records exclude them).
+
+Three tiny helpers are used everywhere, so each formula is written once:
+`per_over(runs, legal_balls)` = runs ÷ (legal balls ÷ 6) (run rate and economy), `percent(part, whole)` = part ÷ whole × 100,
+and `full_matches(table)` leaves out no-result and rain-shortened matches.
 
 ### Batting and bowling
 | Metric | Formula | Meaning |
@@ -114,7 +119,7 @@ map, the Impact Player list, the source page and the original Kaggle files.
 |---|---|---|
 | Rivalry centre | `rivalry_record`, `rivalry_last_meetings`, `rivalry_totals`, `rivalry_top_players` | Keep only matches between the two franchises, then count wins by season, stage and ground; highest/lowest totals from `innings_totals` (lowest leaves out rain matches and won chases, which stop early on purpose) |
 | Batter vs bowler | `matchup_table`, `batter_vs_bowler` | Balls faced (no wides), runs, dismissals credited to that bowler, dot %, boundary %, runs per dismissal |
-| Player vs teams / how out | `batting_vs_teams`, `bowling_vs_teams`, `dismissal_types` | `batting_stats` grouped by opponent; dismissal kinds counted and turned into % |
+| Player vs teams / how out | `batting_vs_teams`, `dismissal_types` | `batting_stats` grouped by opponent; dismissal kinds counted and turned into % |
 | Ground profiles | `ground_summary`, `ground_first_innings_by_season`, `ground_phase_run_rate`, `ground_highest_totals`, `team_at_ground` | Average first innings, chase win %, how often the toss winner won after choosing bat or field, run rate by phase |
 | Home fortress index | `home_fortress_index` | Home win % minus away win % (percentage points) |
 | Phase specialists | `phase_batting_leaders`, `phase_bowling_leaders` | The same batting/bowling formulas on one phase's balls, with a minimum number of balls |
@@ -137,7 +142,7 @@ grounds used recently look flatter):
 | `pitch_components` | Per ground and season: runs, wickets, boundaries, dot balls, and what the league average would expect from the same number of balls that season (e.g. expected runs = legal balls × league runs per ball) |
 | `pitch_profile` / `profile_from_components` | Add the seasons you choose, then **index = actual ÷ expected × 100** (100 = average, 110 = 10% more). Label: 105+ = high-scoring, 95 or less = low-scoring (`PITCH_HIGH`, `PITCH_LOW`) |
 | `phase_index_from_components` | The same runs index for the Powerplay, Middle and Death overs (Chepauk's Middle overs: 93.3) |
-| `pitch_dismissal_mix` | % of each way of getting out at the ground vs the league (a clue, e.g. bowled/lbw, not a verdict) |
+| Dismissal mix (in `dashboard_data.pitch_data`) | % of each way of getting out at the ground vs the league (a clue, e.g. bowled/lbw, not a verdict) |
 | `player_ground_batting` / `_bowling` | A player at a ground vs **the same player at other grounds in the same seasons** (`same_season_split`): elsewhere = his season total − here, added over the seasons he played at the ground. This compares him with himself, in the same years, so his age and the era cancel out |
 | `fielding_events`, `player_ground_fielding` | Catches (caught and bowled → the bowler), run outs (every named fielder), stumpings; substitutes left out; per match here vs elsewhere. No drops or runs saved are recorded |
 | `best_ground_fits` | Players with the biggest strike-rate gain / economy drop at a ground (min 120 balls here and elsewhere) |
