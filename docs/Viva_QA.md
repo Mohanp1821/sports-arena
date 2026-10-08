@@ -240,3 +240,9 @@ The balls are stored in the order they were bowled, so for each batter's innings
 of runs and of balls faced (wides not counted). The fastest fifty is the innings where runs first reach 50 after the
 fewest balls: Yashasvi Jaiswal, 13 balls v KKR in 2023. `tests/test_facts.py` checks it and Gayle's 30-ball hundred
 against the official record book.
+
+**Q42. Why does the site look like a newspaper page and not a dashboard?** (`PAGE_STYLE` in `src/build_report.py`)
+Sports readers are used to scorecards and newspaper tables, so the design follows that: thin rules instead of boxes,
+condensed headlines, numbers in tables with aligned digits, one accent colour (cricket-ball red) and each team's own
+colour on its pages. Every colour is a CSS variable, so dark mode only changes the variables. It uses only fonts
+already on the computer, so the page still works with no internet.

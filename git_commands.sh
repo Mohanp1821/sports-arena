@@ -225,6 +225,29 @@ git push
 
 
 # -----------------------------------------------------------------------------
+# STEP 12: a design refresh (seventh FEATURE BRANCH)
+# -----------------------------------------------------------------------------
+git checkout -b feature/design-refresh
+
+git add src/build_report.py src/match_centre.py
+git commit -m "Restyle the site as a printed sports page"
+
+git add src/site.js src/dashboard_explorer.js src/dashboard_analytics.js src/dashboard_data.py data/analyst_notes.csv
+git commit -m "Add team colours, opening sentences and analyst notes to the pages"
+
+git add src/analysis.py src/predict.py src/predict_ml.py outputs/
+git commit -m "Use the site palette in every chart"
+
+git add README.md data/README.md docs/ git_commands.sh
+git commit -m "Document the new design and analyst notes"
+
+git checkout main
+git merge --no-ff feature/design-refresh -m "Merge feature/design-refresh into main"
+git tag -a v2.2 -m "Sports Arena v2.2: design refresh"
+git push origin main feature/design-refresh v2.2
+
+
+# -----------------------------------------------------------------------------
 # EVERYDAY COMMANDS (after the project is on GitHub)
 # -----------------------------------------------------------------------------
 # git status                          what changed?
