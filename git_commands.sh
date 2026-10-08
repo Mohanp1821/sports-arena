@@ -185,11 +185,15 @@ git commit -m "Add the Ask Sports Arena chatbot with an optional local-LLM mode"
 git add -A
 git commit -m "Update the docs, notebook and guide for 2008-2026"            # phase 5
 
-# After review: merge into main and mark the release
-# git checkout main
-# git merge --no-ff feature/ipl-2008-2026 -m "Merge feature/ipl-2008-2026 into main"
-# git tag -a v2.0 -m "Sports Arena v2.0: IPL 2008-2026, two 2027 models, chatbot"
-# git push origin main feature/ipl-2008-2026 v2.0
+# Phases 6-10 (pitch and player fit, the redesigned site with player, ground and
+# team pages, and name links) were committed the same way.
+
+# After review (all fact checks passed): merge into main and mark the release.
+git fetch origin                                     # get the latest GitHub version
+git checkout -B main origin/main                     # make local main match GitHub's main
+git merge --no-ff feature/ipl-2008-2026 -m "Merge feature/ipl-2008-2026 into main"
+git tag -a v2.0 -m "Sports Arena v2.0: IPL 2008-2026, two 2027 models, chatbot"
+git push origin main feature/ipl-2008-2026 v2.0      # upload main, the branch and the tag
 
 
 # -----------------------------------------------------------------------------
