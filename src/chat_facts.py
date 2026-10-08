@@ -1,28 +1,19 @@
 """
-chat_facts.py
--------------
-Builds the FACTS FILE for the "Ask Sports Arena" chatbot: every number the
-chatbot is allowed to say, calculated from the data and the prediction files.
-The chatbot never makes up a number: if a fact is not in this file, it says so.
+chat_facts.py - every number the "Ask Sports Arena" chatbot is allowed to say.
 
-Two parts:
-  1. STRUCTURED facts (dictionaries and lists) for the offline answer engine
-     in src/chatbot.js, embedded in the dashboard page by build_report.py
-  2. FACT LINES: the same facts as short sentences, e.g.
-        "IPL 2016 Orange Cap: V Kohli, 973 runs."
-     used by the optional local-LLM server (src/chat_server.py), which picks
-     the lines that match a question and gives only those to the model.
-
-Saved as outputs/chat_facts.json. Used by build_report.py:
-    facts = chat_facts.build_facts(matches, deliveries, impact)
+The chatbot never makes up a number: if a fact is not here, it says so.
+  1. structured facts (dictionaries and lists) for the offline chatbot (src/chatbot.js)
+  2. the same facts as short sentences ("IPL 2016 Orange Cap: V Kohli, 973 runs.")
+     for the optional local-AI server (src/chat_server.py)
+Saved as outputs/chat_facts.json; build_report.py puts the structured part in the page.
 """
 
 import json
 import os
-import re
 import pandas as pd
-import metrics   # our own file: src/metrics.py
-import predict   # our own file: src/predict.py (number of simulations, award list)
+import metrics
+import predict
+from dashboard_data import clean_value as clean, read_output
 
 OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
 FACTS_FILE = os.path.join(OUTPUT_FOLDER, "chat_facts.json")
@@ -68,8 +59,8 @@ PLAYER_NICKNAMES = {
     "archer": "JC Archer", "hazlewood": "JR Hazlewood", "starc": "MA Starc", "cummins": "PJ Cummins",
 }
 
-# English words that are also surnames ("D Short", "TM Head", "JE Root"): they are
-# NOT used as player aliases, so "head to head" or "most runs" never finds a player.
+# Surnames that are also English words ("TM Head", "JE Root") are not used as aliases,
+# so "head to head" or "most runs" never finds a player.
 COMMON_WORDS = {"short", "little", "hope", "root", "head", "green", "wood", "young", "best", "most", "king",
                 "will", "park", "ball", "stone", "rose", "bird", "cook", "hill", "price", "ward", "good", "case",
                 "bell", "winter", "jordan", "smith", "white", "black", "brown", "rich", "mark", "lamb", "wade",
@@ -100,32 +91,17 @@ VENUE_ALIASES = {
 }
 
 
-def clean(value):
-    """numpy numbers -> normal numbers, missing -> None (so JSON can store them)."""
-    if value is None:
-        return None
-    if hasattr(value, "item"):
-        value = value.item()
-    if isinstance(value, float) and pd.isna(value):
-        return None
-    return value
-
-
-def read_output(file_name):
-    """A CSV made by predict.py / predict_ml.py, or None if it is missing."""
-    path = os.path.join(OUTPUT_FOLDER, file_name)
-    return pd.read_csv(path) if os.path.exists(path) else None
-
-
 # ---------------------------------------------------------------------------
 # Players
 # ---------------------------------------------------------------------------
+BAT_CAREER = ["innings", "runs", "balls_faced", "dismissals", "highest_score", "fifties", "hundreds", "sixes"]
+BOWL_CAREER = ["wickets", "legal_balls", "runs_conceded"]
+
+
 def player_facts(matches, deliveries):
     """
-    For every player: career batting and bowling, and each season.
-    Row lists keep the file small:
-      career  = [matches, innings, runs, balls, outs, highest, fifties, hundreds, sixes,
-                 wickets, legal balls bowled, runs conceded]
+    Every player's career and seasons, as short lists:
+      career  = [matches, innings, runs, balls, outs, highest, 50s, 100s, sixes, wickets, legal balls, runs conceded]
       seasons = {season: [team, runs, balls, outs, sixes, wickets, legal balls, runs conceded]}
     """
     df = metrics.remove_super_overs(deliveries)
@@ -136,45 +112,38 @@ def player_facts(matches, deliveries):
 
     bat = metrics.batting_stats(deliveries).set_index("batter")
     bowl = metrics.bowling_stats(deliveries).set_index("bowler")
-    bat_season = metrics.batting_stats(deliveries, ["batter", "season"])
-    bowl_season = metrics.bowling_stats(deliveries, ["bowler", "season"])
-    teams = metrics.season_impact_scores(deliveries)[["player", "season", "team"]]
-    team_of = {}
-    for i in range(len(teams)):
-        team_of[(teams["player"].iloc[i], int(teams["season"].iloc[i]))] = teams["team"].iloc[i]
+    teams = metrics.season_impact_scores(deliveries)
+    team_of = {(player, int(season)): team for player, season, team in zip(teams["player"], teams["season"], teams["team"])}
+
+    def career_numbers(table, player, columns):
+        """The player's numbers from a career table, or zeros if he is not in it."""
+        if player not in table.index:
+            return [0] * len(columns)
+        return [clean(table.loc[player][column]) for column in columns]
 
     players = {}
     for player in sorted(matches_played.index):
-        b = bat.loc[player] if player in bat.index else None
-        w = bowl.loc[player] if player in bowl.index else None
-        players[player] = {"career": [
-            clean(matches_played[player]),
-            clean(b["innings"]) if b is not None else 0, clean(b["runs"]) if b is not None else 0,
-            clean(b["balls_faced"]) if b is not None else 0, clean(b["dismissals"]) if b is not None else 0,
-            clean(b["highest_score"]) if b is not None else 0, clean(b["fifties"]) if b is not None else 0,
-            clean(b["hundreds"]) if b is not None else 0, clean(b["sixes"]) if b is not None else 0,
-            clean(w["wickets"]) if w is not None else 0, clean(w["legal_balls"]) if w is not None else 0,
-            clean(w["runs_conceded"]) if w is not None else 0], "seasons": {}}
+        career = [clean(matches_played[player])] + career_numbers(bat, player, BAT_CAREER) + career_numbers(bowl, player, BOWL_CAREER)
+        players[player] = {"career": career, "seasons": {}}
 
-    for i in range(len(bat_season)):
-        row = bat_season.iloc[i]
-        entry = players[row["batter"]]["seasons"].setdefault(str(int(row["season"])), [team_of.get((row["batter"], int(row["season"])), ""), 0, 0, 0, 0, 0, 0, 0])
+    def season_entry(player, season):
+        empty = [team_of.get((player, int(season)), ""), 0, 0, 0, 0, 0, 0, 0]
+        return players[player]["seasons"].setdefault(str(int(season)), empty)
+
+    for row in metrics.batting_stats(deliveries, ["batter", "season"]).to_dict("records"):
+        entry = season_entry(row["batter"], row["season"])
         entry[1:5] = [clean(row["runs"]), clean(row["balls_faced"]), clean(row["dismissals"]), clean(row["sixes"])]
-    for i in range(len(bowl_season)):
-        row = bowl_season.iloc[i]
-        if row["bowler"] not in players:
-            continue
-        entry = players[row["bowler"]]["seasons"].setdefault(str(int(row["season"])), [team_of.get((row["bowler"], int(row["season"])), ""), 0, 0, 0, 0, 0, 0, 0])
-        entry[5:8] = [clean(row["wickets"]), clean(row["legal_balls"]), clean(row["runs_conceded"])]
+    for row in metrics.bowling_stats(deliveries, ["bowler", "season"]).to_dict("records"):
+        if row["bowler"] in players:
+            entry = season_entry(row["bowler"], row["season"])
+            entry[5:8] = [clean(row["wickets"]), clean(row["legal_balls"]), clean(row["runs_conceded"])]
     return players
 
 
 def player_aliases(players):
     """
-    Lower-case words that point to a player:
-      - the full name ("v kohli"), nicknames ("sky", "kohli")
-      - a surname or a full first name, but only if ONE player has it; if several
-        players share it, the alias lists them all and the chatbot asks which one
+    Lower-case words that point to a player: the full name ("v kohli"), nicknames ("sky"),
+    and a surname or first name (if several players share it, the chatbot asks which one).
     """
     aliases = {}
     for name in players:
@@ -205,18 +174,15 @@ def team_facts(matches, deliveries):
     champions = metrics.season_champions(matches)
     finals = matches[matches["playoff_name"] == "Final"]
     champion_rows = {}
-    for i in range(len(champions)):
-        season = int(champions["season"].iloc[i])
+    for champion in champions.to_dict("records"):
+        season = int(champion["season"])
         final = finals[finals["season"] == season].iloc[0]
         runner_up = final["team2"] if final["winner"] == final["team1"] else final["team1"]
-        champion_rows[str(season)] = [champions["champion"].iloc[i], champions["champion_name"].iloc[i], runner_up,
+        champion_rows[str(season)] = [champion["champion"], champion["champion_name"], runner_up,
                                       metrics.margin_text(final), final["venue"]]
 
-    caps = metrics.cap_winners(deliveries)
-    cap_rows = {}
-    for i in range(len(caps)):
-        row = caps.iloc[i]
-        cap_rows[str(int(row["season"]))] = [row["orange_cap"], clean(row["runs"]), row["purple_cap"], clean(row["wickets"])]
+    cap_rows = {str(int(row["season"])): [row["orange_cap"], clean(row["runs"]), row["purple_cap"], clean(row["wickets"])]
+                for row in metrics.cap_winners(deliveries).to_dict("records")}
 
     results = metrics.team_results(matches)
     rivalry = {}
@@ -227,7 +193,7 @@ def team_facts(matches, deliveries):
             last = games.iloc[-1]
             last_text = (last["date"].strftime("%Y-%m-%d") + ": " + (last["winner"] + " " + metrics.margin_text(last)
                          if not last["no_result"] else "no result") + " at " + last["venue"])
-            # The same record at each ground: {venue: [played, team wins, opponent wins, no result]}
+            # The same record at each ground: [played, team wins, opponent wins, no result]
             for venue, at_ground in games.groupby("venue"):
                 rivalry_ground.setdefault(team + "|" + opponent, {})[venue] = [
                     len(at_ground), int((at_ground["winner_franchise"] == team).sum()),
@@ -236,16 +202,17 @@ def team_facts(matches, deliveries):
                                               int((games["winner_franchise"] == opponent).sum()),
                                               int(games["no_result"].sum()), last_text]
 
-    at_ground = results.groupby(["team", "venue"]).agg(played=("match_id", "count"), wins=("won", "sum"),
-                                                       first=("season", "min"), last=("season", "max")).reset_index()
-    ground = {}
-    for i in range(len(at_ground)):
-        row = at_ground.iloc[i]
-        ground[row["team"] + "|" + row["venue"]] = [clean(row["played"]), clean(row["wins"]), clean(row["first"]), clean(row["last"])]
+    at_ground = results.groupby(["team", "venue"]).agg(
+        played=("match_id", "count"),
+        wins=("won", "sum"),
+        first=("season", "min"),
+        last=("season", "max"),
+    ).reset_index()
+    ground = {row["team"] + "|" + row["venue"]: [clean(row["played"]), clean(row["wins"]), clean(row["first"]), clean(row["last"])]
+              for row in at_ground.to_dict("records")}
 
     match_list = []
-    for i in range(len(matches)):
-        m = matches.iloc[i]
+    for m in matches.to_dict("records"):
         result = "No result" if m["no_result"] else (
             "Tied, " + m["winner"] + " won the super over" if m["result"] == "tie" else m["winner"] + " " + metrics.margin_text(m))
         match_list.append([m["date"].strftime("%Y-%m-%d"), m["team1"], m["team2"], m["team1_franchise"], m["team2_franchise"],
@@ -254,69 +221,44 @@ def team_facts(matches, deliveries):
     return champion_rows, cap_rows, rivalry, ground, match_list, rivalry_ground
 
 
-MIN_MATCHUP_BALLS = 6      # batter-vs-bowler pairs that met at least this many balls
+MIN_MATCHUP_BALLS = 6      # batter-vs-bowler pairs with fewer balls are left out
 
 
 def matchup_facts(deliveries, names):
-    """
-    Batter vs bowler for every pair with at least MIN_MATCHUP_BALLS balls:
-    [batter, bowler, balls, runs, dismissals, dots, fours, sixes]
-    (batter and bowler are positions in the sorted player-name list).
-    """
-    position = {}
-    for i in range(len(names)):
-        position[names[i]] = i
+    """[batter, bowler, balls, runs, dismissals, dots, fours, sixes] (names as positions in the name list)."""
+    position = {name: i for i, name in enumerate(names)}
     table = metrics.matchup_table(deliveries, min_balls=MIN_MATCHUP_BALLS)
-    rows = []
-    for i in range(len(table)):
-        row = table.iloc[i]
-        rows.append([position[row["batter"]], position[row["bowler"]], clean(row["balls"]), clean(row["runs"]),
-                     clean(row["dismissals"]), clean(row["dots"]), clean(row["fours"]), clean(row["sixes"])])
-    return rows
+    return [[position[row["batter"]], position[row["bowler"]]]
+            + [clean(row[column]) for column in ["balls", "runs", "dismissals", "dots", "fours", "sixes"]]
+            for row in table.to_dict("records")]
 
 
 FIT_MIN_BALLS = 30   # player-at-ground records with fewer balls are too small to quote
 
 
 def pitch_facts(matches, deliveries):
-    """
-    How each ground plays (all seasons, and the Impact Player era 2023+):
-    {venue: [matches, run rate, runs index, wickets index, boundary index, dot index,
-             avg first innings, chase win %, label]}   (indexes: 100 = league in the same seasons)
-    """
+    """How each ground plays, all seasons and 2023+: {venue: [matches, run rate, the 4 indexes, avg 1st innings, chase win %, label]}."""
     parts = metrics.pitch_components(deliveries, matches)
     seasons = sorted(matches["season"].unique())
+    columns = ["matches", "run_rate", "runs_index", "wickets_index", "boundary_index",
+               "dot_index", "avg_first_innings", "chase_win_pct", "label"]
     result = {}
     for key, chosen in [("all", None), ("recent", [season for season in seasons if season >= 2023])]:
         profile = metrics.profile_from_components(parts, chosen)
-        result[key] = {}
-        for i in range(len(profile)):
-            row = profile.iloc[i]
-            result[key][row["venue"]] = [clean(row[column]) for column in
-                                         ["matches", "run_rate", "runs_index", "wickets_index", "boundary_index",
-                                          "dot_index", "avg_first_innings", "chase_win_pct", "label"]]
+        result[key] = {row["venue"]: [clean(row[column]) for column in columns] for row in profile.to_dict("records")}
     return result
 
 
 def fit_facts(matches, deliveries):
-    """
-    Each player at each ground vs other grounds in the same seasons (at least FIT_MIN_BALLS here):
-      bat  "player|venue": [balls, runs, outs, else balls, else runs, else outs]
-      bowl "player|venue": [legal balls, runs, wickets, else legal balls, else runs, else wickets]
-    """
+    """Each player at each ground (at least 30 balls there): here, then elsewhere in the same seasons."""
     batting = metrics.player_ground_batting(deliveries, matches)
     bowling = metrics.player_ground_bowling(deliveries, matches)
-    bat = {}
-    for i in range(len(batting)):
-        row = batting.iloc[i]
-        if row["balls"] >= FIT_MIN_BALLS:
-            bat[row["batter"] + "|" + row["venue"]] = [clean(row[c]) for c in ["balls", "runs", "outs", "else_balls", "else_runs", "else_outs"]]
-    bowl = {}
-    for i in range(len(bowling)):
-        row = bowling.iloc[i]
-        if row["legal_balls"] >= FIT_MIN_BALLS:
-            bowl[row["bowler"] + "|" + row["venue"]] = [clean(row[c]) for c in ["legal_balls", "runs", "wickets", "else_legal_balls",
-                                                                                 "else_runs", "else_wickets"]]
+    bat_columns = ["balls", "runs", "outs", "else_balls", "else_runs", "else_outs"]
+    bowl_columns = ["legal_balls", "runs", "wickets", "else_legal_balls", "else_runs", "else_wickets"]
+    bat = {row["batter"] + "|" + row["venue"]: [clean(row[c]) for c in bat_columns]
+           for row in batting.to_dict("records") if row["balls"] >= FIT_MIN_BALLS}
+    bowl = {row["bowler"] + "|" + row["venue"]: [clean(row[c]) for c in bowl_columns]
+            for row in bowling.to_dict("records") if row["legal_balls"] >= FIT_MIN_BALLS}
     return {"bat": bat, "bowl": bowl}
 
 
@@ -325,14 +267,14 @@ def impact_facts(matches, deliveries, impact):
     summary = metrics.impact_era_summary(deliveries, matches)
     phases = metrics.impact_era_phase_run_rate(deliveries)
     choices = metrics.impact_choice_summary(metrics.impact_player_choices(impact, deliveries, matches), by_team=False)
-    return {"eras": [[clean(v) for v in summary.iloc[i]] for i in range(len(summary))],
-            "phases": [[phases["era"].iloc[i], phases["phase"].iloc[i], clean(phases["run_rate"].iloc[i])] for i in range(len(phases))],
-            "choices": [[clean(v) for v in choices.iloc[i]] for i in range(len(choices))],
+    return {"eras": [[clean(v) for v in row] for row in summary.itertuples(index=False)],
+            "phases": [[era, phase, clean(rate)] for era, phase, rate in zip(phases["era"], phases["phase"], phases["run_rate"])],
+            "choices": [[clean(v) for v in row] for row in choices.itertuples(index=False)],
             "substitutions": len(impact)}
 
 
 def prediction_facts(next_season):
-    """Both models' 2027 predictions and the backtest scores (from the prediction CSV files)."""
+    """Both models' predictions and backtest scores, from the prediction CSV files."""
     comparison = read_output("prediction_" + str(next_season) + "_comparison.csv")
     if comparison is None:
         return None
@@ -348,27 +290,24 @@ def prediction_facts(next_season):
     elo = dict(zip(chances_b["team"], chances_b["elo"]))
     return {
         "season": next_season, "simulations": predict.SIMULATIONS,
-        "teams": [[comparison["team"].iloc[i], clean(comparison["title_pct_a"].iloc[i]), clean(comparison["playoff_pct_a"].iloc[i]),
-                   clean(comparison["title_pct_b"].iloc[i]), clean(comparison["playoff_pct_b"].iloc[i]),
-                   clean(strengths.get(comparison["team"].iloc[i])), clean(squad.get(comparison["team"].iloc[i])),
-                   clean(elo.get(comparison["team"].iloc[i]))] for i in range(len(comparison))],
-        "awards_a": [[awards_a["award"].iloc[i], int(awards_a["rank"].iloc[i]), awards_a["player"].iloc[i], awards_a["team"].iloc[i],
-                      clean(awards_a["form"].iloc[i]), awards_a["measure"].iloc[i]] for i in range(len(awards_a))],
-        "awards_b": [[awards_b["award"].iloc[i], int(awards_b["rank"].iloc[i]), awards_b["player"].iloc[i], awards_b["team"].iloc[i],
-                      clean(awards_b["predicted"].iloc[i]), awards_b["measure"].iloc[i]] for i in range(len(awards_b))],
-        "backtest": [[overall["model"].iloc[i], clean(overall["matches"].iloc[i]), clean(overall["accuracy_pct"].iloc[i]),
-                      clean(overall["log_loss"].iloc[i]), clean(overall["brier"].iloc[i])] for i in range(len(overall))],
-        "titles": [[clean(v) for v in titles.iloc[i][["season", "teams", "champion", "champion_rank_a", "champion_rank_b"]]]
-                   for i in range(len(titles))],
+        "teams": [[row["team"], clean(row["title_pct_a"]), clean(row["playoff_pct_a"]),
+                   clean(row["title_pct_b"]), clean(row["playoff_pct_b"]), clean(strengths.get(row["team"])),
+                   clean(squad.get(row["team"])), clean(elo.get(row["team"]))] for row in comparison.to_dict("records")],
+        "awards_a": [[row["award"], int(row["rank"]), row["player"], row["team"], clean(row["form"]), row["measure"]]
+                     for row in awards_a.to_dict("records")],
+        "awards_b": [[row["award"], int(row["rank"]), row["player"], row["team"], clean(row["predicted"]), row["measure"]]
+                     for row in awards_b.to_dict("records")],
+        "backtest": [[row["model"], clean(row["matches"]), clean(row["accuracy_pct"]), clean(row["log_loss"]), clean(row["brier"])]
+                     for row in overall.to_dict("records")],
+        "titles": [[clean(row[column]) for column in ["season", "teams", "champion", "champion_rank_a", "champion_rank_b"]]
+                   for row in titles.to_dict("records")],
     }
 
 
 # ---------------------------------------------------------------------------
-# Fact lines (for the local-LLM server)
+# Fact lines (for the local-AI server)
 # ---------------------------------------------------------------------------
-def overs(legal_balls):
-    """117 -> "19.3"."""
-    return str(int(legal_balls) // 6) + "." + str(int(legal_balls) % 6)
+overs = metrics.overs_text      # 117 legal balls -> "19.3"
 
 
 def fact_lines(facts):
@@ -466,23 +405,18 @@ def build_facts(matches, deliveries, impact):
     champions, caps, rivalry, ground, match_list, rivalry_ground = team_facts(matches, deliveries)
     next_season = int(matches["season"].max()) + 1
     venues = sorted(matches["venue"].unique())
-    venue_aliases = {}
-    for venue in venues:
-        venue_aliases[venue.lower()] = venue
-    for venue in VENUE_ALIASES:
-        for alias in VENUE_ALIASES[venue]:
+    venue_aliases = {venue.lower(): venue for venue in venues}
+    for venue, aliases in VENUE_ALIASES.items():
+        for alias in aliases:
             venue_aliases[alias] = venue
-    # "at Chennai" means the main ground in Chennai (the ground with the most matches in that city).
+    # "at Chennai" = the ground with the most matches in Chennai.
     for city in sorted(matches["city"].unique()):
         rows = matches[matches["city"] == city]
         main_ground = rows["venue"].value_counts().sort_index().idxmax()
         venue_aliases["at " + city.lower()] = main_ground
         venue_aliases["in " + city.lower()] = main_ground
     venue_aliases["at bangalore"] = venue_aliases.get("at bengaluru", "M Chinnaswamy Stadium")
-    team_aliases = {}
-    for team in TEAM_ALIASES:
-        for alias in TEAM_ALIASES[team]:
-            team_aliases[alias] = team
+    team_aliases = {alias: team for team, aliases in TEAM_ALIASES.items() for alias in aliases}
     facts = {
         "meta": {"season_range": metrics.season_range_text(matches), "matches": len(matches),
                  "balls": len(deliveries), "seasons": int(matches["season"].nunique()),

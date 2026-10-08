@@ -248,6 +248,34 @@ git push origin main feature/design-refresh v2.2
 
 
 # -----------------------------------------------------------------------------
+# STEP 13: simplify the Python code (same results, checked byte for byte)
+# -----------------------------------------------------------------------------
+git checkout -b feature/simplify-code
+
+git add src/verify_data.py src/prepare_data.py
+git commit -m "Simplify the checksum and data-cleaning scripts"
+
+git add src/metrics.py
+git commit -m "Simplify metrics.py: one wicket rule and shared helpers"
+
+git add src/analysis.py src/predict.py src/predict_ml.py
+git commit -m "Simplify the chart and prediction scripts"
+
+git add src/dashboard_data.py src/chat_facts.py src/match_centre.py src/build_report.py src/site.css src/match_centre.css
+git commit -m "Simplify the website builders and move the CSS into its own files"
+
+git add src/build_impact_players.py src/build_name_map.py src/recover_merged_data.py src/chat_server.py
+git commit -m "Shorten the headers of the one-off helper scripts"
+
+git add tests/test_facts.py README.md docs/ git_commands.sh
+git commit -m "Update the docs for the simpler code"
+
+git checkout main
+git merge --no-ff feature/simplify-code -m "Merge feature/simplify-code into main"
+git tag -a v2.3 -m "Sports Arena v2.3: simpler code, same results"
+git push origin main feature/simplify-code v2.3
+
+# -----------------------------------------------------------------------------
 # EVERYDAY COMMANDS (after the project is on GitHub)
 # -----------------------------------------------------------------------------
 # git status                          what changed?

@@ -1,31 +1,15 @@
 """
-chat_server.py
---------------
-OPTIONAL "local LLM" mode for the Ask Sports Arena chatbot.
+chat_server.py - OPTIONAL: answer chatbot questions with a language model on your own computer.
 
-The dashboard's chatbot works offline on its own (src/chatbot.js). This small
-server adds a second way to answer: it sends the question, together with the
-matching facts, to an open-weights language model running on YOUR computer
-through Ollama (https://ollama.com). Nothing is sent to the internet.
+The chatbot works offline without this. With Ollama (https://ollama.com) running, the
+page sends questions here, and this server:
+  1. RETRIEVES the 25 fact lines (from outputs/chat_facts.json) that best match the question
+  2. ASKS the model to answer only from those lines and to quote the numbers
+  3. REPLIES with the answer and which model and facts were used
+Nothing goes to the internet. If the server is not running, the page stays offline.
 
-How it answers (Retrieval-Augmented Generation, "RAG", in three steps):
-  1. RETRIEVE: score every fact line in outputs/chat_facts.json by how many of
-     the question's words (and team/player/ground aliases) it contains, and
-     keep the best 25. These lines are written by src/chat_facts.py from the data.
-  2. ASK: send the model ONLY those lines, with instructions to answer only
-     from them, to quote the numbers, and to say when the facts do not cover
-     the question.
-  3. REPLY: return the answer and say which model and how many facts were used.
-
-The dashboard checks http://localhost:8765/health when it opens. If this server
-is not running, the page simply stays in offline mode.
-
-Run it (with Ollama installed and a model pulled, e.g. `ollama pull llama3.2:3b`):
-    python src/chat_server.py
-Or with Docker:   docker compose --profile llm up
-Settings (environment variables): OLLAMA_URL (default http://localhost:11434),
-OLLAMA_MODEL (default llama3.2:3b), CHAT_PORT (default 8765).
-Only Python's built-in libraries are used.
+Run:  python src/chat_server.py     (after: ollama pull llama3.2:3b)
+Settings: OLLAMA_URL, OLLAMA_MODEL, CHAT_PORT (default 8765).
 """
 
 import json

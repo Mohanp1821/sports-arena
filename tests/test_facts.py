@@ -1,20 +1,16 @@
 """
-test_facts.py
--------------
-Fact-check tests: compare our results with well-known IPL records.
-If a cleaning step or formula is wrong, one of these checks will fail.
+test_facts.py - Step 4: check the results against official IPL records.
 
-Run it from the project folder with:
-    python tests/test_facts.py
+Each check is a plain "assert": if a cleaning step or formula is wrong, the
+condition is False and Python stops with the message.
 
-Each check uses a plain "assert": if the condition is False, Python stops
-and shows the message.
+Run:  python tests/test_facts.py
 """
 
 import os
 import sys
 
-# Let Python find our src/ folder so we can import metrics.py.
+# Let Python find the src/ folder.
 TESTS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 PROJECT_FOLDER = os.path.dirname(TESTS_FOLDER)
 sys.path.append(os.path.join(PROJECT_FOLDER, "src"))

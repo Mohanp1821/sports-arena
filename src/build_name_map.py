@@ -1,49 +1,17 @@
 """
-build_name_map.py
------------------
-Builds data/player_name_map.csv: how to rewrite the player names of the
-2008-2019 (Kaggle) part of the dataset so they match the names used for
-2020-2026 (Cricsheet).
+build_name_map.py - one-off: data/player_name_map.csv, one name per player across both sources.
 
-THE PROBLEM
-    The two sources write some players differently. Kaggle wrote the 2018-19
-    debutants in its own short way, Cricsheet uses its own register:
-        "S Gill"  (Kaggle)  vs  "Shubman Gill" (Cricsheet)
-        "J Archer"          vs  "JC Archer"
-        "P Shaw"            vs  "PP Shaw"
-    Without a fix, Shubman Gill's career would be split into two players.
+The problem: Kaggle (2008-2019) and Cricsheet (2020-2026) write some players differently
+("S Gill" vs "Shubman Gill"), and different people can share a name ("Ankit Sharma").
+So instead of guessing from names, we use evidence:
+  1. Pair each Kaggle match with the same Cricsheet match (same date and teams).
+  2. Line up the balls of each over: the batter on ball 1 is the same person in both files.
+  3. Each ball is a vote: "Kaggle name X, for team T in season S, is Cricsheet player Y".
+  4. The majority decides. The key includes the season and team, so two people
+     with one name are never merged; only names that change are kept, and a name
+     two different people share is never used.
 
-WHY NOT JUST GUESS FROM THE NAMES?
-    Because different people can share a name:
-      - "Ankit Sharma" at Delhi 2018 / Hyderabad 2019 is really Abhishek Sharma,
-        but "Ankit Sharma" at Rajasthan 2018 is a different, real player.
-      - "AS Yadav" at Mumbai 2018 is Suryakumar Yadav, but "AS Yadav" at
-        Deccan Chargers 2008 is someone else.
-    So we use EVIDENCE instead of guessing.
-
-HOW IT WORKS (step by step)
-    1. Cricsheet also publishes every 2008-2019 match (data/cricsheet/ipl_json.zip).
-       Each Cricsheet file has a REGISTER: every player's unique ID, so two
-       people with the same name always have different IDs.
-    2. Pair each Kaggle match with its Cricsheet match (same date, same two teams).
-    3. Line up the balls of each over. If an over has the same number of balls
-       in both files, ball 1 matches ball 1, ball 2 matches ball 2, and so on.
-       So the Kaggle batter on that ball and the Cricsheet batter on that ball
-       are the same person. Same for the non-striker and the bowler.
-    4. Each lined-up ball is one VOTE: "Kaggle name X, playing for team T in
-       season S, is Cricsheet player ID Y". A batter facing 300 balls gets
-       about 300 votes, so one odd ball cannot change the answer.
-    5. The majority vote decides. The key is (season, team, Kaggle name), so
-       the two different "Ankit Sharma"s are never merged.
-    6. We keep only the rows where the name actually changes.
-    7. Safety rule: never rename to a name that two different people share
-       in the register (two players are called "Harmeet Singh"; Kaggle's
-       "Harmeet Singh (2)" keeps them apart, so we leave it).
-    8. Bonus check: a few players are spelt two ways INSIDE the Cricsheet
-       files (same ID: "NA Saini" / "Navdeep Saini"); those are joined too.
-
-Run it with (needs data/cricsheet/ipl_json.zip, see data/README.md):
-    python src/build_name_map.py
+Run (needs data/cricsheet/ipl_json.zip, see data/README.md):  python src/build_name_map.py
 """
 
 import json
