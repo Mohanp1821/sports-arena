@@ -218,6 +218,11 @@ git merge --no-ff feature/records -m "Merge feature/records into main"
 git tag -a v2.1 -m "Sports Arena v2.1: records tables"
 git push origin main feature/records v2.1
 
+# A one-line style fix straight on main (no branch needed):
+git add src/build_report.py outputs/index.html git_commands.sh
+git commit -m "Keep drop-downs inside their boxes on phone screens"
+git push
+
 
 # -----------------------------------------------------------------------------
 # EVERYDAY COMMANDS (after the project is on GitHub)
