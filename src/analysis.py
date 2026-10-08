@@ -38,12 +38,14 @@ SHOW_CHARTS = False
 
 OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
 
-# Colours: a colour-blind-safe set. Colour 1 is used for single-series charts.
-BLUE = "#2a78d6"
-ORANGE = "#eb6834"
-AQUA = "#1baf7a"
+# Colours: the same palette as the web page (src/build_report.py).
+# Slate is the main colour; red (a cricket ball) is the one highlight. Slate, red and
+# green stay distinguishable for colour-blind readers because they also differ in lightness.
+SLATE = "#3b5b6e"
+RED = "#b1262c"
+GREEN = "#4c7a5a"
 GREY = "#8a8984"
-PHASE_COLOURS = {"Powerplay": BLUE, "Middle": ORANGE, "Death": AQUA}
+PHASE_COLOURS = {"Powerplay": SLATE, "Middle": RED, "Death": GREEN}
 
 # The 10 franchises playing today (used to keep charts readable).
 MAJOR_TEAMS = metrics.CURRENT_FRANCHISES
@@ -53,10 +55,14 @@ MAJOR_TEAMS = metrics.CURRENT_FRANCHISES
 # Chart helpers
 # ---------------------------------------------------------------------------
 def setup_style():
-    """Use one clean, readable style for every chart."""
+    """Use one clean, readable style for every chart, like a newspaper graphic."""
     sns.set_theme(style="whitegrid", font_scale=1.1)
     plt.rcParams["figure.dpi"] = 100
     plt.rcParams["axes.titleweight"] = "bold"
+    plt.rcParams["axes.titlelocation"] = "left"      # titles read from the left, like a headline
+    plt.rcParams["axes.spines.top"] = False          # no box around the chart: only the axes that matter
+    plt.rcParams["axes.spines.right"] = False
+    plt.rcParams["font.sans-serif"] = ["Helvetica Neue", "Arial", "DejaVu Sans"]
 
 
 def save_chart(fig, file_name):
@@ -94,9 +100,9 @@ def plot_player_form(deliveries, player, season):
     innings["rolling_avg"] = innings["runs"].rolling(window=5, min_periods=1).mean()
 
     fig, ax = plt.subplots(figsize=(11, 5))
-    ax.bar(innings["innings_number"], innings["runs"], color=BLUE, alpha=0.6,
+    ax.bar(innings["innings_number"], innings["runs"], color=SLATE, alpha=0.6,
            label="Runs in the innings")
-    ax.plot(innings["innings_number"], innings["rolling_avg"], color=ORANGE,
+    ax.plot(innings["innings_number"], innings["rolling_avg"], color=RED,
             linewidth=2.5, marker="o", label="5-innings rolling average")
     ax.axhline(50, color=GREY, linestyle="--", linewidth=1, label="50 runs")
     ax.set_title(player + ": runs per innings in IPL " + str(season))
@@ -114,11 +120,11 @@ def plot_player_career(deliveries, player):
 
     # Two separate panels, because runs and strike rate have different scales.
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 8), sharex=True)
-    ax1.bar(table["season"], table["runs"], color=BLUE)
+    ax1.bar(table["season"], table["runs"], color=SLATE)
     ax1.set_title(player + ": IPL career by season")
     ax1.set_ylabel("Runs in season")
 
-    ax2.plot(table["season"], table["strike_rate"], color=ORANGE, marker="o", linewidth=2)
+    ax2.plot(table["season"], table["strike_rate"], color=RED, marker="o", linewidth=2)
     ax2.set_ylabel("Strike rate")
     ax2.set_xlabel("Season")
     ax2.set_xticks(table["season"])
@@ -131,11 +137,11 @@ def plot_bowler_career(deliveries, bowler):
     table = table[table["bowler"] == bowler]
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 8), sharex=True)
-    ax1.bar(table["season"], table["wickets"], color=BLUE)
+    ax1.bar(table["season"], table["wickets"], color=SLATE)
     ax1.set_title(bowler + ": wickets and economy by season")
     ax1.set_ylabel("Wickets")
 
-    ax2.plot(table["season"], table["economy"], color=ORANGE, marker="o", linewidth=2)
+    ax2.plot(table["season"], table["economy"], color=RED, marker="o", linewidth=2)
     ax2.set_ylabel("Economy (runs per over)")
     ax2.set_xlabel("Season")
     ax2.set_xticks(table["season"])
@@ -147,7 +153,7 @@ def compare_players(deliveries, player_a, player_b):
     table = metrics.batting_stats(deliveries, ["batter", "season"])
 
     fig, ax = plt.subplots(figsize=(11, 5))
-    colours = [BLUE, ORANGE]
+    colours = [SLATE, RED]
     for i, player in enumerate([player_a, player_b]):
         rows = table[table["batter"] == player]
         ax.plot(rows["season"], rows["runs"], marker="o", linewidth=2,
@@ -170,7 +176,7 @@ def plot_season_win_pct(matches, season):
     table = table[table["season"] == season].sort_values("win_pct", ascending=False)
 
     fig, ax = plt.subplots(figsize=(11, 5))
-    ax.bar(table["team"], table["win_pct"], color=BLUE)
+    ax.bar(table["team"], table["win_pct"], color=SLATE)
     ax.set_title("Team win % in IPL " + str(season))
     ax.set_xlabel("Team")
     ax.set_ylabel("Win %")
@@ -186,7 +192,7 @@ def plot_alltime_win_pct(matches):
     table = table.sort_values("win_pct")
 
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.barh(table["team"], table["win_pct"], color=BLUE)
+    ax.barh(table["team"], table["win_pct"], color=SLATE)
     for i in range(len(table)):
         row = table.iloc[i]
         ax.text(row["win_pct"] + 0.5, i, str(row["win_pct"]) + "% (" + str(row["played"]) + " matches)",
@@ -230,7 +236,7 @@ def plot_bat_first_vs_chase(deliveries, matches):
 
     fig, ax = plt.subplots(figsize=(12, 5))
     sns.barplot(data=long_table, x="season", y="win_pct", hue="result",
-                palette={"Batting first": BLUE, "Chasing": ORANGE}, ax=ax)
+                palette={"Batting first": SLATE, "Chasing": RED}, ax=ax)
     ax.axhline(50, color=GREY, linestyle="--", linewidth=1)
     ax.set_title("Batting first vs chasing: win % by season")
     ax.set_xlabel("Season")
@@ -244,7 +250,7 @@ def plot_first_innings_trend(deliveries, matches):
     table = metrics.first_innings_scores(deliveries, matches)
 
     fig, ax = plt.subplots(figsize=(11, 5))
-    ax.plot(table["season"], table["avg_first_innings"], color=BLUE, marker="o", linewidth=2)
+    ax.plot(table["season"], table["avg_first_innings"], color=SLATE, marker="o", linewidth=2)
     for i in range(len(table)):
         row = table.iloc[i]
         ax.text(row["season"], row["avg_first_innings"] + 1.5, str(row["avg_first_innings"]),
@@ -262,7 +268,7 @@ def plot_home_away(matches):
 
     fig, ax = plt.subplots(figsize=(12, 5))
     sns.barplot(data=table, x="team", y="win_pct", hue="location",
-                hue_order=["Home", "Away"], palette={"Home": BLUE, "Away": ORANGE}, ax=ax)
+                hue_order=["Home", "Away"], palette={"Home": SLATE, "Away": RED}, ax=ax)
     ax.set_title("Home ground vs away win % (" + metrics.season_range_text(matches) + ")")
     ax.set_xlabel("Team")
     ax.set_ylabel("Win %")
@@ -285,7 +291,7 @@ def plot_head_to_head(matches, team_a, team_b):
 
     fig, ax = plt.subplots(figsize=(12, 5))
     sns.barplot(data=long_table, x="season", y="wins", hue="team",
-                palette={team_a: BLUE, team_b: ORANGE}, ax=ax)
+                palette={team_a: SLATE, team_b: RED}, ax=ax)
     ax.set_title("Head to head: " + team_a + " " + str(total_a) + " - "
                  + str(total_b) + " " + team_b)
     ax.set_xlabel("Season")
@@ -302,7 +308,7 @@ def plot_cap_winners(caps):
     """Two panels: Orange Cap runs and Purple Cap wickets, labelled with names."""
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 9), sharex=True)
 
-    ax1.bar(caps["season"], caps["runs"], color=ORANGE)
+    ax1.bar(caps["season"], caps["runs"], color=RED)
     for i in range(len(caps)):
         row = caps.iloc[i]
         ax1.text(row["season"], row["runs"] + 10, row["orange_cap"], ha="center",
@@ -311,7 +317,7 @@ def plot_cap_winners(caps):
     ax1.set_ylabel("Runs")
     ax1.set_ylim(0, 1250)
 
-    ax2.bar(caps["season"], caps["wickets"], color="#4a3aa7")
+    ax2.bar(caps["season"], caps["wickets"], color="#7a5c8a")
     for i in range(len(caps)):
         row = caps.iloc[i]
         ax2.text(row["season"], row["wickets"] + 0.5, row["purple_cap"], ha="center",
@@ -328,7 +334,7 @@ def plot_top_bar(table, name_column, metric, title, x_label, file_name):
     # Reverse the order so the best player is drawn at the top.
     table = table.iloc[::-1]
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.barh(table[name_column], table[metric], color=BLUE)
+    ax.barh(table[name_column], table[metric], color=SLATE)
     for i in range(len(table)):
         value = table.iloc[i][metric]
         ax.text(value, i, " " + str(value), va="center", fontsize=9)
@@ -353,7 +359,7 @@ def plot_batting_quadrant(deliveries, min_balls=1000):
     median_sr = table["strike_rate"].median()
 
     fig, ax = plt.subplots(figsize=(12, 8))
-    ax.scatter(table["average"], table["strike_rate"], s=60, color=BLUE,
+    ax.scatter(table["average"], table["strike_rate"], s=60, color=SLATE,
                edgecolor="white", linewidth=1)
     ax.axvline(median_avg, color=GREY, linestyle="--")
     ax.axhline(median_sr, color=GREY, linestyle="--")
@@ -384,7 +390,7 @@ def plot_team_season_heatmap(matches):
     grid = table.pivot(index="team", columns="season", values="win_pct")
 
     fig, ax = plt.subplots(figsize=(14, 7))
-    sns.heatmap(grid, annot=True, fmt=".0f", cmap="Blues", linewidths=1,
+    sns.heatmap(grid, annot=True, fmt=".0f", cmap=sns.light_palette(SLATE, as_cmap=True), linewidths=1,
                 linecolor="white", cbar_kws={"label": "Win %"}, ax=ax)
     ax.grid(False)   # turn off background gridlines so empty cells stay blank
     ax.set_title("Win % by team and season (blank = did not play)")
@@ -402,7 +408,7 @@ def plot_rivalry(matches, team_a, team_b):
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 9))
 
     long_table = pd.melt(by_season, id_vars="season", value_vars=[team_a, team_b], var_name="team", value_name="wins")
-    sns.barplot(data=long_table, x="season", y="wins", hue="team", palette={team_a: BLUE, team_b: ORANGE}, ax=ax1)
+    sns.barplot(data=long_table, x="season", y="wins", hue="team", palette={team_a: SLATE, team_b: RED}, ax=ax1)
     ax1.set_title("Rivalry: " + team_a + " " + str(overall[team_a]) + " - " + str(overall[team_b]) + " " + team_b
                   + " (" + str(overall["played"]) + " matches)")
     ax1.set_xlabel("Season")
@@ -412,7 +418,7 @@ def plot_rivalry(matches, team_a, team_b):
 
     grounds = by_ground.head(6)
     long_ground = pd.melt(grounds, id_vars="venue", value_vars=[team_a, team_b], var_name="team", value_name="wins")
-    sns.barplot(data=long_ground, y="venue", x="wins", hue="team", palette={team_a: BLUE, team_b: ORANGE}, ax=ax2)
+    sns.barplot(data=long_ground, y="venue", x="wins", hue="team", palette={team_a: SLATE, team_b: RED}, ax=ax2)
     ax2.set_title("Wins at the grounds where they met most")
     ax2.set_xlabel("Wins")
     ax2.set_ylabel("Ground")
@@ -425,7 +431,7 @@ def plot_batter_vs_bowlers(deliveries, batter, n=10):
     table = metrics.matchup_table(deliveries[deliveries["batter"] == batter])
     table = table.sort_values(["balls", "bowler"], ascending=[False, True]).head(n).iloc[::-1]
     fig, ax = plt.subplots(figsize=(11, 6))
-    ax.barh(table["bowler"], table["strike_rate"], color=BLUE)
+    ax.barh(table["bowler"], table["strike_rate"], color=SLATE)
     for i in range(len(table)):
         row = table.iloc[i]
         ax.text(row["strike_rate"], i, " SR " + str(row["strike_rate"]) + " | " + str(row["balls"]) + " balls, out "
@@ -444,7 +450,7 @@ def plot_ground_profile(deliveries, matches, venue):
     fig, ax = plt.subplots(figsize=(11, 5))
     ax.plot(everywhere["season"], everywhere["avg_first_innings"], color=GREY, marker="o", linewidth=2,
             label="All grounds")
-    ax.plot(ground["season"], ground["avg_first_innings"], color=BLUE, marker="o", linewidth=2.5, label=venue)
+    ax.plot(ground["season"], ground["avg_first_innings"], color=SLATE, marker="o", linewidth=2.5, label=venue)
     ax.set_title("Average first-innings score: " + venue + " vs all grounds")
     ax.set_xlabel("Season")
     ax.set_ylabel("Average first-innings runs")
@@ -457,7 +463,7 @@ def plot_ground_profile(deliveries, matches, venue):
 def plot_fortress(matches):
     """Home fortress index: home win % minus away win % for each current franchise."""
     table = metrics.home_fortress_index(matches).iloc[::-1]
-    colours = [BLUE if value >= 0 else ORANGE for value in table["fortress_index"]]
+    colours = [SLATE if value >= 0 else RED for value in table["fortress_index"]]
     fig, ax = plt.subplots(figsize=(11, 6))
     ax.barh(table["team"], table["fortress_index"], color=colours)
     for i in range(len(table)):
@@ -477,7 +483,7 @@ def plot_finishers(deliveries, matches):
     """Fastest death-over scorers, labelled with their not-out % in chases."""
     table = metrics.finishers(deliveries, matches, min_death_balls=150, n=10).iloc[::-1]
     fig, ax = plt.subplots(figsize=(11, 6))
-    ax.barh(table["batter"], table["death_strike_rate"], color=BLUE)
+    ax.barh(table["batter"], table["death_strike_rate"], color=SLATE)
     for i in range(len(table)):
         row = table.iloc[i]
         ax.text(row["death_strike_rate"], i, " " + str(row["death_strike_rate"]) + "  (not out in "
@@ -494,7 +500,7 @@ def plot_partnerships(deliveries, matches, n=10):
     table = metrics.partnerships(deliveries, matches).head(n).iloc[::-1]
     labels = [table["pair"].iloc[i] + " (" + str(table["season"].iloc[i]) + ")" for i in range(len(table))]
     fig, ax = plt.subplots(figsize=(11, 6))
-    ax.barh(labels, table["runs"], color=BLUE)
+    ax.barh(labels, table["runs"], color=SLATE)
     for i in range(len(table)):
         row = table.iloc[i]
         ax.text(row["runs"], i, " " + str(row["runs"]) + " off " + str(row["balls"]) + " balls, wicket "
@@ -510,7 +516,7 @@ def plot_impact_era(deliveries, matches):
     """Two panels: run rate by phase in each era, and scoring and chasing numbers per era."""
     phases = metrics.impact_era_phase_run_rate(deliveries)
     summary = metrics.impact_era_summary(deliveries, matches)
-    era_colours = {metrics.ERA_BEFORE: GREY, metrics.ERA_IMPACT: ORANGE}
+    era_colours = {metrics.ERA_BEFORE: GREY, metrics.ERA_IMPACT: RED}
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.5))
     sns.barplot(data=phases, x="phase", y="run_rate", hue="era", order=["Powerplay", "Middle", "Death"],
                 palette=era_colours, ax=ax1)
@@ -522,7 +528,7 @@ def plot_impact_era(deliveries, matches):
     ax1.set_ylim(0, phases["run_rate"].max() * 1.35)   # room above the bars for the legend
     ax1.legend(title="", loc="upper left")
 
-    ax2.bar(summary["era"].str.split(" ").str[0], summary["avg_first_innings"], color=[GREY, ORANGE])
+    ax2.bar(summary["era"].str.split(" ").str[0], summary["avg_first_innings"], color=[GREY, RED])
     for i in range(len(summary)):
         row = summary.iloc[i]
         ax2.text(i, row["avg_first_innings"] + 2, str(row["avg_first_innings"]) + " avg\n"
@@ -541,7 +547,7 @@ def plot_impact_choices(impact, deliveries, matches):
     choices = metrics.impact_player_choices(impact, deliveries, matches)
     table = metrics.impact_choice_summary(choices, by_team=False).sort_values("times")
     fig, ax = plt.subplots(figsize=(11, 5))
-    ax.barh(table["role"], table["win_pct"], color=BLUE)
+    ax.barh(table["role"], table["win_pct"], color=SLATE)
     for i in range(len(table)):
         row = table.iloc[i]
         ax.text(row["win_pct"], i, " " + str(row["win_pct"]) + "% won (" + str(row["times"]) + " times)", va="center", fontsize=9)
@@ -557,10 +563,10 @@ def plot_scoring_inflation(deliveries, matches):
     """Two panels: average first-innings score and sixes per match, every season."""
     table = metrics.scoring_inflation(deliveries, matches)
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
-    ax1.plot(table["season"], table["avg_first_innings"], color=BLUE, marker="o", linewidth=2)
+    ax1.plot(table["season"], table["avg_first_innings"], color=SLATE, marker="o", linewidth=2)
     ax1.set_title("Scoring inflation " + metrics.season_range_text(matches))
     ax1.set_ylabel("Average 1st-innings score")
-    ax2.bar(table["season"], table["sixes_per_match"], color=ORANGE)
+    ax2.bar(table["season"], table["sixes_per_match"], color=RED)
     ax2.set_ylabel("Sixes per match")
     ax2.set_xlabel("Season")
     ax2.set_xticks(table["season"])
@@ -582,7 +588,7 @@ def plot_chase_curve(model):
     """Chance of winning a chase with 60 balls left, by runs needed and wickets in hand."""
     fig, ax = plt.subplots(figsize=(11, 6))
     runs_needed = list(range(10, 151, 5))
-    colours = {10: BLUE, 7: AQUA, 5: ORANGE, 3: "#4a3aa7", 1: GREY}
+    colours = {10: SLATE, 7: GREEN, 5: RED, 3: "#7a5c8a", 1: GREY}
     for wickets in [10, 7, 5, 3, 1]:
         chances = [metrics.win_probability(model, runs, 60, wickets) for runs in runs_needed]
         ax.plot(runs_needed, chances, linewidth=2.5, color=colours[wickets], label=str(wickets) + (" wicket left" if wickets == 1 else " wickets left"))
@@ -600,8 +606,8 @@ def plot_impact_scores(deliveries, season, n=10):
     table = metrics.season_impact_scores(deliveries)
     table = table[table["season"] == season].head(n).iloc[::-1]
     fig, ax = plt.subplots(figsize=(11, 6))
-    ax.barh(table["player"], table["batting_points"], color=BLUE, label="Batting points (runs x phase weight)")
-    ax.barh(table["player"], table["bowling_points"], left=table["batting_points"], color=ORANGE,
+    ax.barh(table["player"], table["batting_points"], color=SLATE, label="Batting points (runs x phase weight)")
+    ax.barh(table["player"], table["bowling_points"], left=table["batting_points"], color=RED,
             label="Bowling points (wickets x runs per wicket in that phase)")
     for i in range(len(table)):
         row = table.iloc[i]
@@ -622,7 +628,7 @@ def plot_ground_map(deliveries, matches, min_matches=20):
     """
     table = metrics.pitch_profile(deliveries, matches, min_matches=min_matches)
     fig, ax = plt.subplots(figsize=(12, 8))
-    ax.scatter(table["runs_index"], table["wickets_index"], s=table["matches"] * 3, color=BLUE, alpha=0.7,
+    ax.scatter(table["runs_index"], table["wickets_index"], s=table["matches"] * 3, color=SLATE, alpha=0.7,
                edgecolor="white", linewidth=1)
     for i in range(len(table)):
         row = table.iloc[i]
@@ -645,7 +651,7 @@ def plot_player_ground_fit(deliveries, matches, player, min_balls=150):
     """A batter's strike rate at each ground minus his strike rate elsewhere in the same seasons."""
     table = metrics.player_ground_batting(deliveries, matches)
     table = table[(table["batter"] == player) & (table["balls"] >= min_balls)].sort_values("strike_rate_diff")
-    colours = [ORANGE if value >= 0 else BLUE for value in table["strike_rate_diff"]]
+    colours = [RED if value >= 0 else SLATE for value in table["strike_rate_diff"]]
     fig, ax = plt.subplots(figsize=(11, 6))
     ax.barh(table["venue"].str.split(",").str[0], table["strike_rate_diff"], color=colours)
     for i in range(len(table)):
@@ -656,7 +662,7 @@ def plot_player_ground_fit(deliveries, matches, player, min_balls=150):
     limit = table["strike_rate_diff"].abs().max() * 1.9
     ax.set_xlim(-limit, limit)
     ax.set_title(player + ": strike rate at each ground minus elsewhere in the same seasons (min " + str(min_balls) + " balls)")
-    ax.set_xlabel("Strike-rate difference (orange = faster at this ground)")
+    ax.set_xlabel("Strike-rate difference (red = faster at this ground)")
     ax.set_ylabel("Ground")
     save_chart(fig, "player_ground_fit_" + safe_file_name(player) + ".png")
 

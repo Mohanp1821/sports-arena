@@ -121,6 +121,7 @@ stage written in the Cricsheet files: 74 of 74). The last match of a season is t
 | `raw/matches.csv`, `raw/deliveries.csv` | The original Kaggle 2008-2019 download (reference only; checksums `57241c84…` and `412dca48…`) |
 | `source/ipl_2008_2026_explorer.html.gz` | The explorer page the merged files were recovered from |
 | `squads_2027.csv` | 2027 squads (team, player). Created from each franchise's 2026 players; **edit it after trades and the auction** |
+| `analyst_notes.csv` | **Your own comments** shown on the site, one row each: `page,name,note`. `page` is `player`, `ground` or `team`; `name` is exactly as the site writes it (e.g. `player,V Kohli,"Slows down against left-arm spin..."`, `ground,Wankhede Stadium,...`, `team,Mumbai Indians,...`). Empty = no notes shown. Rebuild with `python src/build_report.py` |
 
 ## 5. Checksums checked by `src/verify_data.py`
 

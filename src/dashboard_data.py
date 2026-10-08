@@ -383,6 +383,24 @@ def pitch_data(matches, deliveries, players, venues):
 LAST_N = 10     # how many recent innings / bowling matches the "form" chart shows
 
 
+# Your own comments, shown on player, ground and team pages (see data/README.md).
+NOTES_FILE = os.path.join(metrics.PROJECT_FOLDER, "data", "analyst_notes.csv")
+NOTE_AUTHOR = "Mohan's note"
+
+
+def analyst_notes():
+    """
+    Read data/analyst_notes.csv (columns: page, name, note) into
+    {"player|V Kohli": "the note", ...}. page is player, ground or team.
+    An empty or missing file simply means no notes are shown.
+    """
+    if not os.path.exists(NOTES_FILE):
+        return {}
+    notes = pd.read_csv(NOTES_FILE, dtype=str).fillna("")
+    return {row["page"].strip() + "|" + row["name"].strip(): row["note"].strip()
+            for row in notes.to_dict("records") if row["note"].strip()}
+
+
 def site_data(matches, deliveries, players, venues, squads):
     """
     Extra tables for the player and ground pages (the rest comes from the
@@ -454,6 +472,7 @@ def site_data(matches, deliveries, players, venues, squads):
         "squads": {row["player"]: row["team"] for row in squads.to_dict("records")},
         "home": home,
         "team": team_data(matches, deliveries, venues),
+        "notes": analyst_notes(), "note_author": NOTE_AUTHOR,
     }
 
 

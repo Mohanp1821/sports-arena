@@ -102,6 +102,14 @@ Sections inside those views:
 | **Trends** | Scoring inflation, points table of any season (with NRR), chase win-probability calculator, impact scores |
 | **Match centre** | `outputs/match_centre.html`: every match ball by ball: scorecard, over-by-over strip, raw rows |
 
+**Design.** The site is styled like a printed sports page rather than a dashboard template: paper-and-ink colours with
+one accent (cricket-ball red), condensed headlines, a serif for reading text, and thin rules between sections instead
+of rounded cards. Team and player pages carry the **team's own colour** beside the name, pages open with a
+**sentence that tells the story** ("V Kohli has scored 9,336 runs at a strike rate of 134.8 in 276 IPL matches. No player
+has more runs…"), and the matplotlib charts use the same palette. Only fonts already installed on Mac and Windows are
+used, so the page still works offline. **Your own notes:** add rows to `data/analyst_notes.csv` (see `data/README.md`)
+and they appear on that player, ground or team page.
+
 ## 5. How the predictions work
 
 **Model A (explainable, `src/predict.py`)**
