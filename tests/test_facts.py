@@ -448,6 +448,22 @@ def test_pitch_and_fit(matches, deliveries):
           "here + elsewhere = all balls (Kohli at Chinnaswamy), fielding credits")
 
 
+def test_records(deliveries):
+    """Records must match the official IPL record book (to the end of the data)."""
+    fifty = metrics.fastest_milestones(deliveries, 50).iloc[0]
+    assert fifty["batter"] == "YBK Jaiswal" and fifty["balls"] == 13, "fastest fifty: Jaiswal, 13 balls (2023)"
+    hundred = metrics.fastest_milestones(deliveries, 100).iloc[0]
+    assert hundred["batter"] == "CH Gayle" and hundred["balls"] == 30, "fastest hundred: Gayle, 30 balls (2013)"
+    best = metrics.best_bowling_figures(deliveries).iloc[0]
+    assert best["bowler"] == "AS Joseph" and best["figures"] == "6/12", "best bowling: Alzarri Joseph 6/12 (2019)"
+    fielding = metrics.fielding_records(deliveries)
+    assert fielding.iloc[0]["player"] == "MS Dhoni", "MS Dhoni should have the most fielding dismissals"
+    # The season-by-season table must add up to the all-seasons table.
+    by_season = metrics.fielding_records(deliveries, by_season=True)
+    assert by_season["dismissals"].sum() == fielding["dismissals"].sum(), "season totals must add up"
+    print("PASS  records: Jaiswal 13-ball fifty, Gayle 30-ball hundred, Joseph 6/12, Dhoni most fielding dismissals")
+
+
 def main():
     matches, deliveries = metrics.load_processed_data()
     impact = metrics.load_impact_players()
@@ -467,6 +483,7 @@ def main():
     test_model_b(matches, deliveries, impact)
     test_pitch_and_fit(matches, deliveries)
     test_site_data(matches, deliveries)
+    test_records(deliveries)
     print("\nAll fact checks passed.")
 
 
