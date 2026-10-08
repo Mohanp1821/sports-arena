@@ -1,36 +1,21 @@
 """
-build_report.py
----------------
-Step 4 of the Sports Arena pipeline.
+build_report.py - Step 7: build the website, outputs/index.html (plus match_centre.html).
 
-Builds the Sports Arena site, outputs/index.html: ONE offline page with several
-views, switched by the address after "#" (the router is in src/site.js):
-  - Home (#/home): headline numbers, champion, caps, 2027 favourite, quick links
-  - Players (#/players, #/player/V Kohli): a page for every player
-  - Grounds (#/grounds, #/ground/Eden Gardens): a page for every ground
-  - Teams (#/teams, #/team/Mumbai Indians): a page for every franchise, plus the
-    explorer and rivalry centre; #/compare/<team>/<team>/<ground> compares two
-    teams at one ground
-  - 2027 predictions: Model A vs Model B
-  - Ask: the "Ask Sports Arena" chatbot
-  - More analysis: matchups, pitch tool, specialists, records, Impact Player era, trends,
-    insights, caps and every chart made by analysis.py
-It also writes outputs/match_centre.html and outputs/chat_facts.json.
+One offline page with several views, chosen by the address after "#" (the router is src/site.js):
+Home, Players, Grounds, Teams, 2027 predictions, Ask (the chatbot) and More analysis.
+Python works out every number and puts it in the page as JSON; the JavaScript files only show it.
 
-Open outputs/index.html in any web browser. With Docker, the "dashboard"
-service serves it at http://localhost:8080.
-
-Run it with:
-    python src/build_report.py
+Run:  python src/build_report.py      (with Docker: http://localhost:8080)
 """
 
 import os
 import json
 import pandas as pd
-import metrics          # our own file: src/metrics.py
-import dashboard_data   # our own file: src/dashboard_data.py (tables for the analyst views)
-import match_centre     # our own file: src/match_centre.py (the ball-by-ball match centre page)
-import chat_facts       # our own file: src/chat_facts.py (the facts the chatbot may use)
+import metrics
+import dashboard_data   # the numbers for the analyst views and the player / ground / team pages
+import match_centre     # the ball-by-ball match centre page
+import chat_facts       # the facts the chatbot may use
+import predict
 
 OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
 EXPLORER_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_explorer.js")
@@ -38,10 +23,9 @@ ANALYTICS_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "dashboard_analytics.js")
 CHATBOT_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "chatbot.js")
 SITE_SCRIPT = os.path.join(metrics.SCRIPT_FOLDER, "site.js")
 CHASE_MODEL_FILE = os.path.join(OUTPUT_FOLDER, "chase_win_probability_model.csv")   # saved by analysis.py
-DEFAULT_PLAYER = "V Kohli"   # player shown first in the player search
+DEFAULT_PLAYER = "V Kohli"   # shown first in the player search
 
-# Each chart file, with the title shown above it on the dashboard.
-# The file names are the ones saved by analysis.py.
+# The charts made by analysis.py, with their captions.
 CHART_SECTIONS = {
     "Player form": [
         ("form_v_kohli_2016.png", "Kohli, IPL 2016: runs per innings and 5-innings rolling average"),
@@ -85,203 +69,50 @@ CHART_SECTIONS = {
     ],
 }
 
-# The look of the page (CSS). Kept in one place so the Python code stays simple.
-PAGE_STYLE = """
-/* =====================================================================
-   Sports Arena look: a printed sports page, not a dashboard template.
-   - paper and ink colours, with cricket-ball red as the one accent
-   - condensed headings, a serif for reading text, plain sans for tables
-   - thin rules between sections instead of rounded cards and shadows
-   Only fonts already installed on Mac/Windows are used, so the page still
-   works offline (the first font found in each list is used).
-   ===================================================================== */
-:root { --bg: #faf8f4; --panel: #faf8f4; --ink: #1c1b19; --muted: #645e55; --line: #d8d2c6; --soft: #efebe3;
-        --accent: #b1262c; --accent-ink: #ffffff; --blue: #1d4f8a; --header: #faf8f4; --header-ink: #1c1b19;
-        --chart-bar: #3b5b6e; --chart-hl: #b1262c; --chart-line: #b1262c; --chart-grid: #e2ddd2; --team: var(--accent);
-        --display: "Avenir Next Condensed", "DIN Condensed", "Barlow Condensed", "Roboto Condensed", "Arial Narrow", sans-serif;
-        --serif: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-        --body: -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif; color-scheme: light; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-        --bg: #161514; --panel: #161514; --ink: #ece8e1; --muted: #a39d93; --line: #3a3733; --soft: #23211f;
-        --accent: #e0575c; --accent-ink: #161514; --blue: #8db4e2; --header: #161514; --header-ink: #ece8e1;
-        --chart-bar: #8aa7b8; --chart-hl: #e0575c; --chart-line: #e0575c; --chart-grid: #34312d; color-scheme: dark; } }
-:root[data-theme="dark"] { --bg: #161514; --panel: #161514; --ink: #ece8e1; --muted: #a39d93; --line: #3a3733; --soft: #23211f;
-        --accent: #e0575c; --accent-ink: #161514; --blue: #8db4e2; --header: #161514; --header-ink: #ece8e1;
-        --chart-bar: #8aa7b8; --chart-hl: #e0575c; --chart-line: #e0575c; --chart-grid: #34312d; color-scheme: dark; }
-
-/* ---- Base ---- */
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--body); }
-p, li { font-family: var(--serif); font-size: 17px; }
-.note, .note p, td, th, figcaption, .chat-msg { font-family: var(--body); }
-a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 2px; }
-main { max-width: 1160px; margin: 0 auto; padding: 20px 16px 64px; }
-h1 { margin: 0 0 6px; font: 700 clamp(32px, 5vw, 48px)/1.05 var(--display); letter-spacing: -.3px; }
-h2 { margin: 40px 0 12px; font: 700 15px/1.2 var(--display); text-transform: uppercase; letter-spacing: 1.5px;
-     border-top: 3px solid var(--ink); padding-top: 8px; scroll-margin-top: 120px; }
-h3 { font: 700 19px/1.2 var(--display); }
-.subtitle, .note { color: var(--muted); }
-.note { font-size: 14px; }
-.lede { font: 19px/1.5 var(--serif); max-width: 62ch; margin: 8px 0 4px; }
-.lede b { font-family: var(--display); font-size: 22px; letter-spacing: .2px; }
-[hidden] { display: none !important; }
-
-/* ---- Header: brand, nav, search, theme ---- */
-.site-header { position: sticky; top: 0; z-index: 20; background: var(--header); color: var(--header-ink);
-               border-bottom: 3px solid var(--ink); }
-.site-header .bar { max-width: 1160px; margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
-.brand { color: var(--header-ink); text-decoration: none; font: 800 26px/1 var(--display); text-transform: uppercase;
-         letter-spacing: .5px; white-space: nowrap; }
-.brand span { font: italic 400 14px var(--serif); text-transform: none; letter-spacing: 0; color: var(--muted); margin-left: 6px; }
-.site-nav { display: flex; gap: 2px; overflow-x: auto; flex: 1 1 420px; }
-.site-nav a { color: var(--header-ink); text-decoration: none; padding: 6px 9px; font-size: 15px; white-space: nowrap;
-              border-bottom: 3px solid transparent; }
-.site-nav a:hover { border-bottom-color: var(--line); }
-.site-nav a[aria-current="page"] { border-bottom-color: var(--accent); font-weight: 700; }
-#site-search { display: flex; gap: 6px; flex: 1 1 260px; max-width: 360px; }
-#site-search input { flex: 1; min-width: 0; }
-#site-search-hint { max-width: 1160px; margin: 0 auto; padding: 0 16px; font-size: 14px; }
-#site-search-hint:not(:empty) { padding: 6px 16px 8px; }
-#site-search-hint a { color: var(--blue); }
-#theme-toggle { background: transparent; color: var(--header-ink); }
-
-/* ---- Building blocks ---- */
-select, input, button { font: inherit; font-size: 15px; padding: 5px 9px; border: 1px solid var(--line);
-                        border-radius: 2px; background: var(--panel); color: var(--ink); }
-button, .button { cursor: pointer; background: transparent; border-color: var(--ink); }
-button:hover, .button:hover { background: var(--ink); color: var(--bg); }
-select, input { max-width: 100%; }   /* a long option (a ground name) must not push the page wider than a phone */
-.button { display: inline-block; padding: 6px 12px; border-radius: 2px; border: 1px solid var(--ink); color: var(--ink);
-          text-decoration: none; font-weight: 600; white-space: nowrap; }
-/* Headline numbers: one row of figures separated by thin rules, like a scoreboard */
-.numbers { display: flex; flex-wrap: wrap; margin-top: 16px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.number { flex: 1 1 auto; min-width: 110px; padding: 10px 14px; border-left: 1px solid var(--line); }
-.number:first-child { border-left: none; padding-left: 0; }
-.number b { display: block; font: 700 30px/1.1 var(--display); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.number span { color: var(--muted); font-size: 13px; }
-/* Panels: a section under a thin rule, no box */
-.panel { padding: 10px 0 4px; margin-top: 18px; border-top: 1px solid var(--ink); min-width: 0; }
-.panel h3, .panel h4 { margin: 0 0 10px; }
-.two-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 0 36px; }
-.filters { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: end; padding: 8px 0 10px; margin: 8px 0 4px;
-           border-bottom: 1px dotted var(--line); }
-.filters label { display: flex; flex-direction: column; font-size: 12px; text-transform: uppercase; letter-spacing: .8px;
-                 color: var(--muted); gap: 4px; max-width: 100%; min-width: 0; }
-.filters label select, .filters label input { text-transform: none; letter-spacing: 0; }
-table { border-collapse: collapse; font-size: 14px; width: 100%; font-variant-numeric: tabular-nums; }
-th, td { border-bottom: 1px solid var(--line); padding: 5px 8px 5px 0; text-align: left; }
-th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
-     border-bottom: 1px solid var(--ink); }
-tbody tr:hover { background: var(--soft); }
-.table-box { overflow-x: auto; margin-bottom: 12px; }
-td:first-child { white-space: nowrap; }
-.scroll { max-height: 360px; overflow-y: auto; }
-ul.insights li { margin-bottom: 6px; }
-.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 24px; }
-.charts.wide { grid-template-columns: 1fr; }
-figure { margin: 0; background: #fff; border-top: 1px solid var(--ink); overflow: hidden; }
-figure img { width: 100%; display: block; }
-figcaption { padding: 6px 0; font-size: 13px; color: var(--muted); background: var(--bg); }
-.picks { display: flex; flex-wrap: wrap; margin-bottom: 20px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.pick { flex: 1 1 170px; padding: 10px 14px; border-left: 1px solid var(--line); }
-.pick:first-child { border-left: none; padding-left: 0; }
-.pick span { display: block; color: var(--muted); font-size: 13px; }
-.pick b { font: 700 22px var(--display); }
-
-/* ---- Bars made of HTML (explore, analysis views) ---- */
-.bar-row { display: grid; grid-template-columns: minmax(90px, 230px) 1fr minmax(70px, auto);
-           gap: 10px; align-items: center; padding: 3px 0; font-size: 14px; }
-.bar-row.clickable { cursor: pointer; }
-.bar-row.clickable:hover { background: var(--soft); }
-.bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bar-track { background: var(--soft); height: 12px; overflow: hidden; }
-.bar-fill { display: block; height: 100%; background: var(--chart-bar); }
-.bar-row.highlight .bar-fill { background: var(--accent); }
-.bar-row.highlight { font-weight: bold; }
-.bar-value { white-space: nowrap; font-variant-numeric: tabular-nums; }
-.bar-row.index-row { grid-template-columns: minmax(90px, 170px) minmax(80px, 1fr) minmax(150px, 230px); }
-.index-row .bar-value { white-space: normal; font-size: 13px; }
-
-/* ---- SVG charts (site.js) ---- */
-svg.chart { width: 100%; height: auto; display: block; }
-svg.chart .grid { stroke: var(--chart-grid); stroke-width: 1; }
-svg.chart .axis { fill: var(--muted); font-size: 11px; font-family: var(--body); }
-svg.chart .bar { fill: var(--chart-bar); }
-svg.chart .bar.hl, svg.chart a:hover .bar, svg.chart .bar:hover { fill: var(--chart-hl); }
-svg.chart .line { fill: none; stroke: var(--chart-line); stroke-width: 2; }
-svg.chart .dot { fill: var(--panel); stroke: var(--chart-line); stroke-width: 2; }
-svg.chart .dot:hover { fill: var(--chart-line); }
-
-/* ---- Home, directories, profile pages ---- */
-.hero { padding: 8px 0 4px; }
-.hero p { color: var(--muted); max-width: 70ch; }
-.hero p.lede { color: var(--ink); }
-/* Home: the season's results as a strip of linked headlines */
-.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 14px;
-                border-top: 3px solid var(--ink); border-bottom: 1px solid var(--line); }
-.feature { padding: 10px 14px 12px; text-decoration: none; color: var(--ink); border-left: 1px solid var(--line); }
-.feature:first-child { border-left: none; padding-left: 0; }
-.feature:hover b { text-decoration: underline; text-decoration-thickness: 2px; }
-.feature span { display: block; color: var(--accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-.feature b { display: block; font: 700 24px/1.12 var(--display); margin: 4px 0; }
-.feature small { color: var(--muted); font-family: var(--serif); font-size: 15px; }
-.feature.accent b { color: var(--accent); }
-/* Lists of links (players, grounds, questions): plain text, not pill buttons */
-.chips { display: flex; flex-wrap: wrap; gap: 6px 22px; }
-.chip { display: inline-flex; align-items: baseline; gap: 6px; padding: 2px 0; text-decoration: none; color: var(--ink);
-        font-weight: 600; font-size: 15px; border-bottom: 1px solid transparent; }
-.chip small { font-weight: 400; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
-.chip:hover { border-bottom-color: var(--accent); }
-.crumbs { font-size: 14px; color: var(--muted); margin: 0 0 6px; }
-.profile-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px;
-                border-left: 6px solid var(--team); padding-left: 14px; }
-.profile-head p { margin: 4px 0; color: var(--muted); }
-.badge { display: inline-block; color: var(--accent); border: 1px solid currentColor; padding: 0 6px; font-size: 12px;
-         font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-right: 6px; }
-.callout { border-left: 3px solid var(--accent); padding: 4px 12px; }
-.analyst-note { border-left: 3px solid var(--ink); padding: 2px 14px; margin: 16px 0; font: italic 17px/1.5 var(--serif); }
-.analyst-note cite { display: block; font: normal 13px var(--body); color: var(--muted); margin-top: 4px; }
-.ground-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 0 24px; margin-top: 12px; }
-.ground-card { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid var(--line);
-               text-decoration: none; color: var(--ink); }
-.ground-card b { font-family: var(--display); font-size: 19px; }
-.ground-card:hover b { text-decoration: underline; }
-.ground-card span { color: var(--muted); font-size: 13px; }
-.ground-card small { color: var(--muted); }
-.index-chip { align-self: flex-start; padding: 0 6px; background: var(--soft); color: var(--ink) !important; font-weight: 600;
-              font-variant-numeric: tabular-nums; }
-.index-chip.up { background: var(--accent); color: var(--accent-ink) !important; }
-.index-chip.down { background: var(--chart-bar); color: #fff !important; }
-.view-intro { margin-bottom: 4px; }
-.subnav { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 0; }
-
-/* ---- Chat ---- */
-.chat { border-top: 1px solid var(--ink); padding: 12px 0; }
-#chat-log { height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
-.chat-msg { max-width: 88%; padding: 8px 12px; border-radius: 3px; font-size: 15px; white-space: pre-wrap; }
-.chat-msg.user { align-self: flex-end; background: var(--ink); color: var(--bg); }
-.chat-msg.bot { align-self: flex-start; background: var(--soft); }
-.chat-msg small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
-#chat-form { display: flex; gap: 8px; margin-top: 8px; }
-#chat-input { flex: 1; }
-#chat-examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-#chat-examples button { font-size: 13px; padding: 3px 8px; }
-
-@media (max-width: 700px) {
-  .site-header { position: static; }     /* on a phone the header scrolls away, so it does not cover the page */
-  .site-nav { order: 3; flex-basis: 100%; }
-  #site-search { max-width: none; order: 2; }
-  .bar-row, .bar-row.index-row { grid-template-columns: minmax(80px, 120px) 1fr minmax(60px, auto); font-size: 13px; }
-  .number { flex-basis: 45%; }
-  .number:nth-child(odd) { border-left: none; padding-left: 0; }
-  .feature { border-left: none; padding-left: 0; border-top: 1px solid var(--line); }
-  .feature:first-child { border-top: none; }
-}
-"""
+with open(os.path.join(metrics.SCRIPT_FOLDER, "site.css"), encoding="utf-8") as css_file:
+    PAGE_STYLE = css_file.read()        # the look of the page: src/site.css
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+def json_script(element_id, data):
+    """Data inside the page as JSON. numpy numbers become normal numbers, and "</" is
+    escaped so a name can never end the <script> tag early."""
+    text = json.dumps(data, separators=(",", ":"), default=lambda value: value.item())
+    return "<script type='application/json' id='" + element_id + "'>" + text.replace("</", "<\\/") + "</script>"
+
+
+def js_script(path):
+    """A JavaScript file from src/ copied into the page, so it works offline."""
+    with open(path, encoding="utf-8") as file:
+        return "<script>\n" + file.read() + "\n</script>"
+
+
+def table_html(table, columns, titles):
+    """Chosen columns of a table as HTML, with friendly titles."""
+    part = table[columns].copy()
+    part.columns = titles
+    return "<div class='table-box'>" + part.to_html(index=False, na_rep="-") + "</div>"
+
+
+def figure_html(file_name, title):
+    """A chart with its caption (only if it was made)."""
+    if not os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
+        return ""
+    return ("<figure><img src='" + file_name + "' alt='" + title + "'><figcaption>" + title
+            + "</figcaption></figure>")
+
+
+def control(label, html):
+    """A labelled drop-down or text box."""
+    return "<label>" + label + html + "</label>"
+
+
+# ---------------------------------------------------------------------------
+# Home numbers and key insights
+# ---------------------------------------------------------------------------
 def headline_numbers(matches, deliveries):
-    """Return the numbers shown in the boxes at the top of the page."""
     return [
         (format(len(matches), ","), "matches"),
         (format(len(deliveries), ","), "balls analysed"),
@@ -291,7 +122,7 @@ def headline_numbers(matches, deliveries):
 
 
 def key_insights(matches, deliveries):
-    """Calculate the key insight sentences from the data (no numbers typed by hand)."""
+    """The key insights as sentences, every number calculated from the data."""
     chase = metrics.bat_first_vs_chase(deliveries, matches)
     chase_pct = round(100 - chase["bat_first_wins"].sum() / chase["matches"].sum() * 100, 1)
 
@@ -299,7 +130,7 @@ def key_insights(matches, deliveries):
 
     phases = metrics.phase_run_rate(deliveries)
     death = phases[phases["phase"] == "Death"]
-    death_rate = round(death["runs"].sum() / (death["legal_balls"].sum() / 6), 1)
+    death_rate = round(metrics.per_over(death["runs"].sum(), death["legal_balls"].sum()), 1)
 
     teams = metrics.team_win_percent(matches, by_season=False)
     teams = teams.sort_values("win_pct", ascending=False)
@@ -326,22 +157,16 @@ def key_insights(matches, deliveries):
     ]
 
 
-def read_output_csv(file_name):
-    """Read a CSV saved by predict.py, or return None if it has not been made yet."""
-    path = os.path.join(OUTPUT_FOLDER, file_name)
-    if not os.path.exists(path):
-        return None
-    return pd.read_csv(path)
-
-
+# ---------------------------------------------------------------------------
+# 2027 predictions: Model A vs Model B
+# ---------------------------------------------------------------------------
 def strength_explanation(strengths, next_season):
-    """HTML: each team's win % in the last 3 seasons, and the strength worked out from them."""
+    """Each team's win % in the last 3 seasons and the strength made from them, with a worked example."""
     season_columns = [column for column in strengths.columns if column.startswith("win_pct_")]
     years = [column.replace("win_pct_", "") for column in season_columns]
     oldest, middle, newest = years[0], years[1], years[2]
 
-    # The strongest team as a worked example, with the numbers taken from the table
-    # (only if it played all 3 seasons, so the example uses all three weights).
+    # The worked example is the strongest team that played all 3 seasons.
     full = strengths.dropna(subset=season_columns)
     top = full.iloc[0]
     example = (top["team"] + ": (3 &times; " + str(top["win_pct_" + newest]) + " + 2 &times; "
@@ -350,7 +175,6 @@ def strength_explanation(strengths, next_season):
 
     table = strengths.copy()
     for column in season_columns:
-        # A missing season (e.g. Chennai's 2017 suspension) is shown as "did not play".
         table[column] = table[column].apply(lambda value: "did not play" if pd.isna(value) else str(value) + "%")
     table.columns = ["Team"] + ["Win % " + year + " (weight " + str(weight) + ")"
                                 for year, weight in zip(years, [1, 2, 3])] + ["Strength"]
@@ -359,21 +183,6 @@ def strength_explanation(strengths, next_season):
             "<p>A team's strength is its win % over the last 3 seasons, with the latest season counting 3 times. "
             + example + ". A season a team did not play is skipped, so only the seasons it played count.</p>"
             "<div class='table-box'>" + table.to_html(index=False) + "</div>")
-
-
-def table_html(table, columns, titles):
-    """A pandas table as HTML, with chosen columns and friendly column titles."""
-    part = table[columns].copy()
-    part.columns = titles
-    return "<div class='table-box'>" + part.to_html(index=False, na_rep="-") + "</div>"
-
-
-def figure_html(file_name, title):
-    """A chart from outputs/ with its caption (only if analysis/predict made it)."""
-    if not os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
-        return ""
-    return ("<figure><img src='" + file_name + "' alt='" + title + "'><figcaption>" + title
-            + "</figcaption></figure>")
 
 
 def award_pick_rows(awards_a, awards_b):
@@ -395,11 +204,7 @@ def award_pick_rows(awards_a, awards_b):
 
 
 def limits_note(matches, deliveries, award_backtest, scores, last_season):
-    """
-    What the models cannot know, with the numbers worked out from the data:
-    the breakout season of the latest Orange Cap winner, and how close to a
-    coin flip pre-season predictions are.
-    """
+    """What the models cannot know: auctions, injuries, breakout seasons, and how close T20 is to a coin flip."""
     caps = metrics.cap_winners(deliveries)
     latest = caps[caps["season"] == last_season].iloc[0]
     batting = metrics.batting_stats(deliveries, ["batter", "season"])
@@ -427,17 +232,17 @@ def limits_note(matches, deliveries, award_backtest, scores, last_season):
 
 
 def prediction_section(matches, deliveries, next_season):
-    """HTML for "IPL 2027 predictions: Model A vs Model B" (made by predict.py and predict_ml.py)."""
-    comparison = read_output_csv("prediction_" + str(next_season) + "_comparison.csv")
-    chances_a = read_output_csv("prediction_title_chances.csv")
-    chances_b = read_output_csv("prediction_model_b_title_chances.csv")
-    awards_a = read_output_csv("prediction_awards.csv")
-    awards_b = read_output_csv("prediction_model_b_awards.csv")
-    scores = read_output_csv("model_comparison_matches.csv")
-    titles = read_output_csv("model_comparison_titles.csv")
-    award_backtest = read_output_csv("model_comparison_awards.csv")
+    """The predictions section, from the files predict.py and predict_ml.py saved."""
+    comparison = dashboard_data.read_output("prediction_" + str(next_season) + "_comparison.csv")
+    chances_a = dashboard_data.read_output("prediction_title_chances.csv")
+    chances_b = dashboard_data.read_output("prediction_model_b_title_chances.csv")
+    awards_a = dashboard_data.read_output("prediction_awards.csv")
+    awards_b = dashboard_data.read_output("prediction_model_b_awards.csv")
+    scores = dashboard_data.read_output("model_comparison_matches.csv")
+    titles = dashboard_data.read_output("model_comparison_titles.csv")
+    award_backtest = dashboard_data.read_output("model_comparison_awards.csv")
     if comparison is None or awards_b is None or scores is None:
-        return ""   # the prediction scripts have not been run, so there is nothing to show
+        return ""   # the prediction scripts have not been run yet
     season = str(next_season)
     last_season = next_season - 1
     parts = ["<h2 id='predictions'>IPL " + season + " predictions: Model A vs Model B</h2>"]
@@ -445,7 +250,7 @@ def prediction_section(matches, deliveries, next_season):
                  "(weights 3, 2, 1); team A beats team B with chance A / (A + B). <b>Model B (machine learning):</b> "
                  "logistic regression and gradient boosting, averaged, using only pre-season information: Elo rating, "
                  "last-10 form, head-to-head, ground record, home ground, squad strength and the Impact Player era. "
-                 "Both play the " + season + " season " + format(predict_simulations(), ",") + " times in the real "
+                 "Both play the " + season + " season " + format(predict.SIMULATIONS, ",") + " times in the real "
                  "10-team format (two groups of 5, 14 league games each, then Qualifier 1, Eliminator, Qualifier 2 and the Final).</p>")
 
     favourite_a = chances_a.iloc[0]
@@ -471,13 +276,13 @@ def prediction_section(matches, deliveries, next_season):
         ["Team", "Model A title %", "Model A playoffs %", "Model B title %", "Model B playoffs %",
          "Model A strength (form win %)", "Model B squad strength", "Model B Elo"]))
 
-    groups = read_output_csv("prediction_groups.csv")
+    groups = dashboard_data.read_output("prediction_groups.csv")
     if groups is not None and len(groups) > 0:
         parts.append("<p class='note'>Simulated groups (seeded by titles, then finals reached, in a snake). "
                      "Teams on the same row play each other twice.</p>"
                      + table_html(groups, ["seed_row", "group_a", "group_b"], ["Row", "Group A", "Group B"]))
 
-    strengths = read_output_csv("prediction_strengths.csv")
+    strengths = dashboard_data.read_output("prediction_strengths.csv")
     if strengths is not None:
         parts.append(strength_explanation(strengths, next_season))
 
@@ -485,7 +290,7 @@ def prediction_section(matches, deliveries, next_season):
                  "Model B: a linear regression on each player's previous two seasons.</p>"
                  + "<div class='table-box'>" + award_pick_rows(awards_a, awards_b).to_html(index=False) + "</div>")
 
-    features = read_output_csv("model_b_features.csv")
+    features = dashboard_data.read_output("model_b_features.csv")
     if features is not None:
         parts.append("<h3>What Model B looks at</h3><p class='note'>Logistic regression weight (features scaled to the "
                      "same size: + helps team A, - hurts) and how much the gradient-boosting trees used each feature.</p>"
@@ -516,14 +321,11 @@ def prediction_section(matches, deliveries, next_season):
     return "\n".join(parts)
 
 
-def predict_simulations():
-    """The number of simulated seasons (from predict.py, so it is never typed in twice)."""
-    import predict
-    return predict.SIMULATIONS
-
-
+# ---------------------------------------------------------------------------
+# Explore (season and team filters)
+# ---------------------------------------------------------------------------
 def result_text(match):
-    """How a match was won, in words, e.g. 'by 140 runs' or 'by 7 wickets (D/L)'."""
+    """e.g. 'by 140 runs' or 'by 7 wickets (D/L)'."""
     if match["no_result"]:
         return "No result"
     if match["result"] == "tie":
@@ -533,34 +335,27 @@ def result_text(match):
     else:
         text = "by " + str(match["win_by_wickets"]) + " wickets"
     if match["dl_applied"] == 1:
-        text += " (D/L)"   # rain-shortened match, Duckworth-Lewis method
+        text += " (D/L)"
     return text
 
 
 def explorer_data(matches, deliveries):
-    """
-    The small tables the interactive section needs, as plain lists.
-    The page's JavaScript filters and adds these up when a filter changes.
-    Each row is a list (not a dictionary) to keep the page small.
-    """
-    # One row per match: [season, date, team1, team2, winner, margin, player of the match]
+    """Small tables the Explore filters add up: every match, and batting and bowling per player, season and team."""
+    # [season, date, team1, team2, winner, margin, player of the match]
     match_rows = []
-    for i in range(len(matches)):
-        match = matches.iloc[i]
+    for match in matches.to_dict("records"):
         winner = "" if match["no_result"] else match["winner_franchise"]
         potm = "" if match["no_result"] else match["player_of_match"]
         match_rows.append([match["season"], match["date"].strftime("%Y-%m-%d"), match["team1_franchise"],
                            match["team2_franchise"], winner, result_text(match), potm])
-    match_rows.sort(key=lambda row: row[1])   # oldest match first
+    match_rows.sort(key=lambda row: row[1])   # oldest first
 
-    # Per player, per season, per team: batting and bowling totals.
-    # add_ball_columns (metrics.py) applies the cricket rules and removes super overs.
     balls = metrics.add_ball_columns(deliveries)
     batting = balls.groupby(["batter", "season", "batting_team_franchise"]).agg(
         runs=("batsman_runs", "sum"),
         balls_faced=("is_ball_faced", "sum"),
         sixes=("is_six", "sum"),
-        innings=("match_id", "nunique"),     # one innings per match in T20
+        innings=("match_id", "nunique"),
     ).reset_index()
     bowling = balls.groupby(["bowler", "season", "bowling_team_franchise"]).agg(
         wickets=("is_bowler_wicket", "sum"),
@@ -584,18 +379,16 @@ def explorer_data(matches, deliveries):
 
 
 def explorer_section(matches, deliveries):
-    """HTML for the interactive section: the filters, empty boxes, the data and the script."""
+    """The filters, empty boxes the JavaScript draws into, the data and the script."""
     parts = ["<h2 id='explore'>Explore the data (interactive)</h2>"]
     parts.append("<p>Choose a season and a team: the numbers, chart and tables below update straight away. "
                  "Click a bar in the chart to select that team or season.</p>")
 
-    # The filters. The JavaScript fills the drop-downs with every season and team.
     parts.append("<div class='filters'>"
                  "<label>Season<select id='filter-season'><option value='all'>All seasons</option></select></label>"
                  "<label>Team<select id='filter-team'><option value='all'>All teams</option></select></label>"
                  "<button id='filter-reset' type='button'>Reset filters</button></div>")
 
-    # Empty boxes: the JavaScript draws into these (each one has an id).
     parts.append("<div class='numbers' id='explore-cards'></div>")
     parts.append("<div class='panel'><h3 id='explore-chart-title'></h3><div id='explore-chart'></div></div>")
     parts.append("<div class='two-columns'>"
@@ -605,37 +398,22 @@ def explorer_section(matches, deliveries):
     parts.append("<div class='panel'><h3>Match results</h3>"
                  "<div class='table-box scroll' id='explore-results'></div></div>")
 
-    # Player search: typing shows a list of matching names (an HTML "datalist").
     parts.append("<div class='panel'><h3>Player career</h3>"
                  "<div class='filters'><label>Type a player's name"
                  "<input id='filter-player' list='player-list' placeholder='e.g. V Kohli'></label></div>"
                  "<datalist id='player-list'></datalist>"
                  "<div id='player-chart'></div><div class='table-box' id='player-table'></div></div>")
 
-    # The data, as JSON text. numpy numbers are turned into normal Python numbers
-    # with .item(), and "</" is escaped so a name can never end the <script> tag early.
-    data = json.dumps(explorer_data(matches, deliveries), separators=(",", ":"),
-                      default=lambda value: value.item())
-    parts.append("<script type='application/json' id='explorer-data'>"
-                 + data.replace("</", "<\\/") + "</script>")
-
-    # The JavaScript itself is kept in its own file, src/dashboard_explorer.js,
-    # and copied into the page so it works offline.
-    with open(EXPLORER_SCRIPT, encoding="utf-8") as file:
-        parts.append("<script>\n" + file.read() + "\n</script>")
+    parts.append(json_script("explorer-data", explorer_data(matches, deliveries)))
+    parts.append(js_script(EXPLORER_SCRIPT))
     return "\n".join(parts)
 
 
-def control(label, html):
-    """A labelled drop-down or text box for the filter bars."""
-    return "<label>" + label + html + "</label>"
-
-
+# ---------------------------------------------------------------------------
+# Analyst views and the chatbot
+# ---------------------------------------------------------------------------
 def analyst_sections(matches, deliveries, impact):
-    """
-    HTML for the six analyst views. Each view has its own drop-downs and an
-    empty box; src/dashboard_analytics.js fills the boxes.
-    """
+    """Each analyst view: its drop-downs and an empty box that src/dashboard_analytics.js fills."""
     player_box = "<input list='analyst-players' id='{id}' placeholder='e.g. V Kohli'>"
     parts = []
     parts.append("<h2 id='rivalry'>Rivalry centre</h2><p>Pick any two teams: overall and season-by-season "
@@ -716,23 +494,14 @@ def analyst_sections(matches, deliveries, impact):
                  "and bowling card, an over-by-over strip, and the raw ball rows. "
                  "<a href='match_centre.html'><b>Open the match centre &rarr;</b></a></p>")
 
-    data = dashboard_data.analyst_data(matches, deliveries, impact, CHASE_MODEL_FILE)
-    text = json.dumps(data, separators=(",", ":"), default=lambda value: value.item())
-    parts.append("<script type='application/json' id='analyst-data'>" + text.replace("</", "<\\/") + "</script>")
-    with open(ANALYTICS_SCRIPT, encoding="utf-8") as file:
-        parts.append("<script>\n" + file.read() + "\n</script>")
+    parts.append(json_script("analyst-data", dashboard_data.analyst_data(matches, deliveries, impact, CHASE_MODEL_FILE)))
+    parts.append(js_script(ANALYTICS_SCRIPT))
     return "\n".join(parts)
 
 
 def chat_section(matches, deliveries, impact):
-    """
-    HTML for the "Ask Sports Arena" chat panel. The facts (made by chat_facts.py)
-    and the answer engine (src/chatbot.js) are inside the page, so it works offline.
-    """
+    """The chat panel; the facts and the answer engine (src/chatbot.js) are inside the page."""
     facts = chat_facts.build_facts(matches, deliveries, impact)
-    text = json.dumps(facts, separators=(",", ":"), default=lambda value: value.item())
-    with open(CHATBOT_SCRIPT, encoding="utf-8") as file:
-        script = file.read()
     return ("<h2 id='ask'>Ask Sports Arena</h2>"
             "<p>Ask about players, teams, grounds, caps, champions, matchups, the Impact Player era, a match on a date, "
             "or the " + str(int(matches["season"].max()) + 1) + " predictions. Answers use only numbers calculated "
@@ -741,21 +510,23 @@ def chat_section(matches, deliveries, impact):
             "<div id='chat-log'></div><form id='chat-form'><input id='chat-input' autocomplete='off' "
             "placeholder='e.g. Kohli vs Bumrah, or Who won the Orange Cap in 2016?'><button type='submit'>Ask</button>"
             "</form><div id='chat-examples'></div></div>"
-            "<script type='application/json' id='chat-facts'>" + text.replace("</", "<\\/") + "</script>"
-            "<script>\n" + script + "\n</script>")
+            + json_script("chat-facts", facts) + js_script(CHATBOT_SCRIPT))
 
 
+# ---------------------------------------------------------------------------
+# The page
+# ---------------------------------------------------------------------------
 def section_id(name):
-    """Turn a section name like 'Player form' into a link target like 'player-form'."""
+    """'Player form' -> 'player-form'."""
     return name.lower().replace(" ", "-")
 
 
-# Which view (page of the site) each section belongs to. Sections not listed go to "analysis".
+# The view each section belongs to; any other section goes to "More analysis".
 SECTION_VIEWS = {"predictions": "predictions", "ask": "ask", "explore": "teams", "rivalry": "teams"}
 
 
 def site_header(next_season):
-    """The header on every view: the brand, the menu, one search box and the light/dark switch."""
+    """The brand, the menu, the search box and the light/dark switch."""
     links = [("home", "#/home", "Home"), ("players", "#/players", "Players"), ("grounds", "#/grounds", "Grounds"),
              ("teams", "#/teams", "Teams"), ("predictions", "#/predictions", str(next_season) + " predictions"),
              ("ask", "#/ask", "Ask"), ("analysis", "#/analysis", "More analysis")]
@@ -773,10 +544,7 @@ def site_header(next_season):
 
 
 def wrap_sections(html):
-    """
-    Put every section (it starts with <h2 id='...'>) into the view it belongs to:
-    <div data-view='teams'> ... </div>. The router in site.js shows one view at a time.
-    """
+    """Wrap each section (it starts with <h2 id='...'>) in its view: <div data-view='teams'>...</div>."""
     pieces = html.split("<h2 id='")
     parts = [pieces[0]] if pieces[0].strip() else []
     for piece in pieces[1:]:
@@ -799,7 +567,7 @@ def analysis_menu():
 
 
 def make_page(matches, deliveries):
-    """Build the full HTML page (all views) as one text string."""
+    """The whole page, all views, as one text string."""
     next_season = int(matches["season"].max()) + 1
     impact = metrics.load_impact_players()
     parts = []
@@ -809,7 +577,7 @@ def make_page(matches, deliveries):
     parts.append(site_header(next_season))
     parts.append("<main>")
 
-    # New views drawn by site.js: Home, Players (directory + one player), Grounds (directory + one ground)
+    # Views drawn by site.js
     parts.append("<div data-view='home'><div id='home-page'></div><p class='subtitle'>Built from ball-by-ball data with "
                  "Python, pandas, matplotlib, seaborn, scikit-learn and plain JavaScript.</p><div class='numbers'>")
     for value, label in headline_numbers(matches, deliveries):
@@ -822,7 +590,7 @@ def make_page(matches, deliveries):
     parts.append("<div data-view='compare' hidden><div id='compare-page'></div></div>")
     parts.append(analysis_menu())
 
-    # Existing sections, each put into its view
+    # Sections built here, each put into its view
     parts.append(wrap_sections(prediction_section(matches, deliveries, next_season)))
     parts.append(wrap_sections(chat_section(matches, deliveries, impact)))
     parts.append(wrap_sections(explorer_section(matches, deliveries)))
@@ -838,20 +606,18 @@ def make_page(matches, deliveries):
     for section_name in CHART_SECTIONS:
         insights.append("<h2 id='" + section_id(section_name) + "'>Charts: " + section_name + "</h2><div class='charts'>")
         for file_name, title in CHART_SECTIONS[section_name]:
-            if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):   # only charts analysis.py has made
+            if os.path.exists(os.path.join(OUTPUT_FOLDER, file_name)):
                 insights.append("<figure><img src='" + file_name + "' alt='" + title + "' loading='lazy'>"
                                 "<figcaption>" + title + "</figcaption></figure>")
         insights.append("</div>")
     parts.append(wrap_sections("".join(insights)))
 
-    # The site: its own data, then the router and the player and ground pages (src/site.js)
+    # The site's own data, then the router and the player / ground / team pages (src/site.js)
     players = sorted(set(deliveries["batter"]) | set(deliveries["bowler"]) | set(deliveries["non_striker"]))
     squads = pd.read_csv(os.path.join(metrics.PROJECT_FOLDER, "data", "squads_" + str(next_season) + ".csv"))
     site = dashboard_data.site_data(matches, deliveries, players, sorted(matches["venue"].unique()), squads)
-    parts.append("<script type='application/json' id='site-data'>"
-                 + json.dumps(site, separators=(",", ":"), default=lambda value: value.item()).replace("</", "<\\/") + "</script>")
-    with open(SITE_SCRIPT, encoding="utf-8") as file:
-        parts.append("<script>\n" + file.read() + "\n</script>")
+    parts.append(json_script("site-data", site))
+    parts.append(js_script(SITE_SCRIPT))
     parts.append("</main></body></html>")
     return "\n".join(parts)
 
