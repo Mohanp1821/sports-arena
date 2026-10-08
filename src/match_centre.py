@@ -30,30 +30,34 @@ import metrics   # our own file: src/metrics.py
 SCRIPT_FILE = os.path.join(metrics.SCRIPT_FOLDER, "match_centre.js")
 
 PAGE_STYLE = """
-body { margin: 0; background: #f6f6f4; color: #1a1a1a;
-       font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.5; }
-main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
-h1 { margin: 0 0 4px; font-size: 28px; }
-a { color: #1d5fb3; }
-.note { color: #555; font-size: 14px; }
+/* The same paper-and-ink look as the main dashboard (see PAGE_STYLE in build_report.py). */
+body { margin: 0; background: #faf8f4; color: #1c1b19; line-height: 1.5;
+       font-family: -apple-system, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif; }
+main { max-width: 1200px; margin: 0 auto; padding: 20px 16px 64px; }
+h1 { margin: 0 0 4px; font: 700 clamp(28px, 4.5vw, 40px)/1.05 "Avenir Next Condensed", "DIN Condensed",
+     "Barlow Condensed", "Roboto Condensed", "Arial Narrow", sans-serif; border-bottom: 3px solid #1c1b19; padding-bottom: 6px; }
+a { color: #1d4f8a; }
+.note { color: #645e55; font-size: 14px; }
 .filters { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
-select, input, button { font: inherit; font-size: 15px; padding: 6px 10px; border: 1px solid #bbb;
-                        border-radius: 6px; background: white; color: #1a1a1a; }
+select, input, button { font: inherit; font-size: 15px; padding: 5px 9px; border: 1px solid #d8d2c6;
+                        border-radius: 2px; background: #faf8f4; color: #1c1b19; }
 input { flex: 1; min-width: 200px; }
-.layout { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 16px; align-items: start; }
-.list { background: white; border: 1px solid #ddd; border-radius: 10px; max-height: 80vh; overflow-y: auto; }
-.row { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid #eee;
-       border-radius: 0; background: white; padding: 8px 12px; cursor: pointer; }
-.row:hover, .row.current { background: #eef3fb; }
-.row small { color: #555; display: block; }
-.detail { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 16px; min-width: 0; }
+.layout { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.list { border-top: 1px solid #1c1b19; max-height: 80vh; overflow-y: auto; }
+.row { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid #e2ddd2;
+       border-radius: 0; background: transparent; padding: 8px 4px; cursor: pointer; }
+.row:hover, .row.current { background: #efebe3; }
+.row.current { box-shadow: inset 3px 0 0 #b1262c; }
+.row small { color: #645e55; display: block; }
+.detail { border-top: 1px solid #1c1b19; padding: 12px 0; min-width: 0; }
 .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 6px 16px;
-        font-size: 14px; color: #555; }
-.meta b { display: block; color: #1a1a1a; font-weight: normal; }
+        font-size: 14px; color: #645e55; }
+.meta b { display: block; color: #1c1b19; font-weight: normal; }
 .tabs { display: flex; gap: 6px; margin: 16px 0 8px; }
-.tabs button.on { background: #1a1a1a; color: white; }
-table { border-collapse: collapse; width: 100%; font-size: 14px; margin-bottom: 12px; }
-th, td { border-bottom: 1px solid #eee; padding: 5px 8px; text-align: right; white-space: nowrap; }
+.tabs button.on { background: #1c1b19; color: #faf8f4; border-color: #1c1b19; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin-bottom: 12px; font-variant-numeric: tabular-nums; }
+th, td { border-bottom: 1px solid #e2ddd2; padding: 5px 8px; text-align: right; white-space: nowrap; }
+th { color: #645e55; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; border-bottom-color: #1c1b19; }
 th:first-child, td:first-child, td.how { text-align: left; }
 td.how { color: #555; white-space: normal; }
 .table-box { overflow-x: auto; }
