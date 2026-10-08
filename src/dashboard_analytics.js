@@ -7,6 +7,7 @@
 //                             how a batter gets out)
 //   3. Grounds               (pick a ground, and a team at that ground)
 //   4. Specialists           (phase leaders, finishers, partnerships)
+//   4b. Records              (fastest fifties and hundreds, best bowling, fielding)
 //   5. Impact Player era     (2020-22 vs 2023-26, each team's choices)
 //   6. Trends                (scoring inflation, points tables, chase
 //                             win-probability calculator, impact scores)
@@ -353,6 +354,60 @@ function setupSpecialists() {
 
 
 // ---------------------------------------------------------------------------
+// 4b. Records: fastest fifties and hundreds, best bowling figures, fielding
+// ---------------------------------------------------------------------------
+function drawRecords() {
+    const season = byId("rec-season").value;
+    const inSeason = function (row) { return season === "all" || row[1] === Number(season); };
+    const R = AD.records;
+
+    // Fastest fifties / hundreds: the rows are already sorted by balls (fewest first).
+    // Row: [batter, season, balls, team, against, date, match id]
+    const milestone = function (rows) {
+        return rows.filter(inSeason).slice(0, 10).map(function (r, i) {
+            return [i + 1, safe(r[0]), r[2], safe(r[3]), safe(r[4]), matchLink(r[6], r[5])];
+        });
+    };
+    const titles = ["#", "Batter", "Balls", "For", "Against", "Date"];
+    byId("rec-fifties").innerHTML = linkTable(titles, milestone(R.fifties));
+    byId("rec-hundreds").innerHTML = linkTable(titles, milestone(R.hundreds));
+
+    // Best bowling: already sorted (most wickets, then fewest runs).
+    // Row: [bowler, season, wickets, runs, team, against, date, match id]
+    byId("rec-bowling").innerHTML = linkTable(["#", "Bowler", "Figures", "For", "Against", "Date"],
+        R.bowling.filter(inSeason).slice(0, 10).map(function (r, i) {
+            return [i + 1, safe(r[0]), r[2] + "/" + r[3], safe(r[4]), safe(r[5]), matchLink(r[7], r[6])];
+        }));
+
+    // Fielding: add up the chosen seasons for each player, then sort by total dismissals.
+    // Row: [fielder, season, catches, stumpings, run-outs]
+    const totals = {};
+    R.fielding.filter(inSeason).forEach(function (r) {
+        if (!(r[0] in totals)) {
+            totals[r[0]] = { name: r[0], catches: 0, stumpings: 0, runOuts: 0 };
+        }
+        totals[r[0]].catches += r[2];
+        totals[r[0]].stumpings += r[3];
+        totals[r[0]].runOuts += r[4];
+    });
+    const fielders = Object.values(totals).map(function (f) {
+        f.total = f.catches + f.stumpings + f.runOuts;
+        return f;
+    }).sort(function (a, b) { return b.total - a.total || a.name.localeCompare(b.name); });
+    byId("rec-fielding").innerHTML = linkTable(["#", "Fielder", "Catches", "Stumpings", "Run-outs", "Total"],
+        fielders.slice(0, 15).map(function (f, i) {
+            return [i + 1, safe(f.name), f.catches, f.stumpings, f.runOuts, f.total];
+        }));
+}
+
+function setupRecords() {
+    fillSelect(byId("rec-season"), [["all", "All seasons"]].concat(AD.seasons.map(function (s) { return [s, s]; })), "all");
+    byId("rec-season").addEventListener("change", drawRecords);
+    drawRecords();
+}
+
+
+// ---------------------------------------------------------------------------
 // 5. Impact Player era
 // ---------------------------------------------------------------------------
 function drawImpactTeam() {
@@ -670,6 +725,7 @@ setupRivalry();
 setupMatchups();
 setupGrounds();
 setupSpecialists();
+setupRecords();
 setupImpact();
 setupTrends();
 setupPitch();
