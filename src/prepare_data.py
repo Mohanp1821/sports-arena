@@ -1,114 +1,59 @@
 """
-prepare_data.py
----------------
-Step 2 of the Sports Arena pipeline: the ANALYSIS LAYER.
+prepare_data.py - Step 2: clean the data.
 
-Reads the merged 2008-2026 dataset and writes analysis-ready copies to
-data/processed/. The merged files are NEVER changed: every fix happens here.
+Reads the merged 2008-2026 files (never edited) and writes analysis-ready
+copies to data/processed/. It adds:
+  1. a franchise column (Delhi Daredevils and Delhi Capitals = one team)
+  2. one name and one city for every ground
+  3. one name per player across both data sources
+  4. no-result and rain flags, and the stage (League / Playoff)
+  5. the phase of every ball (Powerplay / Middle / Death)
 
-Input files:
-    data/merged/matches_2008_2026.csv      one row per match  (1,243 rows)
-    data/merged/deliveries_2008_2026.csv   one row per ball   (295,729 rows)
-    data/player_name_map.csv               71 player-name fixes (made by build_name_map.py)
-    data/impact_players_2020_2026.csv      557 Impact Player substitutions (build_impact_players.py)
-
-Output files:
-    data/processed/matches_clean.csv
-    data/processed/deliveries_clean.csv.gz   (gzip-compressed: the plain file is over 50 MB)
-    data/processed/impact_players_clean.csv
-
-What this step adds (each one is explained in its own function below):
-    1. a FRANCHISE column next to every team name (team names stay as they
-       were that season, for display)
-    2. one standard name and one city for every ground
-    3. one name per player across both data sources (the name map)
-    4. real dates, no-result and rain flags, and the match STAGE (league or playoff)
-    5. the match PHASE of every ball (Powerplay / Middle / Death)
-
-The script is DETERMINISTIC: no random numbers and a fixed sort order,
-so the same input always gives byte-for-byte the same output.
-
-Run it with:
-    python src/prepare_data.py
+Run:  python src/prepare_data.py
 """
 
 import os
 import pandas as pd
 
-
-# ---------------------------------------------------------------------------
-# Folder paths
-# ---------------------------------------------------------------------------
-SCRIPT_FOLDER = os.path.dirname(os.path.abspath(__file__))
-PROJECT_FOLDER = os.path.dirname(SCRIPT_FOLDER)
-DATA_FOLDER = os.path.join(PROJECT_FOLDER, "data")
+DATA_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 MERGED_FOLDER = os.path.join(DATA_FOLDER, "merged")
 PROCESSED_FOLDER = os.path.join(DATA_FOLDER, "processed")
 
-
-# ---------------------------------------------------------------------------
-# Rule 1: FRANCHISES
-# ---------------------------------------------------------------------------
-# Some teams changed their name but are the SAME franchise (same owners, same
-# players' contracts, same fans). The data keeps the name used THAT season
-# (so a 2015 scorecard still says "Delhi Daredevils"), and we add a
-# "franchise" column with today's name, so a team's stats run across eras.
-# Defunct teams (Deccan Chargers, Kochi Tuskers Kerala, Pune Warriors,
-# Gujarat Lions, Rising Pune Supergiant) are separate franchises: Sunrisers
-# Hyderabad is NOT Deccan Chargers (different owners), so they are not merged.
+# Renamed teams that are the SAME franchise. The season's name is kept for display.
+# Deccan Chargers is NOT Sunrisers Hyderabad (different owners), so defunct teams stay separate.
 TEAM_TO_FRANCHISE = {
-    "Delhi Daredevils": "Delhi Capitals",                          # renamed for 2019
-    "Kings XI Punjab": "Punjab Kings",                             # renamed for 2021
-    "Royal Challengers Bangalore": "Royal Challengers Bengaluru",   # renamed for 2024
-    "Rising Pune Supergiants": "Rising Pune Supergiant",           # 2016 spelling had an extra "s"
+    "Delhi Daredevils": "Delhi Capitals",                          # renamed 2019
+    "Kings XI Punjab": "Punjab Kings",                             # renamed 2021
+    "Royal Challengers Bangalore": "Royal Challengers Bengaluru",   # renamed 2024
+    "Rising Pune Supergiants": "Rising Pune Supergiant",           # 2016 spelling
 }
 
-# The 10 teams playing today, with a short code for charts and the chatbot.
-CURRENT_TEAMS = {
-    "Chennai Super Kings": "CSK", "Delhi Capitals": "DC", "Gujarat Titans": "GT",
-    "Kolkata Knight Riders": "KKR", "Lucknow Super Giants": "LSG", "Mumbai Indians": "MI",
-    "Punjab Kings": "PBKS", "Rajasthan Royals": "RR", "Royal Challengers Bengaluru": "RCB",
-    "Sunrisers Hyderabad": "SRH",
-}
-
-
-# ---------------------------------------------------------------------------
-# Rule 2: VENUES and CITIES
-# ---------------------------------------------------------------------------
-# Kaggle writes "Wankhede Stadium", Cricsheet writes "Wankhede Stadium, Mumbai".
-# Step a: remove a ", City" ending when it is the match's city.
-# Step b: grounds that were RENAMED get today's name.
+# Grounds that changed their name get today's name.
 VENUE_RENAMES = {
-    "Feroz Shah Kotla": "Arun Jaitley Stadium",                    # renamed in 2019
-    "Sardar Patel Stadium, Motera": "Narendra Modi Stadium",        # rebuilt and renamed in 2021
-    "Sheikh Zayed Stadium": "Zayed Cricket Stadium",                # renamed in 2023
-    "Subrata Roy Sahara Stadium": "Maharashtra Cricket Association Stadium",   # same Pune ground, old name
+    "Feroz Shah Kotla": "Arun Jaitley Stadium",
+    "Sardar Patel Stadium, Motera": "Narendra Modi Stadium",
+    "Sheikh Zayed Stadium": "Zayed Cricket Stadium",
+    "Subrata Roy Sahara Stadium": "Maharashtra Cricket Association Stadium",
     "Maharaja Yadavindra Singh International Cricket Stadium, Mullanpur":
         "Maharaja Yadavindra Singh International Cricket Stadium",
     "Maharaja Yadavindra Singh International Cricket Stadium, New Chandigarh":
         "Maharaja Yadavindra Singh International Cricket Stadium",
     "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium": "Ekana Cricket Stadium",
 }
-
-# One city per ground. Most grounds already have one; these needed a rule.
 CITY_RENAMES = {"Bangalore": "Bengaluru"}
+# Grounds the data gives two cities for.
 VENUE_CITY = {
-    "Punjab Cricket Association IS Bindra Stadium": "Mohali",                 # data says Chandigarh or Mohali
-    "Maharaja Yadavindra Singh International Cricket Stadium": "Mullanpur",   # data says Mohali or New Chandigarh
-    "Dr DY Patil Sports Academy": "Navi Mumbai",                              # data says Mumbai or Navi Mumbai
+    "Punjab Cricket Association IS Bindra Stadium": "Mohali",
+    "Maharaja Yadavindra Singh International Cricket Stadium": "Mullanpur",
+    "Dr DY Patil Sports Academy": "Navi Mumbai",
 }
 
-# Playoff matches are the LAST matches of each season:
-#   2008-2009: 2 semi-finals + final = 3
-#   2010: 2 semi-finals + 3rd place play-off + final = 4
-#   2011 onwards: Qualifier 1, Eliminator, Qualifier 2, Final = 4
-# (Checked against the "stage" written in the Cricsheet files for all 19 seasons.)
+# Playoffs = the last matches of a season: 3 in 2008-09, 4 from 2010.
 PLAYOFF_MATCH_COUNT = {2008: 3, 2009: 3}
 DEFAULT_PLAYOFF_MATCH_COUNT = 4
 
 
 def load_merged_data():
-    """Read the two merged CSV files (never edited) and return them as DataFrames."""
     matches = pd.read_csv(os.path.join(MERGED_FOLDER, "matches_2008_2026.csv"), keep_default_na=False)
     deliveries = pd.read_csv(os.path.join(MERGED_FOLDER, "deliveries_2008_2026.csv"),
                              keep_default_na=False, low_memory=False)
@@ -117,33 +62,28 @@ def load_merged_data():
     return matches, deliveries
 
 
+# ---------------------------------------------------------------------------
+# Teams and grounds
+# ---------------------------------------------------------------------------
 def franchise_of(team):
-    """Today's franchise name for a team name from any season."""
     return TEAM_TO_FRANCHISE.get(team, team)
 
 
 def add_franchise_columns(df, team_columns):
-    """For every team column, add a column with the franchise, e.g. team1 -> team1_franchise."""
+    """team1 -> team1_franchise, and so on."""
     for column in team_columns:
         df[column + "_franchise"] = df[column].apply(franchise_of)
     return df
 
 
 def standard_city(city):
-    """Use one spelling for each city (Bangalore -> Bengaluru)."""
     return CITY_RENAMES.get(city, city)
 
 
 def standard_venue(venue, all_cities):
-    """
-    One name per ground:
-      a) remove a ", City" ending when it is the name of a city in the data
-         (repeated, so "..., Mohali, Chandigarh" loses both endings).
-         Endings like ", Chepauk" or ", Uppal" are areas, not cities, so they stay.
-      b) apply the rename list for grounds that changed their name
-    """
+    """Remove ", City" endings ("Wankhede Stadium, Mumbai" -> "Wankhede Stadium"), then apply renames."""
     removed_one = True
-    while removed_one:
+    while removed_one:          # repeated, so "..., Mohali, Chandigarh" loses both endings
         removed_one = False
         for city in all_cities:
             ending = ", " + city
@@ -154,18 +94,15 @@ def standard_venue(venue, all_cities):
 
 
 def clean_venues(matches):
-    """Standard ground names, then exactly one city for each ground."""
-    # Every city name in the data, in both spellings (e.g. Bangalore and Bengaluru).
-    all_cities = set(matches["city"]) | set(standard_city(city) for city in matches["city"])
-    all_cities = sorted(all_cities)
+    """One name per ground, then exactly one city per ground."""
+    all_cities = sorted(set(matches["city"]) | set(standard_city(city) for city in matches["city"]))
     matches["venue"] = matches["venue"].apply(lambda venue: standard_venue(venue, all_cities))
     matches["city"] = matches["city"].apply(standard_city)
 
-    # Grounds with a fixed city from the rule list above.
-    for venue in VENUE_CITY:
-        matches.loc[matches["venue"] == venue, "city"] = VENUE_CITY[venue]
+    for venue, city in VENUE_CITY.items():
+        matches.loc[matches["venue"] == venue, "city"] = city
 
-    # Any other ground: use its most common city (this also fills any blank city).
+    # Any other ground: its most common city (this also fills a blank city).
     for venue in sorted(matches["venue"].unique()):
         rows = matches["venue"] == venue
         known = matches.loc[rows & (matches["city"] != ""), "city"]
@@ -175,10 +112,7 @@ def clean_venues(matches):
 
 
 def add_stage(matches):
-    """
-    Label every match "League" or "Playoff" (the last 3 or 4 matches of a season),
-    and give the playoffs their names. The last match of a season is the Final.
-    """
+    """Mark the last 3-4 matches of each season as Playoff, with their names."""
     matches["stage"] = "League"
     matches["playoff_name"] = ""
     for season in sorted(matches["season"].unique()):
@@ -197,77 +131,55 @@ def add_stage(matches):
 
 
 def clean_matches(matches):
-    """Apply all match-level steps in order."""
     matches = matches.rename(columns={"id": "match_id"})
     matches["date"] = pd.to_datetime(matches["date"], format="%Y-%m-%d")
 
-    # Safety check: the IPL season is the year the match was played
-    # (IPL 2020 was played in Sept-Nov 2020, IPL 2010 in March-April 2010).
+    # Safety check: the season must be the year the match was played.
     wrong_season = (matches["season"] != matches["date"].dt.year).sum()
     if wrong_season > 0:
         raise ValueError(str(wrong_season) + " matches have a season that is not the match year")
 
     matches = add_franchise_columns(matches, ["team1", "team2", "toss_winner", "winner"])
     matches = clean_venues(matches)
-
-    # No result: nobody won, so these are left out of win %; the balls still count for players.
-    matches["no_result"] = matches["result"] == "no result"
-    # Rain rule (D/L or DLS): a shortened match, so its score is not a normal 20-over score.
-    matches["rain_affected"] = matches["dl_applied"] == 1
+    matches["no_result"] = matches["result"] == "no result"     # left out of win %
+    matches["rain_affected"] = matches["dl_applied"] == 1       # shortened, so not a normal 20-over score
     print("No-result matches:", matches["no_result"].sum(), "  Rain-rule matches:", matches["rain_affected"].sum())
 
     matches = matches.sort_values(["date", "match_id"]).reset_index(drop=True)
-    matches = add_stage(matches)
-    return matches
+    return add_stage(matches)
 
 
 # ---------------------------------------------------------------------------
-# Rule 3: PLAYER NAMES (one name per person across both sources)
+# Player names: one name per person across both sources
 # ---------------------------------------------------------------------------
 def load_name_map():
-    """
-    Read data/player_name_map.csv into a dictionary:
-        (season, season team name, old name) -> new name
-    The team is part of the key so two different people with the same name
-    (e.g. "Ankit Sharma" at Rajasthan 2018 vs Delhi 2018) are never mixed up.
-    """
+    """{(season, team, old name): new name}. The team is in the key so two people with one name never mix."""
     table = pd.read_csv(os.path.join(DATA_FOLDER, "player_name_map.csv"))
     name_map = {}
-    for i in range(len(table)):
-        row = table.iloc[i]
+    for row in table.to_dict("records"):
         name_map[(int(row["season"]), row["team"], row["old_name"])] = row["new_name"]
     return name_map
 
 
 def fixed_name(name_map, season, team, name):
-    """The corrected name for one player, or the same name if no fix is needed."""
     return name_map.get((season, team, name), name)
 
 
 def fixed_fielders(name_map, season, team, text):
-    """
-    The fielder column can hold several names ("MS Dhoni, DJ Bravo" for a run out)
-    and substitutes are marked "(sub)". Fix each name and keep the "(sub)" mark.
-    """
+    """Fix each name in "MS Dhoni, DJ Bravo", keeping any "(sub)" mark."""
     if text == "":
         return text
     fixed = []
     for part in text.split(", "):
         is_sub = part.endswith(" (sub)")
-        name = part.replace(" (sub)", "")
-        name = fixed_name(name_map, season, team, name)
+        name = fixed_name(name_map, season, team, part.replace(" (sub)", ""))
         fixed.append(name + " (sub)" if is_sub else name)
     return ", ".join(fixed)
 
 
 def apply_name_map(deliveries, matches, name_map):
-    """
-    Rewrite the player names. A batter belongs to the batting team, a bowler
-    and a fielder to the bowling team. Only 71 (season, team, name) keys change,
-    so we only touch the rows of those seasons and teams.
-    """
+    """Rewrite names: batters belong to the batting team, bowlers and fielders to the bowling team."""
     changed = 0
-    # Ball-by-ball columns and which team the player belongs to.
     columns = [("batter", "batting_team"), ("non_striker", "batting_team"),
                ("player_dismissed", "batting_team"), ("bowler", "bowling_team")]
     for (season, team, old_name), new_name in sorted(name_map.items()):
@@ -277,20 +189,17 @@ def apply_name_map(deliveries, matches, name_map):
             deliveries.loc[rows, name_column] = new_name
             changed += rows.sum()
 
-    # Fielders (bowling team), one ball at a time but only where a fielder is named.
+    # Fielders: only rows in the seasons that have fixes and that name a fielder.
     seasons_in_map = set(key[0] for key in name_map)
     rows = deliveries["season"].isin(seasons_in_map) & (deliveries["fielder"] != "")
-    new_values = []
-    for index in deliveries.index[rows]:
-        new_values.append(fixed_fielders(name_map, deliveries.at[index, "season"],
-                                         deliveries.at[index, "bowling_team"], deliveries.at[index, "fielder"]))
-    deliveries.loc[rows, "fielder"] = new_values
+    deliveries.loc[rows, "fielder"] = [
+        fixed_fielders(name_map, deliveries.at[i, "season"], deliveries.at[i, "bowling_team"], deliveries.at[i, "fielder"])
+        for i in deliveries.index[rows]]
 
-    # Player of the match: the player could be from either team, so try both.
+    # Player of the match could be from either team, so try both.
     for i in matches.index:
-        season = matches.at[i, "season"]
         for team in [matches.at[i, "team1"], matches.at[i, "team2"]]:
-            new_name = fixed_name(name_map, season, team, matches.at[i, "player_of_match"])
+            new_name = fixed_name(name_map, matches.at[i, "season"], team, matches.at[i, "player_of_match"])
             if new_name != matches.at[i, "player_of_match"]:
                 matches.at[i, "player_of_match"] = new_name
                 changed += 1
@@ -300,15 +209,10 @@ def apply_name_map(deliveries, matches, name_map):
 
 
 # ---------------------------------------------------------------------------
-# Ball-by-ball cleaning
+# Ball by ball
 # ---------------------------------------------------------------------------
 def add_phase(deliveries):
-    """
-    Phase of the innings for every ball (overs are numbered 1-20):
-        Powerplay = overs 1-6 (only 2 fielders allowed outside the circle)
-        Middle    = overs 7-15
-        Death     = overs 16-20 (the last 5 overs, when batters attack)
-    """
+    """Powerplay = overs 1-6 (fielding limits), Middle = 7-15, Death = 16-20."""
     deliveries["phase"] = "Middle"
     deliveries.loc[deliveries["over"] <= 6, "phase"] = "Powerplay"
     deliveries.loc[deliveries["over"] >= 16, "phase"] = "Death"
@@ -316,51 +220,29 @@ def add_phase(deliveries):
 
 
 def clean_deliveries(deliveries, matches):
-    """
-    Notes about the ball-by-ball file (checked while building the project):
-      - Overs are numbered 1 to 20, and balls start at 1.
-      - Extras are in separate columns, so balls faced and economy can be correct.
-      - SUPER OVERS are kept here (is_super_over = 1) and removed in
-        metrics.remove_super_overs() before any player statistic.
-      - The 2018-19 Kaggle rows that counted extras twice were already fixed
-        when the dataset was merged; tests/test_facts.py checks this.
-    """
+    """Super overs are kept here; metrics.remove_super_overs() drops them before any player statistic."""
     deliveries = deliveries.rename(columns={"batsman": "batter"})
     deliveries = add_franchise_columns(deliveries, ["batting_team", "bowling_team"])
-
-    # Add season, date and stage to every ball (merge on match_id).
-    match_info = matches[["match_id", "season", "date", "stage"]]
-    deliveries = deliveries.merge(match_info, on="match_id", how="left")
+    deliveries = deliveries.merge(matches[["match_id", "season", "date", "stage"]], on="match_id", how="left")
     deliveries = add_phase(deliveries)
 
-    # Keep the original order of balls inside an over with a "stable" sort.
+    # A "stable" sort (mergesort) keeps the balls of an over in the order they were bowled.
     deliveries["row_order"] = range(len(deliveries))
     deliveries = deliveries.sort_values(["date", "match_id", "inning", "over", "row_order"], kind="mergesort")
-    deliveries = deliveries.drop(columns=["row_order"]).reset_index(drop=True)
-    return deliveries
+    return deliveries.drop(columns=["row_order"]).reset_index(drop=True)
 
 
 def clean_impact_players(name_map):
-    """Impact Player substitutions with fixed names and a franchise column."""
     table = pd.read_csv(os.path.join(DATA_FOLDER, "impact_players_2020_2026.csv"))
     for column in ["player_in", "player_out"]:
-        new_names = []
-        for i in range(len(table)):
-            row = table.iloc[i]
-            new_names.append(fixed_name(name_map, int(row["season"]), row["team"], row[column]))
-        table[column] = new_names
+        table[column] = [fixed_name(name_map, int(row["season"]), row["team"], row[column])
+                         for row in table.to_dict("records")]
     table["franchise"] = table["team"].apply(franchise_of)
     return table
 
 
 def save_processed(matches, deliveries, impact):
-    """
-    Write the cleaned tables to data/processed/ (dates as plain 2017-04-05 text).
-    The ball-by-ball file is compressed with gzip, because the plain CSV is over
-    GitHub's 50 MB warning size. pandas reads .csv.gz files directly.
-    "mtime": 0 stops gzip from writing today's time into the file, so the
-    output stays byte-for-byte identical every time (deterministic).
-    """
+    """The ball file is gzip-compressed (the plain CSV is over 50 MB); mtime 0 keeps it byte-identical each run."""
     os.makedirs(PROCESSED_FOLDER, exist_ok=True)
     matches.to_csv(os.path.join(PROCESSED_FOLDER, "matches_clean.csv"), index=False, date_format="%Y-%m-%d")
     deliveries.to_csv(os.path.join(PROCESSED_FOLDER, "deliveries_clean.csv.gz"), index=False,
