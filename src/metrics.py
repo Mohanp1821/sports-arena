@@ -1692,3 +1692,65 @@ def team_ground_top_players(deliveries, matches, n=5):
     bowling = bowling.sort_values(["team", "venue", "wickets", "economy", "bowler"],
                                   ascending=[True, True, False, True, True]).groupby(["team", "venue"]).head(n)
     return batting.reset_index(drop=True), bowling.reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------
+# Records: fastest fifties and hundreds, best bowling figures, fielding
+# ---------------------------------------------------------------------------
+def fastest_milestones(deliveries, milestone=50):
+    """
+    Fastest fifties (milestone=50) or hundreds (milestone=100): the number of balls
+    a batter needed to reach the milestone in one innings.
+    Method: go through each innings ball by ball, keep a running total (cumsum) of
+    runs and balls faced, and find the first ball where runs >= milestone.
+    The cleaned file is already in the order the balls were bowled (prepare_data.py
+    sorts it), so the running totals are in the right order.
+    """
+    df = add_ball_columns(deliveries)
+    innings_columns = ["match_id", "inning", "batter"]
+    df["runs_so_far"] = df.groupby(innings_columns)["batsman_runs"].cumsum()
+    df["balls_so_far"] = df.groupby(innings_columns)["is_ball_faced"].cumsum()
+
+    reached = df[df["runs_so_far"] >= milestone]
+    first_ball = reached.groupby(innings_columns).head(1)   # the ball that brought up the milestone
+    table = first_ball[["batter", "season", "date", "match_id", "batting_team", "bowling_team", "balls_so_far"]]
+    table = table.rename(columns={"bowling_team": "against", "balls_so_far": "balls"})
+    return table.sort_values(["balls", "date"]).reset_index(drop=True)
+
+
+def best_bowling_figures(deliveries, min_wickets=3):
+    """
+    Best bowling in one match, e.g. 6/12 = 6 wickets for 12 runs.
+    More wickets is better; with the same wickets, fewer runs is better.
+    """
+    df = add_ball_columns(deliveries)
+    figures = df.groupby(["bowler", "match_id", "season", "date", "bowling_team", "batting_team"]).agg(
+        wickets=("is_bowler_wicket", "sum"),
+        runs=("runs_conceded", "sum"),
+        legal_balls=("is_legal_ball", "sum"),
+    ).reset_index()
+    figures = figures[figures["wickets"] >= min_wickets].copy()
+    figures["figures"] = figures["wickets"].astype(str) + "/" + figures["runs"].astype(str)
+    figures = figures.rename(columns={"batting_team": "against"})
+    figures = figures.sort_values(["wickets", "runs", "date"], ascending=[False, True, True])
+    return figures.reset_index(drop=True)
+
+
+def fielding_records(deliveries, by_season=False):
+    """
+    Catches, stumpings and run-outs for each fielder, from fielding_events()
+    (the same rules as the player pages: caught and bowled is a catch for the
+    bowler, every fielder named on a run-out gets one, substitutes left out).
+    """
+    events = fielding_events(deliveries)
+    group_columns = ["player", "season"] if by_season else ["player"]
+    table = events.pivot_table(index=group_columns, columns="event", values="match_id",
+                               aggfunc="count", fill_value=0).reset_index()
+    for event in ["catch", "stumping", "run_out"]:
+        if event not in table.columns:
+            table[event] = 0
+    table = table.rename(columns={"catch": "catches", "stumping": "stumpings", "run_out": "run_outs"})
+    table["dismissals"] = table["catches"] + table["stumpings"] + table["run_outs"]
+    table = table[group_columns + ["catches", "stumpings", "run_outs", "dismissals"]]
+    table.columns.name = None
+    return table.sort_values(["dismissals", "player"], ascending=[False, True]).reset_index(drop=True)
