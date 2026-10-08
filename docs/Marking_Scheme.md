@@ -25,7 +25,7 @@ Answering these needs every ball, cleaned so names and teams agree across 19 sea
 **Objectives.**
 1. **One clean dataset 2008-2026** (1,243 matches, 295,729 balls): franchise names, one name per ground, one name per
    player (a name map built from Cricsheet registry IDs), Impact Player substitutions.
-2. **Analyst views** for any team, player or ground: rivalries, matchups, grounds, specialists, Impact Player era, trends.
+2. **Analyst views** for any team, player or ground: rivalries, matchups, grounds, specialists, records, Impact Player era, trends.
 3. **Two 2027 prediction models** (explainable vs machine learning), each simulating 10,000 seasons in the real format,
    compared in a walk-forward backtest against a random baseline.
 4. **"Ask Sports Arena" chatbot** that answers only from computed facts.

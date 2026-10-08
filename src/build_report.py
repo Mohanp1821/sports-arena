@@ -13,7 +13,7 @@ views, switched by the address after "#" (the router is in src/site.js):
     teams at one ground
   - 2027 predictions: Model A vs Model B
   - Ask: the "Ask Sports Arena" chatbot
-  - More analysis: matchups, pitch tool, specialists, Impact Player era, trends,
+  - More analysis: matchups, pitch tool, specialists, records, Impact Player era, trends,
     insights, caps and every chart made by analysis.py
 It also writes outputs/match_centre.html and outputs/chat_facts.json.
 
@@ -637,6 +637,16 @@ def analyst_sections(matches, deliveries, impact):
                  "<div class='panel'><h3>Biggest partnerships</h3><div class='filters'>"
                  + control("Team", "<select id='sp-team'></select>") + "</div>"
                  "<div class='table-box' id='sp-partners'></div></div>")
+    parts.append("<h2 id='records'>Records</h2><p>The fastest fifties and hundreds, the best bowling in one match, "
+                 "and the most catches, stumpings and run-outs, for all seasons or one season. Click a date "
+                 "to open that match.</p><div class='filters'>"
+                 + control("Season", "<select id='rec-season'></select>") + "</div><div class='two-columns'>"
+                 "<div class='panel'><h3>Fastest fifties</h3><div class='table-box' id='rec-fifties'></div></div>"
+                 "<div class='panel'><h3>Fastest hundreds</h3><div class='table-box' id='rec-hundreds'></div></div>"
+                 "<div class='panel'><h3>Best bowling figures</h3><div class='table-box' id='rec-bowling'></div></div>"
+                 "<div class='panel'><h3>Fielding</h3><p class='note'>Caught and bowled counts as a catch for the bowler; "
+                 "every fielder named on a run-out gets one; substitute fielders are left out.</p>"
+                 "<div class='table-box' id='rec-fielding'></div></div></div>")
     parts.append("<h2 id='impact-era'>Impact Player era</h2><p>From 2023 each team may bring in one substitute "
                  "(the Impact Player). Here 2020-22 is compared with 2023-26 (rain-shortened and no-result matches "
                  "left out), using " + str(len(impact)) + " substitutions from the Cricsheet files.</p>"
@@ -740,7 +750,7 @@ def wrap_sections(html):
 def analysis_menu():
     """Links to every section of the "More analysis" view."""
     links = [("matchups", "Matchups"), ("grounds", "Ground explorer"), ("pitch", "Pitch & player fit tool"),
-             ("specialists", "Specialists"), ("impact-era", "Impact Player era"), ("trends", "Trends"),
+             ("specialists", "Specialists"), ("records", "Records"), ("impact-era", "Impact Player era"), ("trends", "Trends"),
              ("insights", "Key insights"), ("caps", "Cap winners")]
     for section_name in CHART_SECTIONS:
         links.append((section_id(section_name), "Charts: " + section_name))

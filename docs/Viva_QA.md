@@ -234,3 +234,9 @@ We wrote the code, so we choose its licence. We did not create the data; it keep
 
 **Q40. How did you run Docker on a Mac?**
 With Colima (`brew install colima docker docker-compose`, then `colima start`); Docker Desktop works the same way.
+
+**Q41. How do you find the fastest fifty?** (`metrics.fastest_milestones`)
+The balls are stored in the order they were bowled, so for each batter's innings I keep a running total (`cumsum`)
+of runs and of balls faced (wides not counted). The fastest fifty is the innings where runs first reach 50 after the
+fewest balls: Yashasvi Jaiswal, 13 balls v KKR in 2023. `tests/test_facts.py` checks it and Gayle's 30-ball hundred
+against the official record book.

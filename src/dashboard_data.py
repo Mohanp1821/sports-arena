@@ -537,6 +537,32 @@ def team_data(matches, deliveries, venues):
     }
 
 
+# ---------------------------------------------------------------------------
+# Records: fastest fifties and hundreds, best bowling, fielding
+# ---------------------------------------------------------------------------
+def records_data(deliveries):
+    """Every record table, as plain lists; the page keeps the top 10 for the chosen season."""
+    date_text = lambda table: table["date"].dt.strftime("%Y-%m-%d")
+    fifties = metrics.fastest_milestones(deliveries, 50)
+    fifties["date"] = date_text(fifties)
+    hundreds = metrics.fastest_milestones(deliveries, 100)
+    hundreds["date"] = date_text(hundreds)
+    bowling = metrics.best_bowling_figures(deliveries)
+    bowling["date"] = date_text(bowling)
+    milestone_columns = ["batter", "season", "balls", "batting_team", "against", "date", "match_id"]
+    return {"records": {
+        # [batter, season, balls, team, against, date, match id]
+        "fifties": table_rows(fifties, milestone_columns),
+        "hundreds": table_rows(hundreds, milestone_columns),
+        # [bowler, season, wickets, runs, team, against, date, match id]
+        "bowling": table_rows(bowling, ["bowler", "season", "wickets", "runs", "bowling_team", "against",
+                                        "date", "match_id"]),
+        # [fielder, season, catches, stumpings, run-outs]
+        "fielding": table_rows(metrics.fielding_records(deliveries, by_season=True),
+                               ["player", "season", "catches", "stumpings", "run_outs"]),
+    }}
+
+
 def analyst_data(matches, deliveries, impact, chase_model_file):
     """Everything the analyst views need, as one dictionary (saved into the page as JSON)."""
     teams = sorted(set(matches["team1_franchise"]) | set(matches["team2_franchise"]))
@@ -552,4 +578,5 @@ def analyst_data(matches, deliveries, impact, chase_model_file):
     data.update(impact_data(matches, deliveries, impact))
     data.update(trend_data(matches, deliveries, players, chase_model_file))
     data.update(pitch_data(matches, deliveries, players, venues))
+    data.update(records_data(deliveries))
     return data
