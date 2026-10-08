@@ -97,6 +97,7 @@ Sections inside those views:
 | **Grounds** | Any ground: scores by season, chase win %, toss decisions, run rate by phase; a team at that ground; fortress index |
 | **Pitch & player fit** | Any ground and period: runs, wickets, boundary and dot-ball indexes vs the league (100 = average), runs by phase, how batters got out; any player's batting, bowling and fielding there vs other grounds in the same seasons; his best and worst grounds (click to switch) |
 | **Specialists** | Powerplay / Middle / Death leaders (any season), finishers, partnerships |
+| **Records** | Fastest fifties and hundreds, best bowling figures, most catches, stumpings and run-outs (all seasons or one season); click a date to open the match |
 | **Impact Player era** | 2020-22 vs 2023-26 and each team's Impact Player choices |
 | **Trends** | Scoring inflation, points table of any season (with NRR), chase win-probability calculator, impact scores |
 | **Match centre** | `outputs/match_centre.html`: every match ball by ball: scorecard, over-by-over strip, raw rows |

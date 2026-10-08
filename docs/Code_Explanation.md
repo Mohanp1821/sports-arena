@@ -119,6 +119,7 @@ map, the Impact Player list, the source page and the original Kaggle files.
 | Home fortress index | `home_fortress_index` | Home win % minus away win % (percentage points) |
 | Phase specialists | `phase_batting_leaders`, `phase_bowling_leaders` | The same batting/bowling formulas on one phase's balls, with a minimum number of balls |
 | Finishers | `finishers` | Death-over strike rate (min 150 balls) and % of chase innings not out |
+| Records | `fastest_milestones`, `best_bowling_figures`, `fielding_records` | Fastest 50/100: a running total (`cumsum`) of runs and balls faced in each innings, then the first ball where runs ≥ 50 (or 100). Best bowling: wickets and runs per bowler per match, sorted by most wickets then fewest runs. Fielding: counts of `fielding_events` (the player pages' rules). **Check:** Jaiswal 13 balls, Gayle 30 balls, Joseph 6/12 |
 | Partnerships | `partnerships` | Group balls by the pair at the crease (written alphabetically); the wicket number = wickets fallen before + 1. **Check:** in every innings the partnership runs add up to the team total |
 | Impact Player era | `impact_era_summary`, `impact_era_phase_run_rate`, `impact_player_choices` | 2020-22 vs 2023-26; the substitute's role = what he did in that match (batted, bowled, both, neither) |
 | Scoring inflation | `scoring_inflation` | First-innings average, sixes per match and run rate per season |
@@ -236,7 +237,7 @@ One page, `outputs/index.html`, with all data inside it (so it works offline):
 | Predictions: Model A vs Model B | `prediction_section` reads the prediction CSVs | — |
 | Ask Sports Arena | `chat_section` embeds `chat_facts` | `chatbot.js` |
 | Explore | `explorer_data` | `dashboard_explorer.js` |
-| Rivalries, Matchups, Grounds, Specialists, Impact Player era, Trends | `dashboard_data.analyst_data` calculates every table | `dashboard_analytics.js` only looks rows up and divides a few counts |
+| Rivalries, Matchups, Grounds, Specialists, Records, Impact Player era, Trends | `dashboard_data.analyst_data` calculates every table | `dashboard_analytics.js` only looks rows up and divides a few counts |
 | Match centre | `match_centre.build_page` → `outputs/match_centre.html` | `match_centre.js`: scorecard with dismissals and bowling card, over-by-over strip (• dot, 1-6, W, wd, nb, b, lb), raw rows |
 
 **Why plain JavaScript (no Plotly/Streamlit)?** Nothing to install, no internet needed, and Docker serves the page as a

@@ -197,6 +197,29 @@ git push origin main feature/ipl-2008-2026 v2.0      # upload main, the branch a
 
 
 # -----------------------------------------------------------------------------
+# STEP 11: records tables (fastest fifties and hundreds, best bowling, fielding)
+# -----------------------------------------------------------------------------
+git checkout -b feature/records
+
+git add src/metrics.py
+git commit -m "Add fastest milestones, best bowling figures and fielding records"
+
+git add src/dashboard_data.py src/build_report.py src/dashboard_analytics.js outputs/
+git commit -m "Add a Records section to the dashboard"
+
+git add tests/test_facts.py
+git commit -m "Check the records against the official record book"
+
+git add README.md docs/ git_commands.sh
+git commit -m "Document the records tables"
+
+git checkout main
+git merge --no-ff feature/records -m "Merge feature/records into main"
+git tag -a v2.1 -m "Sports Arena v2.1: records tables"
+git push origin main feature/records v2.1
+
+
+# -----------------------------------------------------------------------------
 # EVERYDAY COMMANDS (after the project is on GitHub)
 # -----------------------------------------------------------------------------
 # git status                          what changed?
