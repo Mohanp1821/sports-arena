@@ -1,14 +1,9 @@
 """
-analysis.py
------------
-Step 3 of the Sports Arena pipeline.
+analysis.py - Step 3: print summary tables and draw every chart (PNG files in outputs/).
 
-Uses the calculations in metrics.py to:
-  1. print summary tables in the terminal
-  2. draw every chart and save it as a PNG in outputs/
+The numbers come from metrics.py; this file only draws them.
 
-Run it from the project folder with:
-    python src/analysis.py
+Run:  python src/analysis.py
 """
 
 import os
@@ -20,9 +15,7 @@ import seaborn as sns
 import metrics   # our own file: src/metrics.py
 
 
-# ---------------------------------------------------------------------------
 # Settings you can change
-# ---------------------------------------------------------------------------
 CHOSEN_SEASON = 2016            # season used for "one season" charts
 FORM_BATTER = "V Kohli"         # batter for the form chart
 COMPARE_PLAYERS = ["V Kohli", "RG Sharma"]
@@ -32,22 +25,17 @@ RIVALRY_TEAMS = ["Chennai Super Kings", "Mumbai Indians"]   # rivalry centre cha
 MATCHUP_BATTER = "V Kohli"                                  # batter vs bowlers chart
 PROFILE_GROUND = "MA Chidambaram Stadium, Chepauk"          # ground profile chart
 
-# SHOW_CHARTS = False -> only save PNG files (used when running this script).
-# The notebook sets it to True so charts also appear on screen.
-SHOW_CHARTS = False
+SHOW_CHARTS = False             # the notebook sets True to also show charts on screen
 
 OUTPUT_FOLDER = os.path.join(metrics.PROJECT_FOLDER, "outputs")
 
-# Colours: the same palette as the web page (src/build_report.py).
-# Slate is the main colour; red (a cricket ball) is the one highlight. Slate, red and
-# green stay distinguishable for colour-blind readers because they also differ in lightness.
+# The web page's palette: slate is the main colour, red the one highlight.
 SLATE = "#3b5b6e"
 RED = "#b1262c"
 GREEN = "#4c7a5a"
 GREY = "#8a8984"
 PHASE_COLOURS = {"Powerplay": SLATE, "Middle": RED, "Death": GREEN}
 
-# The 10 franchises playing today (used to keep charts readable).
 MAJOR_TEAMS = metrics.CURRENT_FRANCHISES
 
 
@@ -55,18 +43,18 @@ MAJOR_TEAMS = metrics.CURRENT_FRANCHISES
 # Chart helpers
 # ---------------------------------------------------------------------------
 def setup_style():
-    """Use one clean, readable style for every chart, like a newspaper graphic."""
+    """One clean style for every chart: titles on the left, no box around the plot."""
     sns.set_theme(style="whitegrid", font_scale=1.1)
     plt.rcParams["figure.dpi"] = 100
     plt.rcParams["axes.titleweight"] = "bold"
-    plt.rcParams["axes.titlelocation"] = "left"      # titles read from the left, like a headline
-    plt.rcParams["axes.spines.top"] = False          # no box around the chart: only the axes that matter
+    plt.rcParams["axes.titlelocation"] = "left"
+    plt.rcParams["axes.spines.top"] = False
     plt.rcParams["axes.spines.right"] = False
     plt.rcParams["font.sans-serif"] = ["Helvetica Neue", "Arial", "DejaVu Sans"]
 
 
 def save_chart(fig, file_name):
-    """Save a chart into outputs/, then show it (notebook) or close it (script)."""
+    """Save the chart to outputs/, then show it (notebook) or close it (script)."""
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     path = os.path.join(OUTPUT_FOLDER, file_name)
     fig.tight_layout()
@@ -79,12 +67,19 @@ def save_chart(fig, file_name):
 
 
 def safe_file_name(text):
-    """Turn a player name like 'V Kohli' into 'v_kohli' for a file name."""
+    """'V Kohli' -> 'v_kohli'."""
     return text.lower().replace(" ", "_").replace(".", "")
 
 
+def tilt_labels(ax):
+    """Tilt long team names on the x axis so they do not overlap."""
+    ax.tick_params(axis="x", rotation=40)
+    for label in ax.get_xticklabels():
+        label.set_horizontalalignment("right")
+
+
 # ---------------------------------------------------------------------------
-# Section 6: Player form trends
+# Players
 # ---------------------------------------------------------------------------
 def plot_player_form(deliveries, player, season):
     """Runs in each innings of one season, plus a 5-innings rolling average."""
@@ -94,9 +89,8 @@ def plot_player_form(deliveries, player, season):
         print("No innings found for", player, "in", season)
         return
 
-    # Number the innings 1, 2, 3 ... in the order they were played.
     innings["innings_number"] = range(1, len(innings) + 1)
-    # Rolling average: the mean of the last 5 innings (fewer at the start).
+    # Rolling average = the mean of the last 5 innings (fewer at the start).
     innings["rolling_avg"] = innings["runs"].rolling(window=5, min_periods=1).mean()
 
     fig, ax = plt.subplots(figsize=(11, 5))
@@ -118,7 +112,7 @@ def plot_player_career(deliveries, player):
     table = metrics.batting_stats(deliveries, ["batter", "season"])
     table = table[table["batter"] == player]
 
-    # Two separate panels, because runs and strike rate have different scales.
+    # Two panels, because runs and strike rate have different scales.
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 8), sharex=True)
     ax1.bar(table["season"], table["runs"], color=SLATE)
     ax1.set_title(player + ": IPL career by season")
@@ -168,7 +162,7 @@ def compare_players(deliveries, player_a, player_b):
 
 
 # ---------------------------------------------------------------------------
-# Section 7: Team comparisons
+# Teams
 # ---------------------------------------------------------------------------
 def plot_season_win_pct(matches, season):
     """Bar chart of each team's win % in one season."""
@@ -180,9 +174,7 @@ def plot_season_win_pct(matches, season):
     ax.set_title("Team win % in IPL " + str(season))
     ax.set_xlabel("Team")
     ax.set_ylabel("Win %")
-    ax.tick_params(axis="x", rotation=40)
-    for label in ax.get_xticklabels():
-        label.set_horizontalalignment("right")
+    tilt_labels(ax)
     save_chart(fig, "team_win_pct_" + str(season) + ".png")
 
 
@@ -215,10 +207,7 @@ def plot_phase_run_rate(deliveries):
     ax.set_title("Run rate by match phase (current teams, " + metrics.season_range_text(deliveries) + ")")
     ax.set_xlabel("Team")
     ax.set_ylabel("Run rate (runs per over)")
-    ax.tick_params(axis="x", rotation=40)
-    for label in ax.get_xticklabels():
-        label.set_horizontalalignment("right")
-    # Put the legend outside the plot so it does not cover any bars.
+    tilt_labels(ax)
     ax.legend(title="Phase", loc="upper left", bbox_to_anchor=(1.01, 1))
     save_chart(fig, "phase_run_rate.png")
 
@@ -227,7 +216,7 @@ def plot_bat_first_vs_chase(deliveries, matches):
     """Grouped bars: % of matches won batting first vs chasing, per season."""
     table = metrics.bat_first_vs_chase(deliveries, matches)
 
-    # Change the table from "wide" to "long" format so seaborn can group it.
+    # "Long" format (one row per season per result) so seaborn can group the bars.
     long_table = pd.melt(table, id_vars="season",
                          value_vars=["bat_first_win_pct", "chase_win_pct"],
                          var_name="result", value_name="win_pct")
@@ -272,9 +261,7 @@ def plot_home_away(matches):
     ax.set_title("Home ground vs away win % (" + metrics.season_range_text(matches) + ")")
     ax.set_xlabel("Team")
     ax.set_ylabel("Win %")
-    ax.tick_params(axis="x", rotation=40)
-    for label in ax.get_xticklabels():
-        label.set_horizontalalignment("right")
+    tilt_labels(ax)
     ax.legend(title="")
     save_chart(fig, "home_vs_away.png")
 
@@ -285,7 +272,6 @@ def plot_head_to_head(matches, team_a, team_b):
     total_a = table[team_a].sum()
     total_b = table[team_b].sum()
 
-    # Long format: one row per season per team, so seaborn can group the bars.
     long_table = pd.melt(table, id_vars="season", value_vars=[team_a, team_b],
                          var_name="team", value_name="wins")
 
@@ -302,7 +288,7 @@ def plot_head_to_head(matches, team_a, team_b):
 
 
 # ---------------------------------------------------------------------------
-# Section 8: Top performers
+# Top performers
 # ---------------------------------------------------------------------------
 def plot_cap_winners(caps):
     """Two panels: Orange Cap runs and Purple Cap wickets, labelled with names."""
@@ -330,8 +316,7 @@ def plot_cap_winners(caps):
 
 
 def plot_top_bar(table, name_column, metric, title, x_label, file_name):
-    """Generic horizontal bar chart for a top-10 table (best player at the top)."""
-    # Reverse the order so the best player is drawn at the top.
+    """A horizontal bar chart of a top-10 table, best player at the top."""
     table = table.iloc[::-1]
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.barh(table[name_column], table[metric], color=SLATE)
@@ -346,12 +331,8 @@ def plot_top_bar(table, name_column, metric, title, x_label, file_name):
 
 def plot_batting_quadrant(deliveries, min_balls=1000):
     """
-    Scatter: batting average (x) vs strike rate (y), with median lines.
-    The two median lines split the chart into four groups:
-      Elite      = high average AND high strike rate
-      Anchors    = high average, lower strike rate (steady, build innings)
-      Finishers  = lower average, high strike rate (fast hitters late on)
-      Struggling = below the median on both
+    Average (x) vs strike rate (y). The median lines make four groups: Elite (both high),
+    Anchors (high average), Finishers (high strike rate), Struggling (both low).
     """
     table = metrics.batting_stats(deliveries)
     table = table[table["balls_faced"] >= min_balls].dropna(subset=["average"])
@@ -364,14 +345,13 @@ def plot_batting_quadrant(deliveries, min_balls=1000):
     ax.axvline(median_avg, color=GREY, linestyle="--")
     ax.axhline(median_sr, color=GREY, linestyle="--")
 
-    # Label only the top 15 run scorers, so names do not overlap too much.
+    # Label only the top 15 run scorers, so names do not overlap.
     top = table.sort_values("runs", ascending=False).head(15)
     for i in range(len(top)):
         row = top.iloc[i]
         ax.annotate(row["batter"], (row["average"], row["strike_rate"]),
                     xytext=(5, 4), textcoords="offset points", fontsize=9)
 
-    # Quadrant names in the four corners.
     ax.text(0.98, 0.98, "Elite", transform=ax.transAxes, ha="right", va="top", fontsize=13, weight="bold")
     ax.text(0.98, 0.02, "Anchors", transform=ax.transAxes, ha="right", va="bottom", fontsize=13, weight="bold")
     ax.text(0.02, 0.98, "Finishers", transform=ax.transAxes, ha="left", va="top", fontsize=13, weight="bold")
@@ -386,13 +366,12 @@ def plot_batting_quadrant(deliveries, min_balls=1000):
 def plot_team_season_heatmap(matches):
     """Heatmap: rows = teams, columns = seasons, colour = win %."""
     table = metrics.team_win_percent(matches, by_season=True)
-    # pivot: turn the long table into a grid of team x season.
     grid = table.pivot(index="team", columns="season", values="win_pct")
 
     fig, ax = plt.subplots(figsize=(14, 7))
     sns.heatmap(grid, annot=True, fmt=".0f", cmap=sns.light_palette(SLATE, as_cmap=True), linewidths=1,
                 linecolor="white", cbar_kws={"label": "Win %"}, ax=ax)
-    ax.grid(False)   # turn off background gridlines so empty cells stay blank
+    ax.grid(False)
     ax.set_title("Win % by team and season (blank = did not play)")
     ax.set_xlabel("Season")
     ax.set_ylabel("Team")
@@ -400,7 +379,7 @@ def plot_team_season_heatmap(matches):
 
 
 # ---------------------------------------------------------------------------
-# Section 10: Analyst views (rivalries, matchups, grounds, specialists, eras, trends)
+# Analyst views: rivalries, matchups, grounds, specialists, eras, trends
 # ---------------------------------------------------------------------------
 def plot_rivalry(matches, team_a, team_b):
     """Two panels: wins per season, and wins at the grounds they met most."""
@@ -578,7 +557,7 @@ def plot_scoring_inflation(deliveries, matches):
 
 
 def chase_model_table(model):
-    """The weights the logistic regression learned, as a small table (saved for the dashboard)."""
+    """The weights the logistic regression learned (shown on the dashboard)."""
     names = ["intercept", "runs_needed", "balls_left", "wickets_left", "required_rate"]
     values = [model.intercept_[0]] + list(model.coef_[0])
     return pd.DataFrame({"term": names, "weight": [round(value, 6) for value in values]})
@@ -622,10 +601,7 @@ def plot_impact_scores(deliveries, season, n=10):
 
 
 def plot_ground_map(deliveries, matches, min_matches=20):
-    """
-    How each ground plays: runs index (x) against wickets index (y), both 100 = league
-    average in the same seasons. The dashed lines at 100 split the chart into four kinds of ground.
-    """
+    """Runs index (x) vs wickets index (y), 100 = league average in the same seasons."""
     table = metrics.pitch_profile(deliveries, matches, min_matches=min_matches)
     fig, ax = plt.subplots(figsize=(12, 8))
     ax.scatter(table["runs_index"], table["wickets_index"], s=table["matches"] * 3, color=SLATE, alpha=0.7,
@@ -668,10 +644,8 @@ def plot_player_ground_fit(deliveries, matches, player, min_balls=150):
 
 
 # ---------------------------------------------------------------------------
-# Main: run everything in order
-# ---------------------------------------------------------------------------
 def main():
-    matplotlib.use("Agg")   # draw charts to files only (no pop-up windows)
+    matplotlib.use("Agg")   # draw to files only, no pop-up windows
     setup_style()
     pd.set_option("display.width", 140)
 
@@ -701,13 +675,11 @@ def main():
     print(potm.to_string())
 
     print("\nSaving charts ...")
-    # Section 6: player form
     plot_player_form(deliveries, FORM_BATTER, CHOSEN_SEASON)
     plot_player_career(deliveries, FORM_BATTER)
     plot_bowler_career(deliveries, CAREER_BOWLER)
     compare_players(deliveries, COMPARE_PLAYERS[0], COMPARE_PLAYERS[1])
 
-    # Section 7: teams
     plot_season_win_pct(matches, CHOSEN_SEASON)
     plot_alltime_win_pct(matches)
     plot_phase_run_rate(deliveries)
@@ -716,7 +688,6 @@ def main():
     plot_home_away(matches)
     plot_head_to_head(matches, HEAD_TO_HEAD_TEAMS[0], HEAD_TO_HEAD_TEAMS[1])
 
-    # Section 8: top performers
     plot_cap_winners(caps)
     season_text = str(CHOSEN_SEASON)
     top_sr = metrics.top_performers(deliveries, CHOSEN_SEASON, "strike_rate", n=10, min_balls=200)
@@ -735,10 +706,8 @@ def main():
     plot_top_bar(potm, "player", "awards", "Most Player of the Match awards (" + metrics.season_range_text(matches) + ")",
                  "Awards", "player_of_match.png")
 
-    # Section 9: heatmap
     plot_team_season_heatmap(matches)
 
-    # Section 10: analyst views
     impact = metrics.load_impact_players()
     latest_season = int(matches["season"].max())
     plot_rivalry(matches, RIVALRY_TEAMS[0], RIVALRY_TEAMS[1])
