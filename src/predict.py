@@ -542,7 +542,7 @@ def plot_title_chances(chances, season, model_name, file_name):
 
     fig, ax = plt.subplots(figsize=(11, 6))
     sns.barplot(data=long_table, y="team", x="chance", hue="outcome",
-                palette={"Reach playoffs (top 4)": analysis.BLUE, "Win the title": analysis.ORANGE}, ax=ax)
+                palette={"Reach playoffs (top 4)": analysis.SLATE, "Win the title": analysis.RED}, ax=ax)
     for bars in ax.containers:
         ax.bar_label(bars, fmt="%.1f%%", padding=3, fontsize=9)
     ax.set_title(model_name + ": IPL " + str(season) + " chances from " + format(SIMULATIONS, ",")
@@ -561,14 +561,14 @@ def plot_award_candidates(candidates, season):
     for i in range(len(award_names)):
         ax = axes.flat[i]
         rows = candidates[candidates["award"] == award_names[i]].iloc[::-1]   # best at the top
-        colours = [analysis.GREY] * (len(rows) - 1) + [analysis.ORANGE]        # highlight our pick
+        colours = [analysis.GREY] * (len(rows) - 1) + [analysis.RED]        # highlight our pick
         ax.barh(rows["player"], rows["form"], color=colours)
         for j in range(len(rows)):
             ax.text(rows.iloc[j]["form"], j, " " + str(rows.iloc[j]["form"]), va="center", fontsize=9)
         ax.set_title(award_names[i], fontsize=12)
         ax.set_xlabel("Form score (weighted " + rows.iloc[0]["measure"] + " per season)")
         ax.set_xlim(0, rows["form"].max() * 1.2)
-    fig.suptitle("Model A: predicted IPL " + str(season) + " award winners (orange = pick, 2027 squads only)",
+    fig.suptitle("Model A: predicted IPL " + str(season) + " award winners (red = pick, 2027 squads only)",
                  fontweight="bold")
     analysis.save_chart(fig, "prediction_awards_" + str(season) + ".png")
 

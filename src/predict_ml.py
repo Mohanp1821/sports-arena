@@ -393,8 +393,8 @@ def compare_titles(titles_a, titles_b):
 # ---------------------------------------------------------------------------
 # 5. Charts
 # ---------------------------------------------------------------------------
-MODEL_COLOURS = {"Model A": analysis.BLUE, "Model B": analysis.ORANGE, "Logistic regression": analysis.AQUA,
-                 "Gradient boosting": "#4a3aa7", "Random guess (50%)": analysis.GREY}
+MODEL_COLOURS = {"Model A": analysis.SLATE, "Model B": analysis.RED, "Logistic regression": analysis.GREEN,
+                 "Gradient boosting": "#7a5c8a", "Random guess (50%)": analysis.GREY}
 
 
 def plot_backtest(scores):
