@@ -1,6 +1,0 @@
-prediction,our_pick,actual,actual_rank,verdict
-IPL champion,Chennai Super Kings,Mumbai Indians (beat Delhi Capitals in the final),2,Our #2 pick
-Orange Cap (most runs),DA Warner,KL Rahul (670 runs),2,Our #2 pick
-Purple Cap (most wickets),K Rabada,K Rabada (30 wickets),1,Correct
-Most sixes,AD Russell,Ishan Kishan (30 sixes),31,Not in our top 5 (#31)
-Playoff teams (top 4),"Chennai Super Kings, Mumbai Indians, Delhi Capitals, Kolkata Knight Riders","Mumbai Indians, Delhi Capitals, Sunrisers Hyderabad, Royal Challengers Bengaluru",,"2 of 4 correct (Mumbai Indians, Delhi Capitals)"

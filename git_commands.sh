@@ -170,6 +170,29 @@ git push
 
 
 # -----------------------------------------------------------------------------
+# STEP 10: the 2008-2026 version, one commit per phase on a feature branch
+# -----------------------------------------------------------------------------
+git checkout -b feature/ipl-2008-2026 origin/main     # start from the latest GitHub version
+
+git add -A
+git commit -m "Switch the pipeline to the merged 2008-2026 dataset"          # phase 1: data layer
+git add -A
+git commit -m "Add analyst views, charts and a match centre to the dashboard" # phase 2
+git add -A
+git commit -m "Add Model B and compare both 2027 prediction models"          # phase 3
+git add -A
+git commit -m "Add the Ask Sports Arena chatbot with an optional local-LLM mode"   # phase 4
+git add -A
+git commit -m "Update the docs, notebook and guide for 2008-2026"            # phase 5
+
+# After review: merge into main and mark the release
+# git checkout main
+# git merge --no-ff feature/ipl-2008-2026 -m "Merge feature/ipl-2008-2026 into main"
+# git tag -a v2.0 -m "Sports Arena v2.0: IPL 2008-2026, two 2027 models, chatbot"
+# git push origin main feature/ipl-2008-2026 v2.0
+
+
+# -----------------------------------------------------------------------------
 # EVERYDAY COMMANDS (after the project is on GitHub)
 # -----------------------------------------------------------------------------
 # git status                          what changed?

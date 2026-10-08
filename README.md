@@ -5,8 +5,10 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
-An open-source data visualisation project that analyses **every ball of the Indian Premier League
-from 2008 to 2019** (756 matches, 179,078 deliveries) and turns it into clear charts and an **interactive web dashboard**.
+An open-source analytics project covering **every ball of the Indian Premier League from 2008 to 2026**:
+**1,243 matches and 295,729 deliveries across 19 seasons**. It includes analyst-level views for every team,
+player and ground, **two 2027 prediction models compared in a backtest**, a **ball-by-ball match centre** and an
+**"Ask Sports Arena" chatbot** that answers only from the data. All of it is in a web dashboard that works offline.
 
 **Course:** Open Source Tools for Data Science (OST), mini project · **Author:** Mohan Pawar
 
@@ -14,159 +16,222 @@ from 2008 to 2019** (756 matches, 179,078 deliveries) and turns it into clear ch
 
 ## 1. Problem statement
 
-Match results are easy to find, but *why* teams win is not. Does winning the toss help? Is chasing
-better than batting first? Which players are in form, and who is best in the Death overs?
-These questions need analysis of **every ball**, not just final scores.
+Match results are easy to find, but *why* teams win is not. Does the toss matter? Is chasing better? Who wins
+the CSK v MI rivalry, and where? Did the Impact Player rule change scoring? Who will win in 2027, and how far can
+such a prediction be trusted? Answering these needs **every ball**, cleaned so that names and teams agree across
+19 seasons and two data sources.
 
 ## 2. Objectives and scope
 
-1. **Player form:** runs per innings with a 5-innings rolling average, and career trends by season.
-2. **Team comparisons:** win %, run rate in each phase (Powerplay / Middle / Death), toss impact, home advantage, head-to-head.
-3. **Top performers:** Orange Cap and Purple Cap winners for every season, and top-10 lists.
-4. **Predictions:** the likely 2020 champion and award winners (Orange Cap, Purple Cap, Most Sixes,
-   Most Player of the Match awards), with a backtest showing how reliable the method is.
-5. **Interactive dashboard:** filter every number, chart and table by season and team, click the bars
-   to drill down, and search any player's career.
+1. **One clean dataset, 2008-2026:** the Kaggle (2008-2019) and Cricsheet (2020-2026) ball-by-ball data, with one name
+   per player, one name per ground and franchise names that run across team renames.
+2. **Analyst views:** rivalry centre, batter vs bowler matchups, ground profiles, **pitch and player fit** (how each
+   ground plays and how it suits a batter, bowler or fielder), phase and role specialists, the Impact Player era,
+   scoring trends, rebuilt points tables, chase win probability and season impact scores.
+3. **2027 predictions:** Model A (explainable form model) and Model B (machine learning), each simulating the
+   season 10,000 times in the real format, compared in a walk-forward backtest for 2021-2026.
+4. **Ask Sports Arena:** a chatbot that answers questions using only the computed facts and names its source.
+5. **Reproducible:** checksums, pinned libraries, fixed random seeds, fact-check tests; runs with one command,
+   in Docker, or in Google Colab.
 
-Scope: IPL 2008–2019 (real Kaggle data). Built only with open-source tools: **Python, pandas,
-matplotlib, seaborn, plain JavaScript, Git, Docker**.
+Built only with open-source tools: **Python, pandas, matplotlib, seaborn, scikit-learn, plain JavaScript,
+Node.js (tests), Git, Docker, and optionally Ollama**.
 
 ## 3. Key results
 
+Every number below is calculated by the pipeline (see `outputs/` and the dashboard).
+
 | Finding | Result |
 |---|---|
-| Chasing vs batting first | Teams batting second won **55.5%** of matches |
-| Does the toss matter? | Barely: the toss winner won **52.3%** |
-| Fastest scoring phase | Death overs (16–20): **9.8 runs per over**, compared with about 7.6 earlier in the innings |
-| Most successful team | Chennai Super Kings: **61.0%** win rate |
-| Best season by a batter | Virat Kohli, 2016: **973 runs** |
-| Accuracy check | All **24 Orange/Purple Cap winners** and all **12 champions** match the official records |
-| Predicted 2020 champion | Chennai Super Kings (**23.7%** chance), then Mumbai Indians (21.2%) |
-| Predicted 2020 awards | Orange Cap: **DA Warner** · Purple Cap: **K Rabada** · Most sixes and most Player of the Match: **AD Russell** |
+| Accuracy check | All **38 Orange/Purple Caps** (2008-2026) and all **19 champions** match the official records |
+| Chasing vs batting first | Teams batting second won **54.5%** of matches |
+| Does the toss matter? | Barely: the toss winner won **51.4%** |
+| Fastest scoring phase | Death overs (16-20): **10.1 runs per over** |
+| Scoring inflation | Average first-innings score **161.9 (2008) → 195.1 (2026)**; sixes per match **10.8 → 19.5** |
+| Impact Player era | First-innings average **167.0 (2020-22) → 189.7 (2023-26)**; 200+ totals **0.21 → 0.67 per match** |
+| Best all-time win rate | Gujarat Titans **61.0%** (77 matches); Chennai Super Kings 55.8% (265) |
+| Strongest home fortress | Sunrisers Hyderabad: home win % **19.7 points** above away |
+| How grounds play | Chinnaswamy: **4.7% more runs** than the league in the same seasons; Chepauk **4% fewer** (10.6% fewer fours and sixes) |
+| Player fit | V Kohli strikes **+11.4** faster at Chinnaswamy and **−25.7** slower at Chepauk than at other grounds in the same seasons |
+| Biggest partnership | AB de Villiers & V Kohli, **229** (2016) |
+| **2027 favourite** | **Royal Challengers Bengaluru** in both models: Model A **22.5%**, Model B **20.7%** title chance |
+| 2027 award picks | Orange Cap **B Sai Sudharsan** · Purple Cap **B Kumar** · Most sixes **V Suryavanshi** (both models agree) |
+| Backtest 2021-2026 (422 matches) | Model A **51.2%** correct, Model B **50.7%**, coin flip 50%; neither beats the coin flip's log loss (0.693) |
+
+**The honest headline:** before a ball is bowled, T20 matches are close to a coin flip. The models are useful for
+*explaining* who looks strong and why, not for confident forecasts. Auctions, injuries and breakout players
+(V Suryavanshi went from 252 runs in 2025 to 776 in 2026) are not in the data.
 
 <p align="center">
-  <img src="outputs/form_v_kohli_2016.png" width="49%" alt="Kohli 2016 form">
-  <img src="outputs/phase_run_rate.png" width="49%" alt="Run rate by phase">
-  <img src="outputs/heatmap_team_season.png" width="49%" alt="Win % heatmap">
-  <img src="outputs/batting_quadrant.png" width="49%" alt="Average vs strike rate">
+  <img src="outputs/prediction_2027_models.png" width="49%" alt="2027 title chances, Model A vs Model B">
+  <img src="outputs/model_comparison_backtest.png" width="49%" alt="Backtest scores">
+  <img src="outputs/impact_player_era.png" width="49%" alt="Impact Player era">
+  <img src="outputs/rivalry_chennai_super_kings_vs_mumbai_indians.png" width="49%" alt="CSK v MI rivalry">
 </p>
 
-All 21 charts are in `outputs/`. The full dashboard is `outputs/index.html`.
+## 4. The site (`outputs/index.html`)
 
-### The interactive dashboard
+Open it in any browser: everything is inside one page, so it works **offline** as a file. A header on every view has
+the menu, **one search box** (players, grounds or teams, including nicknames like "SKY", "Kohli" or "Chepauk") and a
+light/dark switch. Every player, ground and team name in every table links to its page. The address after `#` decides the view, so every page has its own link and Back works:
 
-Open `outputs/index.html` and click **Explore (interactive)** in the top menu:
+| Page | Address | What it shows |
+|---|---|---|
+| **Home** | `#/home` | Headline numbers, the latest champion and caps, the 2027 favourite, top players and grounds |
+| **Player page** | `#/player/V Kohli` | Role, teams, 2027 squad, career cards; runs/strike rate and wickets/economy by season (hover charts); last 10 innings (click a bar to open the scorecard); phase splits; toughest and favourite bowlers; record against each team; how he gets out; how each ground suits him |
+| **Ground page** | `#/ground/Eden Gardens` | Pitch profile for any period, scores by season, toss and chasing, win % of each team there, top players and best fits, highest totals and recent matches |
+| **Team page** | `#/team/Mumbai Indians` | Names used, home grounds, titles; win %, league position and finish every season; the 2027 outlook from both models and the squad; how they bat and bowl by phase vs the league (any seasons); batting first vs chasing and toss choices; Impact Player choices; all-time and latest top players, partnerships; record against every team; record at every ground; last 10 matches, biggest wins and defeats |
+| **Two teams at one ground** | `#/compare/CSK/MI/Wankhede` (full names) | Head to head at that ground and their meetings there; both teams' record there against anyone (win %, batting first/chasing, average score, run rates, runs per wicket) next to the ground average, with "who leads" lines; run rate by phase; each team's best batters and bowlers there. Open it from a team page ("compare here"), a ground page or the Teams page |
+| Players / Grounds / Teams | `#/players`, `#/grounds`, `#/teams` | Directories: top players and 2027 squads; every ground with its runs index; every franchise with its titles |
+| 2027 predictions, Ask, More analysis | `#/predictions` … | The sections below, grouped (the explorer and rivalry centre are under Teams) |
 
-| Control | What updates |
+Sections inside those views:
+
+| Section | What you can do |
 |---|---|
-| **Season** and **Team** drop-downs | 4 summary cards, the win % bar chart, top 10 run scorers and wicket takers, every match result |
-| **Click a bar** in the chart | Selects that team (or that season), so you can drill down |
-| **Player search** (type a name) | That player's runs, strike rate, sixes, wickets and economy for every season |
+| **Predictions 2027: A vs B** | Title and playoff chances side by side, simulated groups, award picks, backtest, calibration, limits |
+| **Ask Sports Arena** | Type a question (e.g. "Kohli vs Bumrah", "Who won the Orange Cap in 2016?") |
+| **Explore** | Season and team filters, clickable win % chart, any player's career |
+| **Rivalries** | Any two teams: record by season, league vs playoffs, every ground, last 5 meetings, highest/lowest totals, top players |
+| **Matchups** | Any batter vs any bowler; a player against each team; how a batter gets out |
+| **Grounds** | Any ground: scores by season, chase win %, toss decisions, run rate by phase; a team at that ground; fortress index |
+| **Pitch & player fit** | Any ground and period: runs, wickets, boundary and dot-ball indexes vs the league (100 = average), runs by phase, how batters got out; any player's batting, bowling and fielding there vs other grounds in the same seasons; his best and worst grounds (click to switch) |
+| **Specialists** | Powerplay / Middle / Death leaders (any season), finishers, partnerships |
+| **Impact Player era** | 2020-22 vs 2023-26 and each team's Impact Player choices |
+| **Trends** | Scoring inflation, points table of any season (with NRR), chase win-probability calculator, impact scores |
+| **Match centre** | `outputs/match_centre.html`: every match ball by ball: scorecard, over-by-over strip, raw rows |
 
-It is plain JavaScript (`src/dashboard_explorer.js`) with the data inside the page, so it needs **no internet
-and no extra library**: it works when opened as a file, and when served by Docker.
+## 5. How the predictions work
 
-### How the predictions work
+**Model A (explainable, `src/predict.py`)**
+1. Strength = **form win %**: the last 3 seasons weighted 3, 2, 1.
+2. Team A beats team B with chance **A ÷ (A + B)**.
+3. The 2027 season is played **10,000 times** in the real 10-team format: two groups of 5 (seeded by titles), each team
+   plays its group twice, the other group once and one "row-mate" a second time (14 games), then Qualifier 1,
+   Eliminator, Qualifier 2 and the Final.
+4. Awards = the 2027-squad player with the best form score.
 
-1. **Form score** = weighted average of the last 3 seasons (last season ×3, the one before ×2, then ×1).
-2. **Champion:** each team's strength is its form win %. The whole 2020 season (league stage + IPL playoffs)
-   is simulated **10,000 times**; in each match team A beats team B with chance A ÷ (A + B).
-3. **Awards:** the active player with the best form score (runs, wickets, sixes or Player of the Match awards).
-4. **Backtest:** each season 2011–2019 was predicted using only earlier seasons. The favourite won 2 of 9 titles
-   (a random pick wins 1 in 8), and the real champion was in our top 5 in 7 of 9 seasons. Individual awards are
-   much harder to call, so treat the picks as informed guesses.
-5. **Checked against the real 2020 season** (which the model never saw): Mumbai Indians won the title, the
-   model's **#2 pick** (21.2%); KL Rahul won the Orange Cap (our #2 pick); and the **Purple Cap pick, K Rabada,
-   was exactly right**. 2 of the 4 predicted playoff teams made it.
+**Model B (machine learning, `src/predict_ml.py`)**
+1. Pre-season features only: **Elo rating, last-10 form, head-to-head (3 seasons), ground record, home flag,
+   squad strength** (best 11 previous-season impact scores in the squad) and an **Impact Player era** flag.
+   No toss (unknown before the season).
+2. **Logistic regression** and **gradient boosting** (scikit-learn), averaged; each match is used both ways round so
+   both teams are treated fairly.
+3. The match chances go into the same 10,000-season simulator.
+4. Awards = a linear regression on each player's previous two seasons.
 
-**Why Chennai ranked just above Mumbai:** strength = (3 × 2019 + 2 × 2018 + 1 × 2017 win %) ÷ 6.
-Mumbai: (3 × 68.8 + 2 × 42.9 + 70.6) ÷ 6 = **60.5**: their weak 2018 pulled them down. Chennai were suspended in
-2017, so only their two strong seasons count: **62.8**.
+**Squads:** `data/squads_2027.csv` starts as each franchise's 2026 players. Edit it after trades and the auction,
+then run the pipeline again; both models read it.
 
-<p align="center">
-  <img src="outputs/prediction_title_2020.png" width="49%" alt="Predicted 2020 title chances">
-  <img src="outputs/prediction_awards_2020.png" width="49%" alt="Predicted 2020 award winners">
-</p>
+**Comparison:** a walk-forward backtest for 2021-2026 (each season predicted using only earlier seasons) reports
+accuracy, log loss, Brier score and calibration for matches, where the real champion ranked, and award ranks,
+against a random baseline (50% per match; 1 in 8, then 1 in 10, for the title).
 
-## 4. How to run
+## 6. How the chatbot works
+
+* **Offline (default):** `src/chatbot.js` runs inside the page. It finds teams, players, grounds, seasons and dates in
+  the question (with aliases such as "SKY", "CSK", "Chepauk", "Kings XI Punjab"; e.g. "How does the pitch at Chepauk
+  play?" or "Kohli at Chinnaswamy"), works out the question type and builds
+  the answer **only** from `outputs/chat_facts.json` (made by `src/chat_facts.py`). Every answer says where its numbers
+  come from. Out-of-scope questions get a polite "I can only answer…" with suggestions; ambiguous names ("Sharma")
+  get a "which one?".
+* **Optional local LLM:** `src/chat_server.py` retrieves the matching fact lines and asks an open-weights model through
+  **Ollama** to answer only from them. Start it with `docker compose --profile llm up`; the page uses it when it
+  is running and falls back to offline mode otherwise. (The retrieval and server were tested; the Ollama call
+  itself needs Ollama and a pulled model.)
+* **Tests:** `tests/test_chatbot.js` checks 24 questions (e.g. "Who won the Orange Cap in 2016?" must say V Kohli and 973).
+
+## 7. How to run
 
 **Option A: Terminal (one command)**
 ```bash
 ./run_all.sh
 ```
-Runs the 6 steps and creates the Python environment automatically the first time.
-Then open `outputs/index.html` in a browser.
+Creates the Python environment the first time, runs the 8 steps, and finishes with the dashboard in `outputs/`.
+Node.js is needed only for step 8 (the chatbot checks); without it that step is skipped with a message.
 
 **Option B: Docker**
 ```bash
 colima start                 # Mac only, once after every restart (starts the Docker engine)
 docker compose up --build
 ```
-Then open **http://localhost:8080**. Stop with `Ctrl+C`, then run `docker compose down`.
-On a Mac, Docker was installed with Homebrew: `brew install colima docker docker-compose`
-(Docker Desktop works too). Tested: the pipeline passes every check and the dashboard is served on port 8080.
+Then open **http://localhost:8080**. Stop with `Ctrl+C`, then `docker compose down`.
+Tested: the container passes every check and produces the same data, CSV and HTML files as a local run (chart PNGs differ by
+a few pixels between Linux and macOS because of fonts). If another copy of the project is already running, its fixed
+container names (`sports-arena-pipeline`, `sports-arena-dashboard`) clash: run `docker compose down` in that copy first.
+Optional chatbot model: `docker compose --profile llm up --build`, then (first time only)
+`docker compose --profile llm exec ollama ollama pull llama3.2:3b`.
 
 **Option C: Google Colab** (no installation)
-Click the **Open in Colab** badge above, then choose **Runtime → Run all**.
+Click the **Open in Colab** badge above, then **Runtime → Run all**.
 
-## 5. How it works
+## 8. How it works
 
 ```
-data/raw/ ──► verify_data.py ──► prepare_data.py ──► analysis.py ──► test_facts.py ──► predict.py ──► build_report.py
- original      checks SHA-256     cleans the data     stats + 19        checks results    2020 champion   dashboard
- CSV files     checksums          data/processed/     charts            vs official       and awards      outputs/index.html
+data/merged/ ─► verify_data ─► prepare_data ─► analysis ─► test_facts ─► predict ─► predict_ml ─► build_report ─► test_chatbot
+ never edited   SHA-256        franchises,     37 charts    official      Model A     Model B +      dashboard,       24 chatbot
+                checksums      venues, names                records       2027        backtest       match centre,    questions
+                               → processed/                                                          chat facts
 ```
 
 | Step | File | What it does |
 |---|---|---|
-| 1 | `src/verify_data.py` | Proves the raw data is unchanged (SHA-256 checksums) |
-| 2 | `src/prepare_data.py` | Fixes team renames, venue spellings, 2 date formats, no-result matches, and **1,245 extras counted twice in 2018–19** |
+| 1 | `src/verify_data.py` | Proves the data files are unchanged (SHA-256 checksums) |
+| 2 | `src/prepare_data.py` | Franchise column, one name and city per ground, the player-name map, match stage and phase |
 | 3 | `src/analysis.py` | Draws all charts, using the cricket formulas in `src/metrics.py` |
-| 4 | `tests/test_facts.py` | Checks the results against official IPL records (caps, champions, prediction maths) |
-| 5 | `src/predict.py` | Predicts the 2020 champion (10,000 simulated seasons) and award winners, and backtests the method |
-| 6 | `src/build_report.py` | Builds the interactive web dashboard (filters run in `src/dashboard_explorer.js`) |
+| 4 | `tests/test_facts.py` | Checks results against official records and checks the analyst views and models |
+| 5 | `src/predict.py` | Model A for 2027, the season simulator, and Model A's backtest |
+| 6 | `src/predict_ml.py` | Model B for 2027 and the Model A vs Model B comparison |
+| 7 | `src/build_report.py` | Builds `outputs/index.html`, `outputs/match_centre.html` and `outputs/chat_facts.json` |
+| 8 | `tests/test_chatbot.js`, `tests/test_site.js` | Runs 24 questions through the chatbot; checks the site's router, search, career numbers and charts |
 
-**Docker architecture:** two services from one image. `pipeline` runs steps 1–6; `dashboard` serves the
-results on port 8080, and starts only if the pipeline succeeded.
+One-off data scripts (already run; their outputs are committed): `src/recover_merged_data.py`,
+`src/build_name_map.py` and `src/build_impact_players.py` (see `data/README.md`).
 
-## 6. Project structure
+## 9. Project structure
 
 ```
 sports-arena/
-├── README.md               ← you are here
-├── run_all.sh              run everything with one command
-├── git_commands.sh         every Git command used to build this repository, explained
-├── Dockerfile              container recipe
-├── docker-compose.yml      two-service architecture (pipeline + dashboard)
-├── requirements.txt        pinned library versions
+├── README.md                ← you are here
+├── run_all.sh               run everything with one command
+├── Dockerfile, docker-compose.yml   pipeline + dashboard (+ optional Ollama chat profile)
+├── requirements.txt         pinned library versions
 ├── data/
-│   ├── raw/                original dataset (never edited)
-│   ├── processed/          cleaned data
-│   └── README.md           source, licence, checksums, column guide
+│   ├── merged/              deliveries_2008_2026.csv, matches_2008_2026.csv (single source of truth, never edited)
+│   ├── source/              the explorer page the merged files were recovered from
+│   ├── raw/                 the original Kaggle 2008-2019 files (reference)
+│   ├── player_name_map.csv  71 player-name fixes
+│   ├── impact_players_2020_2026.csv   557 Impact Player substitutions
+│   ├── squads_2027.csv      2027 squads (edit after the auction)
+│   ├── processed/           analysis-ready data
+│   └── README.md            sources, licences, build scripts, rules and checksums
 ├── src/
-│   ├── verify_data.py      step 1
-│   ├── prepare_data.py     step 2
-│   ├── metrics.py          all cricket formulas
-│   ├── analysis.py         step 3
-│   ├── predict.py          step 5 (predictions)
-│   ├── build_report.py     step 6
-│   └── dashboard_explorer.js   the dashboard's interactive filters
-├── tests/test_facts.py     step 4
-├── notebooks/ipl_analysis.ipynb   the same analysis, cell by cell (Colab)
-├── outputs/                21 charts, prediction tables (.csv) + index.html dashboard
-├── docs/
-│   ├── Marking_Scheme.md   each marking criterion → where the evidence is + demo script
-│   ├── Code_Explanation.md every file, formula and chart explained simply
-│   └── Viva_QA.md          24 likely viva questions with answers
+│   ├── verify_data.py, prepare_data.py, metrics.py, analysis.py
+│   ├── predict.py, predict_ml.py               the two models
+│   ├── dashboard_data.py, build_report.py      the dashboard
+│   ├── site.js                                 the new design: router, search, Home, player and ground pages
+│   ├── dashboard_explorer.js, dashboard_analytics.js, match_centre.py, match_centre.js
+│   ├── chat_facts.py, chatbot.js, chat_server.py    the chatbot
+│   └── recover_merged_data.py, build_name_map.py, build_impact_players.py   one-off data scripts
+├── tests/test_facts.py, tests/test_chatbot.js, tests/test_site.js
+├── notebooks/ipl_analysis.ipynb   the analysis in Colab
+├── outputs/                 charts, prediction and backtest CSVs, index.html, match_centre.html, chat_facts.json
+├── docs/                    Code_Explanation.md, Marking_Scheme.md, Viva_QA.md
 ├── CONTRIBUTING.md
-└── LICENSE                 MIT (code)
+└── LICENSE                  MIT (code)
 ```
 
-## 7. Dataset and licence
+## 10. Data and licences
 
-**Data:** [Indian Premier League 2008-2019](https://www.kaggle.com/datasets/nowke9/ipldata) by Navaneesh Kumar (Kaggle),
-licensed **CC BY-NC-SA 4.0**. Details and checksums are in [`data/README.md`](data/README.md).
-**Code:** MIT licence ([`LICENSE`](LICENSE)). The dataset keeps its own licence.
+* **2008-2019:** [Indian Premier League 2008-2019](https://www.kaggle.com/datasets/nowke9/ipldata) by Navaneesh Kumar
+  (Kaggle), **CC BY-NC-SA 4.0** (non-commercial, credit, share alike).
+* **2020-2026:** ball-by-ball data from **[Cricsheet](https://cricsheet.org)** (JSON data version 1.2.0). Thank you to
+  Cricsheet. Its player register is published under the **Open Data Commons Attribution License (ODC-By 1.0)**.
+* **Code:** MIT ([`LICENSE`](LICENSE)). The data keeps its own licences. Details, checksums and every cleaning rule
+  are in [`data/README.md`](data/README.md).
 
-**Limitations:** the data ends in 2019, so predictions cannot see 2020 auctions, injuries or new players; player names are short forms (e.g. `V Kohli`); ball-by-ball totals
-can differ from official scorecards by a run (Williamson 2018: 736 here vs 735 official).
+**Limitations:** there are no pitch reports or ball-tracking in the data, so "how a pitch plays" is measured from the
+results at each ground (it mixes pitch, boundary size, outfield and weather); fielding only counts catches, run outs and
+stumpings (no drops or runs saved); pre-season predictions are close to a coin flip; a 2008 match abandoned without a ball is not in the
+data (so Delhi's rebuilt 2008 points are one below official); rain-shortened matches use the overs actually bowled
+for net run rate; pace vs spin splits are not included because the data has no bowling styles.

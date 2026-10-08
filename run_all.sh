@@ -13,8 +13,10 @@ cd "$(dirname "$0")"        # go to the project folder
 if [ ! -d ".venv" ]; then
     echo "Creating Python environment (first run only) ..."
     python3 -m venv .venv
-    .venv/bin/pip install -q -r requirements.txt
 fi
+# Install (or update) the exact library versions. When they are already
+# installed this takes a second and needs no internet.
+.venv/bin/pip install -q -r requirements.txt
 source .venv/bin/activate
 
 echo; echo "===== Step 1: check the raw data (SHA-256 checksums) ====="
@@ -29,10 +31,21 @@ python src/analysis.py
 echo; echo "===== Step 4: fact-check against official IPL records ====="
 python tests/test_facts.py
 
-echo; echo "===== Step 5: predict the next season's champion and awards ====="
+echo; echo "===== Step 5: Model A (explainable) predicts the next season ====="
 python src/predict.py
 
-echo; echo "===== Step 6: build the dashboard -> outputs/index.html ====="
+echo; echo "===== Step 6: Model B (machine learning) and the A vs B backtest ====="
+python src/predict_ml.py
+
+echo; echo "===== Step 7: build the dashboard -> outputs/index.html and match_centre.html ====="
 python src/build_report.py
+
+echo; echo "===== Step 8: chatbot and site checks (Node.js) ====="
+if command -v node > /dev/null; then
+    node tests/test_chatbot.js
+    node tests/test_site.js
+else
+    echo "SKIPPED: Node.js is not installed, so the chatbot and site checks could not run (Docker runs them)."
+fi
 
 echo; echo "Finished. Open outputs/index.html in your browser to see the dashboard."

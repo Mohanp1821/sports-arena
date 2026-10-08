@@ -11,3 +11,7 @@ venv/
 
 # Mac system files
 .DS_Store
+
+# Cricsheet download used only by src/build_name_map.py and src/build_impact_players.py
+# (5 MB, re-downloadable; see data/README.md)
+data/cricsheet/

@@ -4,6 +4,11 @@
 #
 # Start everything with:   docker compose up --build
 # Stop it with:            Ctrl+C, then  docker compose down
+#
+# OPTIONAL local-LLM chatbot (profile "llm"; NOT started by the command above):
+#   docker compose --profile llm up --build
+#   docker compose --profile llm exec ollama ollama pull llama3.2:3b     (first time only, about 2 GB)
+# The dashboard finds the chat server at http://localhost:8765 and otherwise stays in offline mode.
 
 services:
 
@@ -27,3 +32,35 @@ services:
     depends_on:
       pipeline:
         condition: service_completed_successfully   # start only if the analysis passed
+
+  # Optional service 3: Ollama runs an open-weights language model on this computer.
+  ollama:
+    image: ollama/ollama
+    container_name: sports-arena-ollama
+    profiles: ["llm"]                 # only started with: docker compose --profile llm up
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama   # downloaded models are kept between runs
+
+  # Optional service 4: the chat server gives the model ONLY facts from the data.
+  chat:
+    image: sports-arena:1.0
+    container_name: sports-arena-chat
+    profiles: ["llm"]
+    command: python src/chat_server.py
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:3b
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./outputs:/app/outputs:ro     # reads outputs/chat_facts.json made by the pipeline
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
+      ollama:
+        condition: service_started
+
+volumes:
+  ollama-models:
