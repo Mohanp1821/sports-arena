@@ -527,9 +527,10 @@ function indexBar(label, value, note) {
     const width = Math.abs(difference) / 40 * 50;                      // 50% = the half-width of the track
     const left = difference >= 0 ? 50 : 50 - width;
     return "<div class='bar-row index-row'><span class='bar-label'>" + safe(label) + "</span>"
-         + "<span class='bar-track' style='position:relative'><span style='position:absolute;left:50%;top:0;bottom:0;width:1px;background:#888'></span>"
+         + "<span class='bar-track' style='position:relative'><span style='position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--muted)'></span>"
+         // The page's colour variables (red = above the league, grey-blue = below), so dark mode works too.
          + "<span class='bar-fill' style='position:absolute;left:" + left + "%;width:" + width + "%;background:"
-         + (difference >= 0 ? "#eb6834" : "#2a78d6") + "'></span></span>"
+         + (difference >= 0 ? "var(--accent)" : "var(--chart-bar)") + "'></span></span>"
          + "<span class='bar-value'>" + value + (note ? " " + safe(note) : "") + "</span></div>";
 }
 
@@ -558,7 +559,7 @@ function drawPitch() {
         + indexBar("Wickets per ball", p[4], "(" + moreOrFewer(p[4]) + " average)")
         + indexBar("Fours and sixes", p[5], "(" + moreOrFewer(p[5]) + " average)")
         + indexBar("Dot balls", p[6], "(" + moreOrFewer(p[6]) + " average)")
-        + "<p class='note'>Orange = above the league, blue = below. Labels: " + AD.pitch_thresholds[0]
+        + "<p class='note'>Red = above the league, grey-blue = below. Labels: " + AD.pitch_thresholds[0]
         + "+ runs index = high-scoring, " + AD.pitch_thresholds[1] + " or less = low-scoring.</p></div>";
 
     // Phases: [venue, phase, run rate, runs index]

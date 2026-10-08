@@ -189,7 +189,9 @@ function titlesWon(season, team) {
 // 4. Drawing each part of the section
 // ---------------------------------------------------------------------------
 function card(label, value) {
-    return "<div class='number'><b>" + safe(value) + "</b><span>" + safe(label) + "</span></div>";
+    // Whole numbers get commas (9336 -> 9,336); text such as "113 / 68 / 9" is shown as it is.
+    const shown = typeof value === "number" && Number.isInteger(value) ? value.toLocaleString("en") : value;
+    return "<div class='number'><b>" + safe(shown) + "</b><span>" + safe(label) + "</span></div>";
 }
 
 function drawCards(season, team) {
@@ -240,12 +242,12 @@ function drawWinChart(season, team) {
         DATA.seasons.forEach(function (year) {
             const row = winTable(chosenMatches(String(year), team)).find(function (r) { return r.team === team; });
             if (row) {
-                const champion = CHAMPIONS[String(year)] === team ? " 🏆" : "";
+                const champion = CHAMPIONS[String(year)] === team ? ", champions" : "";
                 bars.push({ label: String(year), value: row.winPct, key: String(year),
                             text: row.winPct + "% (" + row.wins + "/" + row.played + ")" + champion });
             }
         });
-        title = team + ": win % by season (🏆 = champion, click a season to select it)";
+        title = team + ": win % by season (click a season to select it)";
     }
     byId("explore-chart-title").textContent = title;
     byId("explore-chart").innerHTML = htmlBars(bars, 100, team === "all" ? team : season);

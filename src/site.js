@@ -102,6 +102,30 @@ function playerRole(career, stumpings) {
     return role;
 }
 
+// Each franchise's main colour. It is used only as a thin accent (the bar beside the
+// name on its team page and on its players' pages), never for text, so it stays readable.
+const TEAM_COLOURS = {
+    "Chennai Super Kings": "#f2c21b", "Mumbai Indians": "#0a4ea2", "Royal Challengers Bengaluru": "#c8102e",
+    "Kolkata Knight Riders": "#3a225d", "Sunrisers Hyderabad": "#ee7429", "Delhi Capitals": "#1b4fa0",
+    "Punjab Kings": "#d71920", "Rajasthan Royals": "#e4007c", "Gujarat Titans": "#1c2c5b",
+    "Lucknow Super Giants": "#3fb4e5", "Deccan Chargers": "#8a8d8f", "Gujarat Lions": "#e04f16",
+    "Kochi Tuskers Kerala": "#6b3fa0", "Pune Warriors": "#2f9bd3", "Rising Pune Supergiant": "#6f2da8",
+};
+
+// Use a team's colour as the accent of one page (or the normal accent if there is none).
+function setTeamColour(page, team) {
+    if (TEAM_COLOURS[team]) {
+        page.style.setProperty("--team", TEAM_COLOURS[team]);
+    } else {
+        page.style.removeProperty("--team");
+    }
+}
+
+// A whole number with commas, e.g. 9336 -> "9,336" (other values are shown as they are).
+function withCommas(value) {
+    return typeof value === "number" && Number.isInteger(value) ? value.toLocaleString("en") : value;
+}
+
 // Headline numbers of a career, worked out from the counts.
 function careerNumbers(career) {
     return {
@@ -272,6 +296,39 @@ function setupSite() {
     function chips(items) {
         return "<div class='chips'>" + items.join("") + "</div>";
     }
+    // Where a player ranks on an all-time list (column 2 = runs, 9 = wickets): 1, 2, 3 ...
+    function careerRank(name, column) {
+        const value = CF.players[name].career[column];
+        return 1 + Object.keys(CF.players).filter(function (n) { return CF.players[n].career[column] > value; }).length;
+    }
+    // A short sentence about where a total ranks: "No player has more." / "That is number 4 on the all-time list."
+    function rankSentence(rank, what) {
+        if (rank === 1) { return " No player has more " + what + " in " + CF.meta.season_range + "."; }
+        if (rank <= 10) { return " That is number " + rank + " on the all-time " + what + " list."; }
+        return "";
+    }
+    // A sentence or two that sum up a career, so the page opens with words, not a grid of boxes.
+    function playerLede(name, player, c, batted, bowls) {
+        const parts = [];
+        let ranks = "";
+        if (batted && c.runs > 0) {
+            parts.push("scored <b>" + withCommas(c.runs) + "</b> runs" + (c.strikeRate ? " at a strike rate of " + c.strikeRate : ""));
+            ranks += rankSentence(careerRank(name, 2), "runs");
+        }
+        if (bowls && c.wickets > 0) {
+            parts.push("taken <b>" + withCommas(c.wickets) + "</b> wickets" + (c.economy ? " at " + c.economy + " runs an over" : ""));
+            ranks += rankSentence(careerRank(name, 9), "wickets");
+        }
+        if (parts.length === 0) { return ""; }
+        return "<p class='lede'>" + safe(name) + " has " + parts.join(" and ") + " in " + withCommas(c.matches)
+             + " IPL matches." + ranks + "</p>";
+    }
+    // The site owner's own comment on a page, from data/analyst_notes.csv (nothing if there is none).
+    function noteFor(kind, name) {
+        const note = (SD.notes || {})[kind + "|" + name];
+        return note ? "<blockquote class='analyst-note'>" + safe(note) + "<cite>" + safe(SD.note_author || "Note")
+                      + "</cite></blockquote>" : "";
+    }
     function chip(href, text, sub) {
         return "<a class='chip' href='" + href + "'>" + safe(text) + (sub ? "<small>" + safe(sub) + "</small>" : "") + "</a>";
     }
@@ -284,9 +341,13 @@ function setupSite() {
         const byRuns = Object.keys(CF.players).sort(function (a, b) { return CF.players[b].career[2] - CF.players[a].career[2]; });
         const byWickets = Object.keys(CF.players).sort(function (a, b) { return CF.players[b].career[9] - CF.players[a].career[9]; });
         const grounds = AD.pitch["all"].slice().sort(function (a, b) { return b[1] - a[1]; }).slice(0, 8);
+        // The opening sentence tells the latest season's story in words, with the numbers inside it.
         let html = "<div class='hero'><h1>IPL " + meta.season_range + ", every ball</h1>"
-            + "<p>" + meta.matches.toLocaleString("en") + " matches and " + meta.balls.toLocaleString("en") + " deliveries across "
-            + meta.seasons + " seasons. Search any player, ground or team above, or start here.</p></div>"
+            + "<p class='lede'><b>" + safe(champion[1]) + "</b> won IPL " + LAST + ", beating " + safe(champion[2])
+            + " in the final " + safe(champion[3].replace(/^won /, "")) + ". " + safe(caps[0]) + "'s <b>" + withCommas(caps[1])
+            + "</b> runs took the Orange Cap and " + safe(caps[2]) + "'s <b>" + caps[3] + "</b> wickets the Purple Cap.</p>"
+            + "<p class='note'>" + meta.matches.toLocaleString("en") + " matches and " + meta.balls.toLocaleString("en")
+            + " deliveries across " + meta.seasons + " seasons. Search any player, ground or team above, or start here.</p></div>"
             + "<div class='feature-grid'>"
             + "<a class='feature' href='" + teamHref(champion[0]) + "'><span>IPL " + LAST + " champion</span><b>" + safe(champion[1]) + "</b><small>beat "
             + safe(champion[2]) + ", " + safe(champion[3]) + "</small></a>"
@@ -301,7 +362,7 @@ function setupSite() {
         }
         html += "</div>";
         html += "<div class='two-columns'>"
-            + panel("Most runs", chips(byRuns.slice(0, 8).map(function (n) { return chip(playerHref(n), n, CF.players[n].career[2] + " runs"); })))
+            + panel("Most runs", chips(byRuns.slice(0, 8).map(function (n) { return chip(playerHref(n), n, withCommas(CF.players[n].career[2]) + " runs"); })))
             + panel("Most wickets", chips(byWickets.slice(0, 8).map(function (n) { return chip(playerHref(n), n, CF.players[n].career[9] + " wickets"); })))
             + "</div>"
             + panel("Grounds", chips(grounds.map(function (g) { return chip(groundHref(AD.venues[g[0]]), AD.venues[g[0]], g[1] + " matches · runs index " + g[3]); })),
@@ -367,6 +428,7 @@ function setupSite() {
         // batting, 300+ balls (50 overs) bowled to show bowling, unless it is the only thing he did.
         const batted = player.career[3] >= 120 || (player.career[3] > 0 && player.career[10] < 300);
         const bowls = player.career[10] >= 300 || (player.career[10] > 0 && player.career[3] < 120);
+        setTeamColour(page, SD.squads[name] || teams[teams.length - 1]);   // his next team, or his latest one
         let html = "<p class='crumbs'><a href='#/players'>Players</a> / " + safe(name) + "</p>"
             + "<div class='profile-head'><div><h1>" + safe(name) + "</h1><p><span class='badge'>" + playerRole(player.career, field[2])
             + "</span> IPL " + seasons[0] + "-" + seasons[seasons.length - 1] + " · " + teams.map(tLink).join(", ") + "</p>"
@@ -384,7 +446,8 @@ function setupSite() {
                        card("balls per wicket", c.ballsPerWicket === null ? "-" : c.ballsPerWicket));
         }
         cards.push(card("catches / run outs / stumpings", field.join(" / ")), card("Player of the Match", SD.potm[key] || 0));
-        html += "<div class='numbers'>" + cards.join("") + "</div>";
+        html += playerLede(name, player, c, batted, bowls) + noteFor("player", name)
+              + "<div class='numbers'>" + cards.join("") + "</div>";
 
         // Predictions that mention him
         if (CF.predictions) {
@@ -552,7 +615,7 @@ function setupSite() {
             + "<div class='two-columns'>" + panel("Compared with the league (100 = average, same seasons)",
                   indexBar("Runs", p[3], "(" + moreOrFewer(p[3]) + " average)") + indexBar("Wickets per ball", p[4], "(" + moreOrFewer(p[4]) + " average)")
                   + indexBar("Fours and sixes", p[5], "(" + moreOrFewer(p[5]) + " average)") + indexBar("Dot balls", p[6], "(" + moreOrFewer(p[6]) + " average)"),
-                  "Orange = above the league, blue = below.")
+                  "Red = above the league, grey-blue = below.")
             + panel("Runs by phase (100 = league)", phases, "A low Middle-overs index often means help for spin or slower balls, but the data does not say why.")
             + "</div>" + panel("How batters got out here", htmlTable(["Dismissal", "Times", "% here", "% league"], outs),
                                "More bowled and lbw than the league can mean the ball keeps low, or just the bowlers who played here.");
@@ -571,7 +634,9 @@ function setupSite() {
             + "<div class='profile-head'><div><h1>" + safe(name) + "</h1><p>" + safe(g[1]) + " · IPL " + g[3] + "-" + g[4] + " · "
             + g[2] + " matches" + (home ? " · home of <b>" + safe(home.join(", ")) + "</b>" : "") + "</p></div>"
             + "<a class='button' href='#/ask?q=" + encodeURIComponent("How does the pitch at " + name + " play?") + "'>Ask about this ground</a></div>"
+            + noteFor("ground", name)
             + "<div class='filters'><label>Period<select id='ground-period'></select></label></div><div id='ground-pitch'></div>";
+        setTeamColour(page, home && home.length === 1 ? home[0] : null);   // a ground with one home team takes its colour
 
         const seasons = AD.ground_seasons.filter(function (r) { return r[0] === v; });
         html += "<div class='two-columns'>" + panel("Average first-innings score by season", svgBars(seasons.map(function (r) {
@@ -692,6 +757,7 @@ function setupSite() {
             page.innerHTML = "<h1>Team not found</h1><p class='note'>No franchise called \"" + safe(team) + "\". <a href='#/teams'>See all teams</a>.</p>";
             return;
         }
+        setTeamColour(page, team);
         const t = teamTotals(team);
         const rows = TD.seasons[team];
         const titles = titlesOf(team);
@@ -709,7 +775,7 @@ function setupSite() {
             + card("best season", best[0] + " (" + best[4] + "%)") + "</div>";
 
         // Season by season
-        html += "<h2>Season by season</h2><div class='two-columns'>" + panel("Win % by season (orange = champions)", svgBars(rows.map(function (r) {
+        html += "<h2>Season by season</h2><div class='two-columns'>" + panel("Win % by season (red = champions)", svgBars(rows.map(function (r) {
                 return { label: String(r[0]).slice(2), value: r[4], highlight: r[7] === "Champion",
                          title: r[0] + " (" + r[1] + "): won " + r[3] + " of " + r[2] + ", " + r[4] + "%, league position " + show(r[5]) + ", " + r[7] };
             }), { label: "win % by season" }))
@@ -826,10 +892,10 @@ function setupSite() {
             byId("team-phases").innerHTML = "<div class='two-columns'>"
                 + panel("Batting: runs scored (100 = league in the same seasons and phase)", phaseRows.map(function (r) {
                     return indexBar(r.phase, r.batIndex, r.batRate === null ? "" : "(" + r.batRate + " an over)"); }).join(""),
-                    "Orange = faster than the league.")
+                    "Red = faster than the league.")
                 + panel("Bowling: runs conceded (100 = league; LOWER is better)", phaseRows.map(function (r) {
                     return indexBar(r.phase, r.bowlIndex, r.bowlRate === null ? "" : "(" + r.bowlRate + " an over)"); }).join(""),
-                    "Blue = concedes less than the league (good for the bowling side).") + "</div>";
+                    "Grey-blue = concedes less than the league (good for the bowling side).") + "</div>";
         };
         byId("team-period").addEventListener("change", drawPhases);
         drawPhases();
